@@ -164,6 +164,7 @@ E.DETAILED_MESSAGE,E.CREATE_TS,E.UPDATE_TS, E.SERVER_HOST,E.SERVER_IP,B.BATCH_PR
 from ESB_APPS_AUDIT E,BATCH_AUDIT_INFO B
 where e.BATCH_RUN_ID = b.BATCH_RUN_ID and e.create_ts >= SYSDATE - 1/24]]></db:parameterized-query>
 
+
             </db:select>
 
         </poll>
