@@ -10,13 +10,15 @@
 	
 	"BatchExecutionSummary": {
 		"SourceFileName": "HCM_Employee.xml",
-		"Total": "100",
+		
 		"Successful": "100",
 		"Failed": "0",
-		"StartTs": "2016-10-27 22:30:25",
+		"ProcessedRecords": 100
+		"Total": "100",
+		"StartTs": "2016-10-27 22:20:25",
 		"EndTs": "2016-10-27 22:30:25",
 		"ProcessingTimeMs": "60000",
-		"ErrorFile": "",
+		"ErrorFile": "/opt/app/shared/JDE/batch/error",
 		"BatchRunId":"",
 		"ParentBatchRunId":""
 	},

@@ -1,0 +1,19 @@
+INSERT
+INTO CONTACTS
+  (
+    CONTACT_ID,
+    CONTACT_NAME,
+    CONTACT_TYPE,
+    PHONE,
+    EMAIL,
+    PREFERED_MODE
+  )
+  VALUES
+  (
+    3,
+    'ESB_SUPPORT',
+    'EMAIL',
+    NULL,
+    'ppawar@tccrocks.com,rvenugopal@tccrocks.com,stonne@tccrocks.com',
+    'EMAIL'
+  );
