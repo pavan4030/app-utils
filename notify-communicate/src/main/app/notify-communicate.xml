@@ -197,7 +197,8 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
 FROM ESB_APPS_AUDIT E,
   BATCH_AUDIT_INFO B
 WHERE e.BATCH_RUN_ID = b.BATCH_RUN_ID
-AND e.create_ts >  sysdate - interval '${audit.records.interval}' hour]]></db:parameterized-query>
+AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '${audit.records.interval}' hour) 
+and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')]]></db:parameterized-query>
             </db:select>
 
 
