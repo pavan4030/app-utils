@@ -173,7 +173,7 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
     </flow>
     <flow name="AggregateNotifications" doc:description="Gather notifications from the database and submit to queue so that communication flow can broadcast it">
         <poll doc:name="Poll">
-            <fixed-frequency-scheduler frequency="1" timeUnit="HOURS"/>
+            <fixed-frequency-scheduler frequency="2" timeUnit="MINUTES"/>
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:parameterized-query><![CDATA[SELECT E.ESB_APPS_AUDIT_ID,
   E.APP_ID,
@@ -277,6 +277,7 @@ ExecutionMetrics: {
 ---
 payload]]></dw:set-payload>
         </dw:transform-message>
+        <logger message="APPID&gt;&gt;&gt;&gt;&gt;&gt;&gt;#[payload]" level="INFO" doc:name="Logger"/>
         <enricher source="#[payload]" target="#[flowVars.mailIds]" doc:name="Message Enricher">
             <db:select config-ref="Oracle_Configuration" doc:name="Retrieve Email Ids">
                 <db:parameterized-query><![CDATA[SELECT EMAIL FROM CONTACTS WHERE CONTACT_ID IN (WITH T AS (SELECT (SELECT CONTACT_ID FROM APPLICATION WHERE APP_ID = #[message.payload.ExecutionMetrics.ApplicationID]) STR  FROM DUAL)   SELECT    
