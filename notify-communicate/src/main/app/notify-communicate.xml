@@ -60,6 +60,7 @@ VALUES(:seq,:processName,:sourceFile,:overallResult);]]></db:parameterized-query
 ---
 payload]]></dw:set-payload>
         </dw:transform-message>
+
         <logger message="Notifications System Persist Message Processing App #[payload.ExecutionMetrics.ApplicationName]" level="DEBUG" doc:name="Logger"/>
 
 
@@ -172,8 +173,8 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
             </catch-exception-strategy>
     </flow>
     <flow name="AggregateNotifications" doc:description="Gather notifications from the database and submit to queue so that communication flow can broadcast it">
-        <poll doc:name="Poll">
-            <fixed-frequency-scheduler frequency="2" timeUnit="MINUTES"/>
+	 <poll doc:name="Poll">
+            <fixed-frequency-scheduler frequency="1" timeUnit="HOURS"/>
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:parameterized-query><![CDATA[SELECT E.ESB_APPS_AUDIT_ID,
   E.APP_ID,
@@ -197,13 +198,15 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
 FROM ESB_APPS_AUDIT E,
   BATCH_AUDIT_INFO B
 WHERE e.BATCH_RUN_ID = b.BATCH_RUN_ID
-AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '${audit.records.interval}' hour) 
+AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '1' day) 
 and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')]]></db:parameterized-query>
             </db:select>
 
 
+
         </poll>
         <logger message="Notifications System Publish Message Triggered " level="INFO" doc:name="Logger"/>
+
         <dw:transform-message metadata:id="c90cf994-1fa4-4dd4-aa37-1f127af455b3" doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
@@ -233,6 +236,7 @@ payload map ((payload01 , indexOfPayload01) -> {
 	}
 }) groupBy $.ExecutionMetrics.BatchExecutionSummary.ParentBatchRunId pluck $]]></dw:set-payload>
         </dw:transform-message>
+
 
 
         <collection-splitter doc:name="Collection Splitter"/>
@@ -277,12 +281,13 @@ ExecutionMetrics: {
 ---
 payload]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="APPID&gt;&gt;&gt;&gt;&gt;&gt;&gt;#[payload]" level="INFO" doc:name="Logger"/>
+
         <enricher source="#[payload]" target="#[flowVars.mailIds]" doc:name="Message Enricher">
             <db:select config-ref="Oracle_Configuration" doc:name="Retrieve Email Ids">
                 <db:parameterized-query><![CDATA[SELECT EMAIL FROM CONTACTS WHERE CONTACT_ID IN (WITH T AS (SELECT (SELECT CONTACT_ID FROM APPLICATION WHERE APP_ID = #[message.payload.ExecutionMetrics.ApplicationID]) STR  FROM DUAL)   SELECT    
  REGEXP_SUBSTR (STR, '[^,]+', 1, LEVEL) SPLIT_VALUES  FROM T 
  CONNECT BY LEVEL <= (SELECT LENGTH (REPLACE (STR, ',', NULL)) FROM T))]]></db:parameterized-query>
+
             </db:select>
         </enricher>
         <dw:transform-message doc:name="Transform Message">

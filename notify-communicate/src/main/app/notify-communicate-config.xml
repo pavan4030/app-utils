@@ -13,7 +13,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd">
 
-<jms:activemq-connector name="Active_MQ" brokerURL="${activemq.broker.url}" validateConnections="true" doc:name="Active MQ" persistentDelivery="true" maxRedelivery="1"/>
+<jms:activemq-connector name="Active_MQ" brokerURL="${activemq.broker.url}" validateConnections="true" doc:name="Active MQ" persistentDelivery="true" maxRedelivery="1" password="${queue.jms.password}" username="${queue.jms.username}"/>
 <secure-property-placeholder:config name="Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:notify-communicate-${mule.env}.properties,classpath:errorCodes.properties" doc:name="Secure Property Placeholder"/>
 <db:oracle-config name="Oracle_Configuration" host="${oracle.host}" port="${oracle.port}" instance="${oracle.instance}" user="${oracle.user}" password="${oracle.password}" doc:name="Oracle Configuration"/>
     <smtp:connector name="SMTP" contentType="text/html" validateConnections="true" doc:name="SMTP"/>
