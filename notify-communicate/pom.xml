@@ -210,7 +210,7 @@
 		<dependency>
 			<groupId>com.tccrocks.integration.esb.domain</groupId>
 			<artifactId>top-esb-domain</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>2.1.0</version>
 			<scope>test</scope>
 			<type>zip</type>
 		</dependency>
@@ -231,8 +231,7 @@
 	<repositories>
 		<repository>
 			<id>Central</id>
-			<name>Central</name>
-			<url>http://repo1.maven.org/maven2/</url>
+			<name>Central</name>			<url>http://repo1.maven.org/maven2/</url>
 			<layout>default</layout>
 		</repository>
 		<repository>
