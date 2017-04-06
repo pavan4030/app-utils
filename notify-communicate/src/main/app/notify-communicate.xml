@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder"
+<mule xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
+	xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder"
 	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
 	xmlns:file="http://www.mulesoft.org/schema/mule/file"	
@@ -8,7 +9,8 @@
 	xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mulesoft.org/schema/mule/secure-property-placeholder/current/mule-secure-property-placeholder.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mulesoft.org/schema/mule/secure-property-placeholder/current/mule-secure-property-placeholder.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
@@ -19,7 +21,8 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
-http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/schedulers http://www.mulesoft.org/schema/mule/schedulers/current/mule-schedulers.xsd">
 
 
     <db:template-query name="ESB-APPS-AUDIT-INSERT" doc:name="Template Query">
@@ -62,6 +65,7 @@ payload]]></dw:set-payload>
         </dw:transform-message>
 
         <logger message="Notifications System Persist Message Processing App #[payload.ExecutionMetrics.ApplicationName]" level="DEBUG" doc:name="Logger"/>
+        <logger message="test:::::::::#[payload]" level="INFO" doc:name="Logger"/>
 
 
 
@@ -172,9 +176,10 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
                 <logger message="Notifications System Persist Message - Exception in database operation #[payload]" level="INFO" doc:name="Logger"/>
             </catch-exception-strategy>
     </flow>
-    <flow name="AggregateNotifications" doc:description="Gather notifications from the database and submit to queue so that communication flow can broadcast it">
-	 <poll doc:name="Poll">
-            <fixed-frequency-scheduler frequency="1" timeUnit="HOURS"/>
+    <flow name="AggregateNotifications" doc:description="Gather notifications from the database and submit to queue so that communication flow can broadcast it" processingStrategy="synchronous">
+        <poll doc:name="Poll">
+            <fixed-frequency-scheduler frequency="1" timeUnit="MINUTES"/>
+            <watermark variable="lastUpdated" default-expression="#[0]" selector="MAX" selector-expression="#[message.payload['BATCH_RUN_ID']]"/>
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:parameterized-query><![CDATA[SELECT E.ESB_APPS_AUDIT_ID,
   E.APP_ID,
@@ -198,12 +203,10 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
 FROM ESB_APPS_AUDIT E,
   BATCH_AUDIT_INFO B
 WHERE e.BATCH_RUN_ID = b.BATCH_RUN_ID
-AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '1' day) 
-and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')]]></db:parameterized-query>
+AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '1' hour) 
+and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')
+ and   B.BATCH_RUN_ID >  #[flowVars["lastUpdated"]]]]></db:parameterized-query>
             </db:select>
-
-
-
         </poll>
         <logger message="Notifications System Publish Message Triggered " level="INFO" doc:name="Logger"/>
 
@@ -310,7 +313,6 @@ payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName]]></dw:set-varia
         <parse-template location="mail-templete.html" doc:name="Parse Template"/>
         <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.mailIds]"/>
     </flow>
-    
     
     
 </mule>
