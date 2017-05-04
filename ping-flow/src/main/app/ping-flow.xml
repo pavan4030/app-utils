@@ -7,7 +7,10 @@
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
     <flow name="ping-flowFlow">
-        <http:listener config-ref="http-lc-0.0.0.0-8081" path="/esb/healthCheck" doc:name="HTTP"/>
+        <composite-source doc:name="Composite Source">
+            <http:listener config-ref="http-lc-0.0.0.0-8081" path="/esb/healthCheck" doc:name="HTTP"/>
+            <http:listener config-ref="shared-httpListenerConfig" path="/esb/healthCheck" doc:name="HTTPS"/>
+        </composite-source>
         <logger message="Ping flow!" level="INFO" doc:name="Logger"/>
     </flow>
 </mule>
