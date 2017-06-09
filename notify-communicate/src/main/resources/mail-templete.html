@@ -1,101 +1,106 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
    <head>
-      <style rel="stylesheet" type="text/css">
-          table{
-			border:1px solid black;
-			 border-collapse: collapse;
-			
-		}
-		
-		th,td{
-			padding:10px;
-		}
-		
-		.border{
-		border:1px solid #000;
-		
-		display:inline-block;
-		}
-      </style>
-   </head>
-   <body>
-      <h3>ESB Batch Execution Report</h3>
-	   <h4><b>ExecutionMetrics :</b></h4>
-	   <div class="border">
-			<table>
-				<tr>
-				   <td style="width:370px;text-align: left"><b>Batch Process</b></td>
-				   <td style="width:500px;text-align: left">#[message.payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName]</td>
-				</tr>
-                                
-			</table>
-			<table>
-				<tr>
-				   <th rowspan="2" style="width:200px;text-align:left;">Server Info</th>
-				   <td style="width:150px"><b>HostName</b></td>
-				   <td style="width:500px">#[message.payload.ExecutionMetrics.ServerInfo.HostName]</td>
-				</tr>
-				<tr>
-				   <td><b>HostIP</b></td>
-				   <td>#[message.payload.ExecutionMetrics.ServerInfo.HostIP]</td>
-				</tr>
-			</table>
-			<table>
-				<tr>
-				   <th rowspan="7" style="width:200px;text-align:left;">Execution Summary</th>
-				   <td style="width:150px"><b>Source File Name</b></td>
-				   <td style="width:500px">#[message.payload.ExecutionMetrics.BatchExecutionSummary.SourceFileName]</td>
-				</tr>
-				<tr>
-				   <td><b>BatchRunId</b></td>
-				   <td>#[message.payload.ExecutionMetrics.BatchExecutionSummary.BatchRunId]</td>
-				</tr>
-				<tr>
-				   <td><b>Successful</b></td>
-				   <td>#[message.payload.ExecutionMetrics.BatchExecutionSummary.Successful]</td>
-				</tr>
-				<tr>
-				   <td><b>Failed</b></td>
-				   <td>#[message.payload.ExecutionMetrics.BatchExecutionSummary.Failed]</td>
-				</tr>
-				<tr>
-				   <td><b>ProcessedRecords</b></td>
-				   <td>#[message.payload.ExecutionMetrics.BatchExecutionSummary.ProcessedRecords]</td>
-				</tr>
-				<tr>
-				   <td><b>Total</b></td>
-				   <td>#[message.payload.ExecutionMetrics.BatchExecutionSummary.Total]</td>
-				</tr>
-				<tr>
-				   <td><b>ErrorFile</b></td>
-				   <td>#[message.payload.ExecutionMetrics.BatchExecutionSummary.ErrorFile]</td>
-				</tr>
-			</table>
-			<table>	
-				<tr>
-				   <td style="width:370px;text-align: left"><b>Status<b></td>
-				   <td style="width:500px;text-align: left">#[message.payload.ExecutionMetrics.Status]</td>
-				</tr>
-			</table>
-			<table>
-				<tr>
-				   <td style="width:370px;text-align: left"><b>Priority<b></td>
-				   <td style="width:500px;text-align: left">#[message.payload.ExecutionMetrics.MessagePriority]</td>
-				</tr>
-			</table>	
-			<table>	
-				<tr>
-				   <td style="width:370px;text-align: left"><b>Summary<b></td>
-				   <td style="width:500px;text-align: left">#[message.payload.ExecutionMetrics.MessageSummary]</td>
-				</tr>
-			</table>
-			<table>
-				<tr>
-				   <td style="width:370px;text-align: left"><b>Details<b></td>
-				   <td style="width:500px;text-align: left">#[message.payload.ExecutionMetrics.MessageDetails]</td>
-				</tr>
-			</table>
-		</div>
-   </body>
+<style>
+table {
+	border-collapse: collapse;
+	width: 80%;
+}
+
+th, td {
+	text-align: left;
+	padding: 5px;
+}
+
+tr:nth-child(even) {
+	background-color: #f2f2f2
+}
+
+th {
+	background-color: #FAEBD7;
+
+}
+</style>
+
+<table border=1>
+		<tbody>
+			<tr>
+				<th colspan=2>
+              
+					<p align='center'>ESB Batch Execution Report</p>
+                </th>
+			</tr>
+            <tr>
+				<th colspan=2>
+               <p align='left'> ExecutionMetrics :</p>
+                 
+				</th>
+			</tr>
+     
+			<tr>
+				<td><b>Batch Process</b></td>
+				<td>#[message.payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName</td>
+			</tr>
+            
+            <tr>
+  <td rowspan="2"><b>Server Info</b></td>
+  <td><b>HostName:</b> #[message.payload.ExecutionMetrics.ServerInfo.HostName]</td>
+  
+</tr>
+<tr>
+  <td><b>HostIP:</b>#[message.payload.ExecutionMetrics.ServerInfo.HostIP]</td>
+</tr>
+
+
+<tr>
+  <td rowspan="7"><b>Execution Summary</b></td>
+  <td><b>Source File Name:</b>#[message.payload.ExecutionMetrics.BatchExecutionSummary.SourceFileName]</td>
+</tr>
+<tr>
+  <td><b>BatchRunId:</b>#[message.payload.ExecutionMetrics.BatchExecutionSummary.BatchRunId]</td>
+</tr>
+<tr>
+  <td><b>Successful:</b>#[message.payload.ExecutionMetrics.BatchExecutionSummary.Successful]</td>
+</tr>
+<tr>
+  <td><b>Failed:</b>#[message.payload.ExecutionMetrics.BatchExecutionSummary.Failed]</td>
+</tr>
+<tr>
+  <td><b>ProcessedRecords:</b>#[message.payload.ExecutionMetrics.BatchExecutionSummary.ProcessedRecords]</td>
+</tr>
+<tr>
+  <td><b>Total:</b>#[message.payload.ExecutionMetrics.BatchExecutionSummary.Total]</td>
+</tr>
+<tr>
+  <td><b>ErrorFile:</b>#[message.payload.ExecutionMetrics.BatchExecutionSummary.ErrorFile]</td>
+</tr>
+<tr>
+				<td><b>Status</b></td>
+              	
+				<td>#[message.payload.ExecutionMetrics.Status]</td>
+			</tr>
+             <tr>
+				<td><b>Priority</b></td>
+              	
+				<td>#[message.payload.ExecutionMetrics.MessagePriority]</td>
+			</tr>
+             <tr>
+				<td><b>Summary</b></td>
+              	
+				<td>#[message.payload.ExecutionMetrics.MessageSummary]</td>
+			</tr>
+             <tr>
+				<td><b>Details</b></td>
+              	
+				<td>#[message.payload.ExecutionMetrics.MessageDetails]</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
 </html>
+
+
+
+
+
+
