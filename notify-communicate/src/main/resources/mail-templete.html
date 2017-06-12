@@ -6,15 +6,15 @@
 
 $(document).ready(function(){
     $('#table_id td.name').each(function(){
-       if ($(this).text() == 'Success') {
+       if ($(this).text() == 'SUCCESS') {
         document.getElementById('header').style.backgroundColor='#228B22';
             
         }
-       else  if ($(this).text() == 'Failure') {
+       else  if ($(this).text() == 'FAILURE') {
         document.getElementById('header').style.backgroundColor='#FF0000';
             
         }
-       else  if ($(this).text() == 'Partial') {
+       else  if ($(this).text() == 'PARTIAL') {
         document.getElementById('header').style.backgroundColor='#FFBF00';
             
         }
