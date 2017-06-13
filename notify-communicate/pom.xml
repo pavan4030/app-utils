@@ -23,7 +23,7 @@
 			<plugin>
 			  <groupId>org.mule.tools.maven</groupId>
 			  <artifactId>mule-maven-plugin</artifactId>
-			  <version>2.1.1</version>
+			  <version>2.2.1</version>
 			  <configuration>
 			        <deploymentType>arm</deploymentType>
 			        <username>${username}</username>
