@@ -203,7 +203,7 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
 FROM ESB_APPS_AUDIT E,
   BATCH_AUDIT_INFO B
 WHERE e.BATCH_RUN_ID = b.BATCH_RUN_ID
-AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '${audit.records.interval}' hour) 
+AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '${audit.records.interval}' day) 
 and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')
  and   B.BATCH_RUN_ID >  #[flowVars["lastUpdated"]]]]></db:parameterized-query>
             </db:select>
@@ -239,6 +239,7 @@ payload map ((payload01 , indexOfPayload01) -> {
 	}
 }) groupBy $.ExecutionMetrics.BatchExecutionSummary.ParentBatchRunId pluck $]]></dw:set-payload>
         </dw:transform-message>
+        <logger message="ad::#[payload]" level="INFO" doc:name="Logger"/>
 
 
 
@@ -311,6 +312,22 @@ payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName]]></dw:set-varia
         <set-variable variableName="mailIds" value="#[flowVars.mailIds.toString().replace('[','').replace(']','')]" doc:name="Variable"/>
 
         <parse-template location="mail-templete.html" doc:name="Parse Template"/>
+        <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.mailIds]"/>
+    </flow>
+    <flow name="notify-communicate-error-Flow">
+        <jms:inbound-endpoint doc:name="JMS" connector-ref="Active_MQ"  queue="${error.notifications.queue}"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+            <dw:set-variable variableName="mailIds"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.mailrecipients]]></dw:set-variable>
+        </dw:transform-message>
+
+        <parse-template location="mail-template.html" doc:name="Parse Template"/>
         <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.mailIds]"/>
     </flow>
     
