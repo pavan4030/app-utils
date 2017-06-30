@@ -325,10 +325,14 @@ payload]]></dw:set-payload>
 %output application/java
 ---
 payload.mailrecipients]]></dw:set-variable>
+            <dw:set-variable variableName="mailSubject"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.mailsubject]]></dw:set-variable>
         </dw:transform-message>
 
         <parse-template location="mail-template.html" doc:name="Parse Template"/>
-        <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.mailIds]"/>
+        <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" to="#[flowVars.mailIds]"/>
     </flow>
     
     
