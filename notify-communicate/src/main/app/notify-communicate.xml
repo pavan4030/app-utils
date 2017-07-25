@@ -113,6 +113,7 @@ INTO BATCH_AUDIT_INFO
 
 
 
+
             </db:insert>
 
             <dw:transform-message metadata:id="f05bb066-7e6a-4219-bcc9-db41427d0c11" doc:name="Transform Message">
@@ -162,6 +163,7 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
 
 
 
+
             </db:insert>
  
             
@@ -178,7 +180,7 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
     </flow>
     <flow name="AggregateNotifications" doc:description="Gather notifications from the database and submit to queue so that communication flow can broadcast it" processingStrategy="synchronous">
         <poll doc:name="Poll">
-            <fixed-frequency-scheduler frequency="1" timeUnit="MINUTES"/>
+            <schedulers:cron-scheduler expression="${cron.trigger}"/>
             <watermark variable="lastUpdated" default-expression="#[0]" selector="MAX" selector-expression="#[message.payload['BATCH_RUN_ID']]"/>
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:parameterized-query><![CDATA[SELECT E.ESB_APPS_AUDIT_ID,
@@ -206,6 +208,7 @@ WHERE e.BATCH_RUN_ID = b.BATCH_RUN_ID
 AND e.create_ts between to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')- (interval '${audit.records.interval}' day) 
 and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY HH12:MI:SS.FF')
  and   B.BATCH_RUN_ID >  #[flowVars["lastUpdated"]]]]></db:parameterized-query>
+
             </db:select>
         </poll>
         <logger message="Notifications System Publish Message Triggered " level="INFO" doc:name="Logger"/>
