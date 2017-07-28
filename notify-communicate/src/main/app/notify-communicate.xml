@@ -65,7 +65,7 @@ payload]]></dw:set-payload>
         </dw:transform-message>
 
         <logger message="Notifications System Persist Message Processing App #[payload.ExecutionMetrics.ApplicationName]" level="DEBUG" doc:name="Logger"/>
-        <logger message="test:::::::::#[payload]" level="INFO" doc:name="Logger"/>
+
 
 
 
@@ -117,8 +117,10 @@ INTO BATCH_AUDIT_INFO
             </db:insert>
 
             <dw:transform-message metadata:id="f05bb066-7e6a-4219-bcc9-db41427d0c11" doc:name="Transform Message">
-                <dw:input-payload doc:sample="sample_data\list_map_string_Object.dwl"/>
+               
+                <dw:input-payload mimeType="application/java"/>
                 <dw:set-payload><![CDATA[%dw 1.0
+
 %output application/java
 ---
 payload
@@ -131,7 +133,7 @@ payload.BATCH_RUN_ID[0]
 ]]></dw:set-variable>
             </dw:transform-message>
             <object-to-string-transformer mimeType="text/plain" doc:name="Object to String"/>
-            <logger message="Notifications System Persist Message -  Sequence is #[flowVars.batchRunId] Transform output is   #[payload]" level="INFO" doc:name="Logger"/>
+            <logger message="Notifications System Persist Message -  Sequence is #[flowVars.batchRunId] Transform output is   #[payload]" level="DEBUG" doc:name="Logger"/>
             
   
     <db:insert config-ref="Oracle_Configuration" doc:name="Database">
@@ -173,7 +175,7 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
      </ee:multi-transactional>  
     
         
-        <logger message="Notifications System Persist Message completed - database output #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="Notifications System Persist Message completed - database output #[payload]" level="DEBUG" doc:name="Logger"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
                 <logger message="Notifications System Persist Message - Exception in database operation #[payload]" level="INFO" doc:name="Logger"/>
             </catch-exception-strategy>
@@ -214,6 +216,7 @@ and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY 
         <logger message="Notifications System Publish Message Triggered " level="INFO" doc:name="Logger"/>
 
         <dw:transform-message metadata:id="c90cf994-1fa4-4dd4-aa37-1f127af455b3" doc:name="Transform Message">
+        <dw:input-payload mimeType="application/java"/>
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
@@ -242,14 +245,17 @@ payload map ((payload01 , indexOfPayload01) -> {
 	}
 }) groupBy $.ExecutionMetrics.BatchExecutionSummary.ParentBatchRunId pluck $]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="ad::#[payload]" level="INFO" doc:name="Logger"/>
+
 
 
 
         <collection-splitter doc:name="Collection Splitter"/>
         <dw:transform-message doc:name="Transform Message">
+        <dw:input-payload mimeType="application/java"/>
+        
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
+
 ---
 ExecutionMetrics: {
 		ApplicationID: payload.ExecutionMetrics.ApplicationID[0],
