@@ -1,0 +1,1290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="TransactionService" targetNamespace="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/" xmlns:plnk="http://schemas.xmlsoap.org/ws/2003/05/partner-link/" xmlns:errors="http://xmlns.oracle.com/adf/svc/errors/" xmlns:orafault="http://xmlns.oracle.com/oracleas/schema/oracle-fault-11_0" xmlns:tns="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:types="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/">
+  <wsdl:documentation xmlns:oer="http://xmlns.oracle.com/oer">
+    <name>Incentive Compensation Transaction</name>
+    <description>This web service supports multiple operations. You may perform CRUD
+            operations for transactions in the Incentive Compensation
+            Transaction Staging object. You may hold or release transactions
+            within the base transaction object. Transaction examples are order,
+            invoice, credit memo, charge back, and payment collected against an
+            invoice; there are no restrictions on type or source.</description>
+    <docCategories>
+      <category>External</category>
+      <category>Other</category>
+    </docCategories>
+    <oer:lifecycle>Active</oer:lifecycle>
+    <oer:compatibility>Supported - Backward Compatibility Assured</oer:compatibility>
+    <oer:category name="lba">
+      <value>IcTop-Incentive Compensation Family</value>
+      <value>IcTop-Incentive Compensation Family : IcCnTop-Incentive
+                Compensation Product</value>
+      <value>IcTop-Incentive Compensation Family : IcCnTop-Incentive
+                Compensation Product : IcCnTxnTop-Transaction Processing</value>
+      <value>IcTop-Incentive Compensation Family : IcCnTop-Incentive
+                Compensation Product : IcCnTxnTop-Transaction Processing :
+                IcCnTpTxnMgmt-Transaction Management</value>
+    </oer:category>
+    <oer:category name="lbo">
+      <value>IC-IC : CN-Incentive Compensation : CN_TRX-Incentive
+                Compensation Transaction</value>
+    </oer:category>
+    <oer:operation name="holdTransaction">
+      <description>Holds transaction. If the base transaction has not been picked
+                up by the credit process, it will not be considered for the next
+                batch. If the transaction was credited, it will be processed as
+                normal.</description>
+      <oer:parameters>
+        <oer:parameter name="sourceTrxNumber" description="Unique identifier for the transaction"/>
+        <oer:parameter name="transactionType" description="Specifies the source application of the transaction, for example, ORDER if the transaction is from an Order Management application"/>
+        <oer:return description="Indicates if the transaction was held successfully"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="getIncentiveTransactionStaging">
+      <description>Gets a transaction staging row for a given transaction number,
+                transaction type and credited participant identifier</description>
+      <oer:parameters>
+        <oer:parameter name="creditedParticipantId" description="Unique identifier for the credited participant"/>
+        <oer:parameter name="sourceTrxNumber" description="Unique identifier for the transaction"/>
+        <oer:parameter name="transactionType" description="Specifies the source application of the transaction, for example, ORDER if the transaction is from an order Management application"/>
+        <oer:return description="Transaction staging row"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="createIncentiveTransactionStaging">
+      <description>Creates a single transaction staging row</description>
+      <oer:parameters>
+        <oer:parameter name="incentiveTransactionStaging" description="Transaction staging row with populated attribute values to be created"/>
+        <oer:return description="Created transaction staging row"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="updateIncentiveTransactionStaging">
+      <description>Updates a single transaction staging row</description>
+      <oer:parameters>
+        <oer:parameter name="incentiveTransactionStaging" description="Transaction staging row to be updated"/>
+        <oer:return description="Updated transaction staging row"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="deleteIncentiveTransactionStaging">
+      <description>Deletes a single transaction staging row</description>
+      <oer:parameters>
+        <oer:parameter name="incentiveTransactionStaging" description="Transaction staging row to be deleted"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="mergeIncentiveTransactionStaging">
+      <description>Updates a transaction staging row if one exists, otherwise
+                creates a new one</description>
+      <oer:parameters>
+        <oer:parameter name="incentiveTransactionStaging" description="Transaction staging row to be updated or created"/>
+        <oer:return description="Updated or created transaction staging row"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="findIncentiveTransactionStaging">
+      <description>Finds and returns a list of transaction staging rows</description>
+      <oer:parameters>
+        <oer:parameter name="findCriteria" description="Criteria that is used to find the transaction staging rows"/>
+        <oer:parameter name="findControl" description="Control object that used as a placeholder for finding staged transactions"/>
+        <oer:return description="List of transaction staging rows that match the specified criteria"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="processIncentiveTransactionStaging">
+      <description>Performs a create, update, delete or merge operation on a list
+                of transaction staging rows. The specified operation is applied
+                to all objects in the given list.</description>
+      <oer:parameters>
+        <oer:parameter name="changeOperation" description="One of the many operations: create, update, delete or merge"/>
+        <oer:parameter name="incentiveTransactionStaging" description="Transaction staging rows for which the specified operation is to be applied"/>
+        <oer:parameter name="processControl" description="Object of type ProcessControl, which provides optional process control"/>
+        <oer:return description="Transaction staging rows that were operated on"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="processCSIncentiveTransactionStaging">
+      <description>Performs a create, update, delete or merge operation on a list
+                of transaction staging rows. Different options may be applied to
+                different objects depending on what is specified in the Change
+                Summary object.</description>
+      <oer:parameters>
+        <oer:parameter name="processData" description="Transaction staging rows to be processed"/>
+        <oer:parameter name="processControl" description="Object of ProcessControl type, which provides optional process control conditions"/>
+        <oer:return description="Transaction staging rows that were operated on"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="getDfltObjAttrHints">
+      <description>An operation to retrieve user interface hints, such as the
+                service data object label and object attribute labels, for the
+                specified service data object and locale.  As a prerequisite,
+                invoke the getEntityList operation defined on this service to
+                get the list of possible values for the viewName request payload
+                element.</description>
+      <oer:parameters>
+        <oer:parameter name="viewName" description="The service view usage name, an internal name for the service data object.  Specify the value of the &lt;name> element from the getEntityList operation response payload."/>
+        <oer:parameter name="localeName" description="The locale to use when evaluating locale-based user interface hints.  The localeName is in ISO 639-1 format."/>
+        <oer:return description="The label and user interface hints for the specified service data object and its attributes in a name-value pair format"/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="getServiceLastUpdateTime">
+      <description>An operation that returns the date and time when the schema
+                files referenced in the service definition last changed.</description>
+      <oer:parameters>
+        <oer:return description="The date and time when the service definition last changed in ISO 8601 format."/>
+      </oer:parameters>
+    </oer:operation>
+    <oer:operation name="getEntityList">
+      <description>An operation to get the list of service data objects defined on
+                this service.</description>
+      <oer:parameters>
+        <oer:return description="A list of service data objects defined on this service.  For each service data object, the result includes the QName, internal name, and Boolean values indicating whether create, update, merge, and delete operations can be performed on the object."/>
+      </oer:parameters>
+    </oer:operation>
+  </wsdl:documentation>
+  <plnk:partnerLinkType name="TransactionService">
+    <plnk:role name="TransactionServiceProvider">
+      <plnk:portType name="tns:TransactionService"/>
+    </plnk:role>
+    <plnk:role name="TransactionServiceRequestor">
+      <plnk:portType name="tns:TransactionServiceResponse"/>
+    </plnk:role>
+  </plnk:partnerLinkType>
+  <wsp:Policy wsu:Id="TransactionServiceResponse_Fault_Policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+  <wsp:Policy wsu:Id="TransactionServiceResponse_Input_Policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <sp:Body/>
+      <sp:Header Namespace="http://www.w3.org/2005/08/addressing"/>
+      <sp:Header Namespace="http://schemas.xmlsoap.org/ws/2004/08/addressing"/>
+      <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+    </sp:SignedParts>
+    <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <sp:Body/>
+      <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+    </sp:EncryptedParts>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="TransactionServiceResponse_Output_Policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <sp:Body/>
+    </sp:SignedParts>
+    <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <sp:Body/>
+    </sp:EncryptedParts>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="TransactionServiceSoapHttpPort_Fault_Policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <wsp:ExactlyOne>
+      <wsp:All/>
+      <wsp:All/>
+      <wsp:All/>
+      <wsp:All/>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="TransactionServiceSoapHttpPort_Input_Policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Namespace="http://www.w3.org/2005/08/addressing"/>
+          <sp:Header Namespace="http://schemas.xmlsoap.org/ws/2004/08/addressing"/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:EncryptedParts>
+      </wsp:All>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Namespace="http://www.w3.org/2005/08/addressing"/>
+          <sp:Header Namespace="http://schemas.xmlsoap.org/ws/2004/08/addressing"/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:EncryptedParts>
+      </wsp:All>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Namespace="http://www.w3.org/2005/08/addressing"/>
+          <sp:Header Namespace="http://schemas.xmlsoap.org/ws/2004/08/addressing"/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:EncryptedParts>
+      </wsp:All>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Namespace="http://www.w3.org/2005/08/addressing"/>
+          <sp:Header Namespace="http://schemas.xmlsoap.org/ws/2004/08/addressing"/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+          <sp:Header Name="fmw-context" Namespace="http://xmlns.oracle.com/fmw/context/1.0"/>
+        </sp:EncryptedParts>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="TransactionServiceSoapHttpPort_Output_Policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:EncryptedParts>
+      </wsp:All>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:EncryptedParts>
+      </wsp:All>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:EncryptedParts>
+      </wsp:All>
+      <wsp:All>
+        <sp:SignedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:SignedParts>
+        <sp:EncryptedParts xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <sp:Body/>
+        </sp:EncryptedParts>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="wsaddr_policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <wsaw:UsingAddressing xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="wss11_saml_or_username_token_with_message_protection_service_policy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:SymmetricBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:ProtectionToken>
+              <wsp:Policy>
+                <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/Never">
+                  <wsp:Policy>
+                    <sp:RequireThumbprintReference/>
+                    <sp:WssX509V3Token11/>
+                  </wsp:Policy>
+                </sp:X509Token>
+              </wsp:Policy>
+            </sp:ProtectionToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic128/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+            <sp:ProtectTokens/>
+            <sp:OnlySignEntireHeadersAndBody/>
+          </wsp:Policy>
+        </sp:SymmetricBinding>
+        <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:SamlToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssSamlV11Token11/>
+              </wsp:Policy>
+            </sp:SamlToken>
+          </wsp:Policy>
+        </sp:SignedSupportingTokens>
+        <sp:EndorsingSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssX509V3Token11/>
+              </wsp:Policy>
+            </sp:X509Token>
+          </wsp:Policy>
+        </sp:EndorsingSupportingTokens>
+        <sp:Wss11 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:RequireSignatureConfirmation/>
+            <sp:MustSupportRefEncryptedKey/>
+          </wsp:Policy>
+        </sp:Wss11>
+      </wsp:All>
+      <wsp:All>
+        <sp:SymmetricBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:ProtectionToken>
+              <wsp:Policy>
+                <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/Never">
+                  <wsp:Policy>
+                    <sp:RequireThumbprintReference/>
+                    <sp:WssX509V3Token11/>
+                  </wsp:Policy>
+                </sp:X509Token>
+              </wsp:Policy>
+            </sp:ProtectionToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic128Exn256/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+            <sp:ProtectTokens/>
+            <sp:OnlySignEntireHeadersAndBody/>
+          </wsp:Policy>
+        </sp:SymmetricBinding>
+        <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:SamlToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssSamlV11Token11/>
+              </wsp:Policy>
+            </sp:SamlToken>
+          </wsp:Policy>
+        </sp:SignedSupportingTokens>
+        <sp:EndorsingSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssX509V3Token11/>
+              </wsp:Policy>
+            </sp:X509Token>
+          </wsp:Policy>
+        </sp:EndorsingSupportingTokens>
+        <sp:Wss11 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:RequireSignatureConfirmation/>
+            <sp:MustSupportRefEncryptedKey/>
+          </wsp:Policy>
+        </sp:Wss11>
+      </wsp:All>
+      <wsp:All>
+        <sp:SymmetricBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:ProtectionToken>
+              <wsp:Policy>
+                <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/Never">
+                  <wsp:Policy>
+                    <sp:RequireThumbprintReference/>
+                    <sp:WssX509V3Token11/>
+                  </wsp:Policy>
+                </sp:X509Token>
+              </wsp:Policy>
+            </sp:ProtectionToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic128/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+            <sp:OnlySignEntireHeadersAndBody/>
+          </wsp:Policy>
+        </sp:SymmetricBinding>
+        <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssUsernameToken10/>
+              </wsp:Policy>
+            </sp:UsernameToken>
+          </wsp:Policy>
+        </sp:SignedSupportingTokens>
+        <sp:Wss11 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:RequireSignatureConfirmation/>
+            <sp:MustSupportRefEncryptedKey/>
+          </wsp:Policy>
+        </sp:Wss11>
+      </wsp:All>
+      <wsp:All>
+        <sp:SymmetricBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:ProtectionToken>
+              <wsp:Policy>
+                <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/Never">
+                  <wsp:Policy>
+                    <sp:RequireThumbprintReference/>
+                    <sp:WssX509V3Token11/>
+                  </wsp:Policy>
+                </sp:X509Token>
+              </wsp:Policy>
+            </sp:ProtectionToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic128Exn256/>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+            <sp:OnlySignEntireHeadersAndBody/>
+          </wsp:Policy>
+        </sp:SymmetricBinding>
+        <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssUsernameToken10/>
+              </wsp:Policy>
+            </sp:UsernameToken>
+          </wsp:Policy>
+        </sp:SignedSupportingTokens>
+        <sp:Wss11 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:RequireSignatureConfirmation/>
+            <sp:MustSupportRefEncryptedKey/>
+          </wsp:Policy>
+        </sp:Wss11>
+      </wsp:All>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false">
+                  <wsp:Policy/>
+                </sp:HttpsToken>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <sp:SupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:SamlToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssSamlV11Token10/>
+              </wsp:Policy>
+            </sp:SamlToken>
+          </wsp:Policy>
+        </sp:SupportingTokens>
+      </wsp:All>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false">
+                  <wsp:Policy/>
+                </sp:HttpsToken>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+            <sp:IncludeTimestamp/>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <sp:SupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:UsernameToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+              <wsp:Policy>
+                <sp:WssUsernameToken10/>
+              </wsp:Policy>
+            </sp:UsernameToken>
+          </wsp:Policy>
+        </sp:SupportingTokens>
+      </wsp:All>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false">
+                  <wsp:Policy/>
+                </sp:HttpsToken>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+      </wsp:All>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false">
+                  <wsp:Policy>
+                    <osp:HttpJwtAuthentication xmlns:osp="http://schemas.oracle.com/ws/2012/01/wssecuritypolicy"/>
+                  </wsp:Policy>
+                </sp:HttpsToken>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Lax/>
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsp:Policy wsu:Id="wss11_saml_token_with_message_protection_client_policy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <sp:SymmetricBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <wsp:Policy>
+        <sp:ProtectionToken>
+          <wsp:Policy>
+            <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/Never">
+              <wsp:Policy>
+                <sp:RequireThumbprintReference/>
+                <sp:WssX509V3Token11/>
+              </wsp:Policy>
+            </sp:X509Token>
+          </wsp:Policy>
+        </sp:ProtectionToken>
+        <sp:AlgorithmSuite>
+          <wsp:Policy>
+            <sp:Basic128/>
+          </wsp:Policy>
+        </sp:AlgorithmSuite>
+        <sp:Layout>
+          <wsp:Policy>
+            <sp:Lax/>
+          </wsp:Policy>
+        </sp:Layout>
+        <sp:IncludeTimestamp/>
+        <sp:ProtectTokens/>
+        <sp:OnlySignEntireHeadersAndBody/>
+      </wsp:Policy>
+    </sp:SymmetricBinding>
+    <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <wsp:Policy>
+        <sp:SamlToken sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+          <wsp:Policy>
+            <sp:WssSamlV11Token11/>
+          </wsp:Policy>
+        </sp:SamlToken>
+      </wsp:Policy>
+    </sp:SignedSupportingTokens>
+    <sp:EndorsingSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <wsp:Policy>
+        <sp:X509Token sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+          <wsp:Policy>
+            <sp:WssX509V3Token11/>
+          </wsp:Policy>
+        </sp:X509Token>
+      </wsp:Policy>
+    </sp:EndorsingSupportingTokens>
+    <sp:Wss11 xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+      <wsp:Policy>
+        <sp:RequireSignatureConfirmation/>
+        <sp:MustSupportRefEncryptedKey/>
+      </wsp:Policy>
+    </sp:Wss11>
+  </wsp:Policy>
+  <wsdl:import namespace="http://xmlns.oracle.com/adf/svc/errors/" location="TransactionService.wsdl"/>
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+      <import namespace="http://xmlns.oracle.com/oracleas/schema/oracle-fault-11_0" schemaLocation="TransactionService_1_2_3_4.xsd"/>
+      <import namespace="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/" schemaLocation="TransactionService_1_2_3_4_5.xsd"/>
+    </schema>
+  </wsdl:types>
+  <wsdl:message name="TransactionService_holdTransaction">
+    <wsdl:part name="parameters" element="types:holdTransaction"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_holdTransactionResponse">
+    <wsdl:part name="parameters" element="types:holdTransactionResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_holdTransactionAsync">
+    <wsdl:part name="parameters" element="types:holdTransactionAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:getIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:getIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_createIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:createIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_createIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:createIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_updateIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:updateIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_updateIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:updateIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_deleteIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:deleteIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_deleteIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:deleteIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_mergeIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:mergeIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_mergeIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:mergeIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_findIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:findIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_findIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:findIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:processIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:processIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processCSIncentiveTransactionStaging">
+    <wsdl:part name="parameters" element="types:processCSIncentiveTransactionStaging"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processCSIncentiveTransactionStagingResponse">
+    <wsdl:part name="parameters" element="types:processCSIncentiveTransactionStagingResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_mergeIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:mergeIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:processIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_createIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:createIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:getIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processCSIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:processCSIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_findIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:findIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_updateIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:updateIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_deleteIncentiveTransactionStagingAsync">
+    <wsdl:part name="parameters" element="types:deleteIncentiveTransactionStagingAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getDfltObjAttrHints">
+    <wsdl:part name="parameters" element="types:getDfltObjAttrHints"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getDfltObjAttrHintsResponse">
+    <wsdl:part name="parameters" element="types:getDfltObjAttrHintsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getServiceLastUpdateTime">
+    <wsdl:part name="parameters" element="types:getServiceLastUpdateTime"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getServiceLastUpdateTimeResponse">
+    <wsdl:part name="parameters" element="types:getServiceLastUpdateTimeResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getEntityList">
+    <wsdl:part name="parameters" element="types:getEntityList"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getEntityListResponse">
+    <wsdl:part name="parameters" element="types:getEntityListResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getEntityListAsync">
+    <wsdl:part name="parameters" element="types:getEntityListAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getDfltObjAttrHintsAsync">
+    <wsdl:part name="parameters" element="types:getDfltObjAttrHintsAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getServiceLastUpdateTimeAsync">
+    <wsdl:part name="parameters" element="types:getServiceLastUpdateTimeAsync"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_onFault">
+    <wsdl:part name="parameters" element="orafault:Fault"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_holdTransactionAsyncResponse">
+    <wsdl:part name="parameters" element="types:holdTransactionAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_mergeIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:mergeIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:processIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_createIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:createIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:getIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_processCSIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:processCSIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_findIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:findIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_updateIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:updateIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_deleteIncentiveTransactionStagingAsyncResponse">
+    <wsdl:part name="parameters" element="types:deleteIncentiveTransactionStagingAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getEntityListAsyncResponse">
+    <wsdl:part name="parameters" element="types:getEntityListAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getDfltObjAttrHintsAsyncResponse">
+    <wsdl:part name="parameters" element="types:getDfltObjAttrHintsAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:message name="TransactionService_getServiceLastUpdateTimeAsyncResponse">
+    <wsdl:part name="parameters" element="types:getServiceLastUpdateTimeAsyncResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="TransactionService">
+    <wsdl:documentation>
+      <ViewInstance Name="IncentiveTransactionStaging" SDOName="tns:TransactionStaging" CreateOpName="createIncentiveTransactionStaging" UpdateOpName="updateIncentiveTransactionStaging" DeleteOpName="deleteIncentiveTransactionStaging" MergeOpName="mergeIncentiveTransactionStaging" GetOpName="getIncentiveTransactionStaging" FindOpName="findIncentiveTransactionStaging" ProcessOpName="processIncentiveTransactionStaging" ProcessCSOpName="processCSIncentiveTransactionStaging" xmlns="http://xmlns.oracle.com/adf/svc/metadata/"/>
+    </wsdl:documentation>
+    <wsdl:operation name="holdTransaction">
+      <wsdl:input message="tns:TransactionService_holdTransaction"/>
+      <wsdl:output message="tns:TransactionService_holdTransactionResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="holdTransactionAsync">
+      <wsdl:input message="tns:TransactionService_holdTransactionAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/holdTransactionAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_getIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_getIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="createIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_createIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_createIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="updateIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_updateIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_updateIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="deleteIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_deleteIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_deleteIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="mergeIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_mergeIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_mergeIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="findIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_findIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_findIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="processIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_processIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_processIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="processCSIncentiveTransactionStaging">
+      <wsdl:input message="tns:TransactionService_processCSIncentiveTransactionStaging"/>
+      <wsdl:output message="tns:TransactionService_processCSIncentiveTransactionStagingResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="mergeIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_mergeIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/mergeIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="processIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_processIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="createIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_createIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/createIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_getIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="processCSIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_processCSIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processCSIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="findIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_findIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/findIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="updateIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_updateIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/updateIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="deleteIncentiveTransactionStagingAsync">
+      <wsdl:input message="tns:TransactionService_deleteIncentiveTransactionStagingAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/deleteIncentiveTransactionStagingAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getDfltObjAttrHints">
+      <wsdl:input message="tns:TransactionService_getDfltObjAttrHints"/>
+      <wsdl:output message="tns:TransactionService_getDfltObjAttrHintsResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceLastUpdateTime">
+      <wsdl:input message="tns:TransactionService_getServiceLastUpdateTime"/>
+      <wsdl:output message="tns:TransactionService_getServiceLastUpdateTimeResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="getEntityList">
+      <wsdl:input message="tns:TransactionService_getEntityList"/>
+      <wsdl:output message="tns:TransactionService_getEntityListResponse"/>
+      <wsdl:fault name="ServiceException" message="errors:ServiceException"/>
+    </wsdl:operation>
+    <wsdl:operation name="getEntityListAsync">
+      <wsdl:input message="tns:TransactionService_getEntityListAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getEntityListAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getDfltObjAttrHintsAsync">
+      <wsdl:input message="tns:TransactionService_getDfltObjAttrHintsAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getDfltObjAttrHintsAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceLastUpdateTimeAsync">
+      <wsdl:input message="tns:TransactionService_getServiceLastUpdateTimeAsync" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getServiceLastUpdateTimeAsync" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="TransactionServiceResponse">
+    <wsdl:operation name="onFault">
+      <wsdl:input message="tns:TransactionService_onFault" ns1:Action="http://xmlns.oracle.com/oracleas/schema/oracle-fault-11_0/Fault" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="holdTransactionAsyncResponse">
+      <wsdl:input message="tns:TransactionService_holdTransactionAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/holdTransactionAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="mergeIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_mergeIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/mergeIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="processIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_processIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="createIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_createIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/createIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_getIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="processCSIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_processCSIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processCSIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="findIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_findIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/findIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="updateIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_updateIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/updateIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="deleteIncentiveTransactionStagingAsyncResponse">
+      <wsdl:input message="tns:TransactionService_deleteIncentiveTransactionStagingAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/deleteIncentiveTransactionStagingAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getEntityListAsyncResponse">
+      <wsdl:input message="tns:TransactionService_getEntityListAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getEntityListAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getDfltObjAttrHintsAsyncResponse">
+      <wsdl:input message="tns:TransactionService_getDfltObjAttrHintsAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getDfltObjAttrHintsAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceLastUpdateTimeAsyncResponse">
+      <wsdl:input message="tns:TransactionService_getServiceLastUpdateTimeAsyncResponse" ns1:Action="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getServiceLastUpdateTimeAsyncResponse" xmlns:ns1="http://www.w3.org/2006/05/addressing/wsdl"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TransactionServiceSoapHttp" type="tns:TransactionService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsp:PolicyReference URI="#wss11_saml_or_username_token_with_message_protection_service_policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+    <wsp:PolicyReference URI="#wsaddr_policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+    <wsdl:operation name="holdTransaction">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/holdTransaction"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="holdTransactionAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/holdTransactionAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="createIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/createIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="updateIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/updateIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="deleteIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/deleteIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="mergeIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/mergeIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="findIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/findIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="processIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="processCSIncentiveTransactionStaging">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processCSIncentiveTransactionStaging"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="mergeIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/mergeIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="processIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="createIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/createIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="processCSIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processCSIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="findIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/findIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="updateIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/updateIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="deleteIncentiveTransactionStagingAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/deleteIncentiveTransactionStagingAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getDfltObjAttrHints">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getDfltObjAttrHints"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceLastUpdateTime">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getServiceLastUpdateTime"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getEntityList">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getEntityList"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Output_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:output>
+      <wsdl:fault name="ServiceException">
+        <soap:fault name="ServiceException" use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Fault_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getEntityListAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getEntityListAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getDfltObjAttrHintsAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getDfltObjAttrHintsAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceLastUpdateTimeAsync">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getServiceLastUpdateTimeAsync"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceSoapHttpPort_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="TransactionServiceResponseBinding" type="tns:TransactionServiceResponse">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsp:PolicyReference URI="#wss11_saml_token_with_message_protection_client_policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+    <wsdl:operation name="onFault">
+      <soap:operation soapAction="http://xmlns.oracle.com/oracleas/schema/oracle-fault-11_0/Fault"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="holdTransactionAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/holdTransactionAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="mergeIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/mergeIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="processIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="createIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/createIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="processCSIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/processCSIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="findIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/findIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="updateIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/updateIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="deleteIncentiveTransactionStagingAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/deleteIncentiveTransactionStagingAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getEntityListAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getEntityListAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getDfltObjAttrHintsAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getDfltObjAttrHintsAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceLastUpdateTimeAsyncResponse">
+      <soap:operation soapAction="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/getServiceLastUpdateTimeAsyncResponse"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+        <wsp:PolicyReference URI="#TransactionServiceResponse_Input_Policy" wsdl:required="false" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"/>
+      </wsdl:input>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TransactionService">
+    <wsdl:port name="TransactionServiceSoapHttpPort" binding="tns:TransactionServiceSoapHttp">
+      <soap:address location="https://eccw-test.ic.us2.oraclecloud.com:443/icCnTpTxnMgmtPublicService/TransactionService"/>
+      <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+        <wsa:Address>https://eccw-test.ic.us2.oraclecloud.com:443/icCnTpTxnMgmtPublicService/TransactionService</wsa:Address>
+        <wsid:Identity xmlns:wsid="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <dsig:KeyInfo xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+            <dsig:X509Data>
+              <dsig:X509Certificate>MIIC6DCCAdCgAwIBAgIGAVPWMTF9MA0GCSqGSIb3DQEBCwUAMHgxCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdNeVN0YXRlMQ8wDQYDVQQHEwZNeVRvd24xFzAVBgNVBAoTDk15T3JnYW5pemF0aW9uMRkwFwYDVQQLExBGT1IgVEVTVElORyBPTkxZMRIwEAYDVQQDEwlDZXJ0R2VuQ0EwHhcNMTYwNDAyMDg1NzQxWhcNMjEwNDAxMDg1NzQxWjBTMRMwEQYKCZImiZPyLGQBGRYDY29tMRYwFAYKCZImiZPyLGQBGRYGb3JhY2xlMRIwEAYKCZImiZPyLGQBGRYCdXMxEDAOBgNVBAMTB3NlcnZpY2UwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAJjcbYYbqqf1yiRPsbfyrKqamcpxO8k1Y8LBZUWKopyhI7VUzsj/1afH/RX30MLg6Owy2NSAA6KqYUeSK2Ofnhs9pls0+QyltmC6gUS9LSckNg/fkHz5k89E74nK4tKmK6xGI3BN9kYpsgsxCtxNtMZRQHl2oT2DmHZQ43tBDKh9AgMBAAGjITAfMB0GA1UdDgQWBBSonaJeJp0aJCbep9hW08el7zj6MTANBgkqhkiG9w0BAQsFAAOCAQEARKW82S4WcoOvPpzHMLVWzEFtv5Q47hAT10BUA28i6fgjOIovWHxPpRMTgBqJ55iE2S25/8Tgh563XX5QjFKph8+Dd96ABzeaq9P+Km/AqjjUHupffFc7/pE4U+M19f2CO55RhLDGGdPnTUBieaPm7L0P5cV9EAbZOK8Z6Pu1PJIRYNmAP/2WRIAFYerjRDA33IdEKLdySKsnYdPJRoYceOuwN/yr01euucBSe55F9hp9rBjEIFOR8bmXm4PRg6UN1ra9hZ1uWJGLllrof9ze8GfroyxhHyXhWYJeUGoiuUdN92Cb4/KZMZWSi/SKYn+U0qaQKYbf8AROyb46ZSWwvQ==</dsig:X509Certificate>
+              <dsig:X509IssuerSerial>
+                <dsig:X509IssuerName>CN=CertGenCA, OU=FOR TESTING ONLY, O=MyOrganization, L=MyTown, ST=MyState, C=US</dsig:X509IssuerName>
+                <dsig:X509SerialNumber>1459587461501</dsig:X509SerialNumber>
+              </dsig:X509IssuerSerial>
+              <dsig:X509SubjectName>CN=service, DC=us, DC=oracle, DC=com</dsig:X509SubjectName>
+              <dsig:X509SKI>qJ2iXiadGiQm3qfYVtPHpe84+jE=</dsig:X509SKI>
+            </dsig:X509Data>
+          </dsig:KeyInfo>
+        </wsid:Identity>
+      </wsa:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

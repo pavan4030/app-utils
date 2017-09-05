@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" targetNamespace="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/" sdoJava:package="oracle.apps.incentiveCompensation.cn.transactionProcessing.transactionManagement.publicService" xmlns:ns0="http://xmlns.oracle.com/adf/svc/types/" xmlns:sdoJava="commonj.sdo/java" xmlns:sdoXML="commonj.sdo/xml" xmlns="http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:annotation>
+    <xsd:documentation xmlns:oer="http://xmlns.oracle.com/oer">
+      <name>Incentive Compensation Staging Transaction SDO</name>
+      <description>Service data object to load data into the staging area for
+                compensation transactions. For example, the details of orders
+                1000 and 1001 are stored in the staging area to facilitate
+                transaction collection later.</description>
+      <oer:category name="lba">
+        <value>IcTop-Incentive Compensation Family</value>
+        <value>IcTop-Incentive Compensation Family : IcCnTop-Incentive
+                    Compensation Product</value>
+        <value>IcTop-Incentive Compensation Family : IcCnTop-Incentive
+                    Compensation Product : IcCnTxnTop-Transaction Processing</value>
+        <value>IcTop-Incentive Compensation Family : IcCnTop-Incentive
+                    Compensation Product : IcCnTxnTop-Transaction Processing :
+                    IcCnTpTxnMgmt-Transaction Management</value>
+      </oer:category>
+      <oer:attributes>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute1"/>
+        <oer:attribute description="Reason for the adjustment" name="AdjustmentComments"/>
+        <oer:attribute description="Adjusted state of the transaction" name="AdjustmentStatus"/>
+        <oer:attribute description="Geographic transaction attribute that can be used in the crediting process" name="AreaCode"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute10"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute100"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute101"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute102"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute103"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute104"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute105"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute106"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute107"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute108"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute109"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute11"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute110"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute111"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute112"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute113"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute114"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute115"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute116"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute117"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute118"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute119"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute12"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute120"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute121"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute122"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute123"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute124"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute125"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute126"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute127"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute128"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute129"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute13"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute130"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute131"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute132"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute133"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute134"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute135"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute136"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute137"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute138"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute139"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute14"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute140"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute141"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute142"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute143"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute144"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute145"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute146"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute147"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute148"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute149"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute15"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute150"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute16"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute17"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute18"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute19"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute2"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute20"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute21"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute22"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute23"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute24"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute25"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute26"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute27"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute28"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute29"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute3"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute30"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute31"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute32"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute33"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute34"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute35"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute36"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute37"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute38"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute39"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute4"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute40"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute41"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute42"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute43"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute44"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute45"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute46"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute47"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute48"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute49"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute5"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute50"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute51"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute52"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute53"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute54"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute55"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute56"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute57"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute58"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute59"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute6"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute60"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute61"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute62"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute63"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute64"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute65"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute66"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute67"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute68"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute69"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute7"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute70"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute71"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute72"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute73"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute74"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute75"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute76"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute77"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute78"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute79"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute8"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute80"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute81"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute82"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute83"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute84"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute85"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute86"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute87"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute88"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute89"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute9"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute90"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute91"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute92"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute93"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute94"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute95"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute96"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute97"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute98"/>
+        <oer:attribute description="User-definable descriptive flexfield of character type" name="Attribute99"/>
+        <oer:attribute description="Context segment for the descriptive flexfield" name="AttributeCategory"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber1"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber10"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber11"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber12"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber13"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber14"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber15"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber16"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber17"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber18"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber19"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber2"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber20"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber21"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber22"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber23"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber24"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber25"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber26"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber27"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber28"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber29"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber3"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber30"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber31"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber32"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber33"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber34"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber35"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber36"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber37"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber38"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber39"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber4"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber40"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber41"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber42"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber43"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber44"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber45"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber46"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber47"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber48"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber49"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber5"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber50"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber6"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber7"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber8"/>
+        <oer:attribute description="User-definable descriptive flexfield of numeric type" name="AttributeNumber9"/>
+        <oer:attribute description="Identifier for the address to which the invoice payment is sent; may be different from the shipping address or the customer's main address" name="BillToAddressId"/>
+        <oer:attribute description="Identifier for the contact person, for a transaction" name="BillToContactId"/>
+        <oer:attribute description="Date when the sales order was booked in the order management application" name="BookedDate"/>
+        <oer:attribute description="Unique identifier for the business unit" name="BusinessUnitId"/>
+        <oer:attribute description="Indicates whether the transaction was changed" name="ChangedTrxFlag"/>
+        <oer:attribute description="Geographic transaction attribute that can be used in the crediting process" name="City"/>
+        <oer:attribute description="Unique identifier that points to the classification rule that determines the credit category" name="ClsfnRuleId"/>
+        <oer:attribute description="Collection status of the transaction" name="CollectionStatus"/>
+        <oer:attribute description="Geographic transaction attribute that can be used in the crediting process" name="Country"/>
+        <oer:attribute description="Credit amount in the source currency of the transaction" name="SourceCurrencyCreditAmount"/>
+        <oer:attribute description="Determines the credit receivers when processing the credit rules against transactions" name="CreditDate"/>
+        <oer:attribute description="Unique identifier of the credit rule used in determining attainment for one or more participants" name="CreditRuleId"/>
+        <oer:attribute description="Unique identifier for the participant who receives attainment credit, used in calculating incentive earnings" name="CreditedParticipantId"/>
+        <oer:attribute description="Unique identifier of the customer who bought the items or services listed on the transaction" name="CustomerId"/>
+        <oer:attribute description="Number applied against a gross transaction amount to determine the net amount to be paid by the buyer" name="DiscountPercentage"/>
+        <oer:attribute description="Unique identifier of the credit category, which is populated if the crediting process is overridden after the collection process" name="EligibleCatId"/>
+        <oer:attribute description="Indicates whether the application must exclude the transaction from processing if not credited before setting the hold" name="HoldFlag"/>
+        <oer:attribute description="Unique item identifier from the product model master catalog" name="InventoryItemId"/>
+        <oer:attribute description="Date when the invoice was entered in the source application" name="InvoiceDate"/>
+        <oer:attribute description="Number generated for the invoice in the source application" name="InvoiceNumber"/>
+        <oer:attribute description="Percentage number of the transaction amount that depicts the profit of the sale" name="MarginPercentage"/>
+        <oer:attribute description="Indicates the current state of the transaction; updated by each incentive compensation process during processing" name="ObjectStatus"/>
+        <oer:attribute description="Number of the sales order entered in the order management application" name="OrderNumber"/>
+        <oer:attribute description="Unique identifier for the participant" name="ParticipantId"/>
+        <oer:attribute description="Geographic transaction attribute that can be used in the crediting process" name="PostalCode"/>
+        <oer:attribute description="Customer transaction override code entered manually or during import. The code points to a separate table that contains a separate row for the processing code, the phase, and an option for indicating whether to skip the Processing phase." name="ProcessCode"/>
+        <oer:attribute description="Geographical transaction attribute that can be used in the crediting process" name="Province"/>
+        <oer:attribute description="Reason for adjusting a transaction" name="ReasonCode"/>
+        <oer:attribute description="Indicates the credit amount associated with recognized revenue. For example, a revenue type of credit is considered booked ad recognized revenue; nonrevenue type is considered nonrecognized revenue. Generally, though not always, revenue type credit must tie out to 100 percent of recognized revenue." name="RevenueType"/>
+        <oer:attribute description="Unique identifier of the role associated with the participant" name="RoleId"/>
+        <oer:attribute description="Determines the rollup credit receivers when processing the roll up rules against transactions" name="RollupDate"/>
+        <oer:attribute description="Geographic transaction attribute that can be used in the crediting process" name="SalesChannel"/>
+        <oer:attribute description="Identifier for the address to which the products are shipped; this may be different from the billing address or the customer's main address" name="ShipToAddressId"/>
+        <oer:attribute description="Identifier for the contact person, for a transaction" name="ShipToContactId"/>
+        <oer:attribute description="Identifier for the business unit in the source application where the transaction was created" name="SourceBusinessUnitId"/>
+        <oer:attribute description="Transaction currency code from the source application" name="SourceCurrencyCode"/>
+        <oer:attribute description="Amount of the transaction in the source application currency" name="SourceCurrencyTransactionAmount"/>
+        <oer:attribute description="Date when the transaction event (order, shipped, invoiced, paid) from the base transaction used in calculation processing, occurred" name="SourceEventDate"/>
+        <oer:attribute description="Identifier generated for the transaction in the source application" name="SourceTrxId"/>
+        <oer:attribute description="Line number for the transaction, from the source application" name="SourceTrxLineId"/>
+        <oer:attribute description="Number generated for the transaction by the source application; the combination of this attribute and Transaction Type must be unique" name="SourceTrxNumber"/>
+        <oer:attribute description="Sales Line number for the transaction, from the source application" name="SourceTrxSalesLineId"/>
+        <oer:attribute description="Percentage number that the application applies against the transaction amount to determine the credit amount" name="SplitPct"/>
+        <oer:attribute description="Geographic transaction attribute that can be used in the crediting process" name="State"/>
+        <oer:attribute description="Unique identifier for the territory from the source application that generated the transaction" name="TerrId"/>
+        <oer:attribute description="Territory name from the source application that generated the transaction." name="TerrName"/>
+        <oer:attribute description="Unique identifier for the transaction" name="TransactionId"/>
+        <oer:attribute description="Standardized quantity used as a factor to express occurring quantities of that property" name="TransactionQuantity"/>
+        <oer:attribute description="Further classifies transactions, for example, Base" name="TransactionSubType"/>
+        <oer:attribute description="Specifies the source application of the transaction; for example, ORDER if the transaction is from an order management application." name="TransactionType"/>
+        <oer:attribute description="Exact or specified amount or measure for the transaction line item" name="UOMCode"/>
+        <oer:attribute description="Used for batching logic, depending on the setup parameters of the selected business unit" name="WorkerId"/>
+      </oer:attributes>
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:import namespace="http://xmlns.oracle.com/adf/svc/types/" schemaLocation="TransactionService_1_2_3_4_5_6.xsd"/>
+  <xsd:import namespace="commonj.sdo/java" schemaLocation="TransactionService_1.xsd"/>
+  <xsd:import namespace="commonj.sdo/xml" schemaLocation="TransactionService_1_2_3_4_5_6_7.xsd"/>
+  <xsd:complexType name="TransactionStaging">
+    <xsd:annotation>
+      <xsd:appinfo source="http://xmlns.oracle.com/adf/svc/metadata/">
+        <key xmlns="http://xmlns.oracle.com/adf/svc/metadata/">
+          <attribute>CreditedParticipantId</attribute>
+          <attribute>SourceTrxNumber</attribute>
+          <attribute>TransactionType</attribute>
+        </key>
+      </xsd:appinfo>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element minOccurs="0" name="Attribute1" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="AdjustmentComments" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="AdjustmentStatus" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="AreaCode" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute10" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute100" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute101" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute102" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute103" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute104" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute105" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute106" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute107" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute108" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute109" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute11" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute110" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute111" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute112" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute113" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute114" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute115" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute116" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute117" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute118" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute119" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute12" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute120" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute121" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute122" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute123" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute124" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute125" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute126" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute127" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute128" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute129" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute13" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute130" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute131" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute132" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute133" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute134" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute135" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute136" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute137" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute138" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute139" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute14" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute140" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute141" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute142" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute143" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute144" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute145" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute146" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute147" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute148" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute149" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute15" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute150" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute16" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute17" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute18" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute19" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute2" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute20" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute21" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute22" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute23" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute24" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute25" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute26" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute27" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute28" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute29" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute3" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute30" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute31" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute32" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute33" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute34" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute35" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute36" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute37" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute38" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute39" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute4" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute40" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute41" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute42" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute43" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute44" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute45" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute46" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute47" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute48" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute49" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute5" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute50" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute51" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute52" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute53" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute54" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute55" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute56" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute57" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute58" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute59" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute6" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute60" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute61" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute62" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute63" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute64" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute65" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute66" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute67" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute68" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute69" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute7" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute70" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute71" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute72" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute73" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute74" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute75" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute76" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute77" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute78" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute79" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute8" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute80" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute81" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute82" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute83" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute84" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute85" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute86" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute87" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute88" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute89" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute9" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute90" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute91" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute92" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute93" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute94" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute95" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute96" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute97" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute98" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Attribute99" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="AttributeCategory" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="AttributeNumber1" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber10" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber11" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber12" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber13" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber14" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber15" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber16" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber17" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber18" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber19" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber2" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber20" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber21" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber22" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber23" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber24" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber25" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber26" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber27" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber28" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber29" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber3" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber30" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber31" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber32" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber33" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber34" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber35" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber36" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber37" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber38" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber39" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber4" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber40" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber41" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber42" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber43" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber44" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber45" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber46" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber47" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber48" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber49" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber5" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber50" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber6" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber7" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber8" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="AttributeNumber9" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="BillToAddressId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="BillToContactId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="BookedDate" nillable="true" type="ns0:date-Date"/>
+      <xsd:element minOccurs="0" name="BusinessUnitId" type="xsd:long" sdoXML:dataType="sdoJava:LongObject"/>
+      <xsd:element minOccurs="0" name="ChangedTrxFlag" nillable="true" type="xsd:boolean"/>
+      <xsd:element minOccurs="0" name="City" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="ClsfnRuleId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="CollectionStatus" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Country" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="SourceCurrencyCreditAmount" nillable="true" type="ns0:AmountType"/>
+      <xsd:element minOccurs="0" name="CreditDate" nillable="true" type="ns0:date-Date"/>
+      <xsd:element minOccurs="0" name="CreditRuleId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="CreditedParticipantId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="CustomerId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="DiscountPercentage" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="EligibleCatId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="HoldFlag" nillable="true" type="xsd:boolean"/>
+      <xsd:element minOccurs="0" name="InventoryItemId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="InvoiceDate" nillable="true" type="ns0:date-Date"/>
+      <xsd:element minOccurs="0" name="InvoiceNumber" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="MarginPercentage" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="ObjectStatus" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="OrderNumber" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="ParticipantId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="PostalCode" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="ProcessCode" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="Province" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="ReasonCode" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="RevenueType" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="RoleId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="RollupDate" nillable="true" type="ns0:date-Date"/>
+      <xsd:element minOccurs="0" name="SalesChannel" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="ShipToAddressId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="ShipToContactId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="SourceBusinessUnitId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="SourceCurrencyCode" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="SourceCurrencyTransactionAmount" type="ns0:AmountType"/>
+      <xsd:element minOccurs="0" name="SourceEventDate" type="ns0:date-Date"/>
+      <xsd:element minOccurs="0" name="SourceTrxId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="SourceTrxLineId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="SourceTrxNumber" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="SourceTrxSalesLineId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="SplitPct" nillable="true" type="xsd:decimal"/>
+      <xsd:element minOccurs="0" name="State" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="TerrId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="TerrName" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="TransactionId" nillable="true" type="xsd:long"/>
+      <xsd:element minOccurs="0" name="TransactionQuantity" nillable="true" type="ns0:MeasureType"/>
+      <xsd:element minOccurs="0" name="TransactionSubType" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="TransactionType" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="UOMCode" nillable="true" type="xsd:string"/>
+      <xsd:element minOccurs="0" name="WorkerId" nillable="true" type="xsd:long"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="transactionStaging" type="TransactionStaging"/>
+</xsd:schema>

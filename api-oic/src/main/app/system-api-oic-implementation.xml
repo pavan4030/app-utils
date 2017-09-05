@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+<flow name="atg-oicFlow" processingStrategy="synchronous">
+
+
+    <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	OrderHeader: payload.OrderHeader,
+	commerceItems:{
+		commerceItem: payload.commerceItems.commerceItem map ((salesOrderSKUIdsPayload, salesOrderSKUIdsPayloadIndex) -> {
+			(skuId: salesOrderSKUIdsPayload.skuId) when salesOrderSKUIdsPayload.skuId?,
+			(commercelineItemId: salesOrderSKUIdsPayload.commercelineItemId) when salesOrderSKUIdsPayload.commercelineItemId?,
+			(skuIdType: salesOrderSKUIdsPayload.skuIdType) when salesOrderSKUIdsPayload.skuIdType?,
+			(listPrice: salesOrderSKUIdsPayload.listPrice) when salesOrderSKUIdsPayload.listPrice?,
+			(itemCost: salesOrderSKUIdsPayload.itemCost) when salesOrderSKUIdsPayload.itemCost?,
+			(itemStatus: salesOrderSKUIdsPayload.itemStatus) when salesOrderSKUIdsPayload.itemStatus?,
+			(discountType: salesOrderSKUIdsPayload.discountType) when salesOrderSKUIdsPayload.discountType?,
+			(impositionTypeId: salesOrderSKUIdsPayload.impositionTypeId) when salesOrderSKUIdsPayload.impositionTypeId?,
+			(commissionType: salesOrderSKUIdsPayload.commissionType) when salesOrderSKUIdsPayload.commissionType?,
+			(SerialNumber: salesOrderSKUIdsPayload.SerialNumber) when salesOrderSKUIdsPayload.SerialNumber?,
+			(skuDescription: salesOrderSKUIdsPayload.skuDescription) when salesOrderSKUIdsPayload.skuDescription?,
+	        (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
+	        (quantity: salesOrderSKUIdsPayload.quantity) when salesOrderSKUIdsPayload.quantity?,
+	        
+            FulfillmentDate: parseDateAndConvert(salesOrderSKUIdsPayload.FulfillmentDate) when salesOrderSKUIdsPayload.FulfillmentDate != null and salesOrderSKUIdsPayload.FulfillmentDate !="" otherwise "", 
+	        
+	        (itemType: salesOrderSKUIdsPayload.itemType) when salesOrderSKUIdsPayload.itemType?,
+	        (grossProfit: salesOrderSKUIdsPayload.grossProfit) when salesOrderSKUIdsPayload.grossProfit?,
+	        (serviceTransactionID: salesOrderSKUIdsPayload.serviceTransactionID) when salesOrderSKUIdsPayload.serviceTransactionID?,
+	        (mobileNumber: salesOrderSKUIdsPayload.mobileNumber) when salesOrderSKUIdsPayload.mobileNumber?,
+	        (deviceCategory: salesOrderSKUIdsPayload.deviceCategory) when salesOrderSKUIdsPayload.deviceCategory?,
+	        (activationType: salesOrderSKUIdsPayload.activationType) when salesOrderSKUIdsPayload.activationType?,
+	        (contractType: salesOrderSKUIdsPayload.contractType) when salesOrderSKUIdsPayload.contractType?,
+       		(currencyCode: salesOrderSKUIdsPayload.currencyCode) when salesOrderSKUIdsPayload.currencyCode?,
+			(authCode: salesOrderSKUIdsPayload.authCode) when salesOrderSKUIdsPayload.authCode?,
+			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
+            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?
+		}) filter $.skuIdType != 'paymentGroup' and  $.skuIdType != 'taxPrice' and  $.skuIdType != 'valueAddedGainSpifAmount' and  $.itemStatus != 'ORDERED' and (upper $.skuId) != 'VZWSECDEPSRV' and (upper $.skuId) != 'VZWDPAYMANSRV' and (upper $.skuId) != 'VZWDPAYVOLSRV' and $.itemStatus != 'CANCELLED' and payload.OrderHeader.miscInfo.CCRScommissionCalculated != 'N'
+	}
+	
+}
+]]></dw:set-payload>
+            <dw:set-variable variableName="salesOrderId"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
+        </dw:transform-message>
+        <logger message="atg-oicFlow ----#[payload]" level="INFO" doc:name="Logger"/>
+        <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+        <set-variable variableName="commerceItemsSize" value="#[new com.google.gson.JsonParser().parse(payload).getAsJsonObject().getAsJsonObject('commerceItems').getAsJsonArray('commerceItem').size()]" doc:name="Variable"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.commerceItemsSize &gt; 0]">
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:input-payload mimeType="application/json"/>
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/
+%namespace ns1 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/
+%namespace ns2 http://xmlns.oracle.com/adf/svc/types/
+---
+{
+	ns0#processIncentiveTransactionStaging: {
+		ns0#changeOperation: 'Merge',
+		(payload.commerceItems.commerceItem map ((transactionStagingPayload, transactionStagingPayloadIndex) -> {
+		
+		ns0#incentiveTransactionStaging: {
+			ns1#Attribute1: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId,
+			ns1#Attribute11: payload.OrderHeader.agentInfo.agentId,
+			ns1#Attribute15: payload.OrderHeader.customerInfo.tccCustomerName,
+			ns1#Attribute2: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreName,
+			ns1#Attribute25: payload.OrderHeader.agentInfo.commissionableAgentId,
+			ns1#Attribute26: payload.OrderHeader.agentInfo.commissionableAgentOrgRole,
+			ns1#Attribute29: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaId,
+			ns1#Attribute4: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictId,
+			ns1#Attribute5: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictName,
+			ns1#Attribute6: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketId,
+			ns1#Attribute7: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketName,
+			ns1#Attribute8: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaName,
+			ns1#Attribute41: transactionStagingPayload.commercelineItemId,
+			ns1#Attribute16: transactionStagingPayload.skuId,
+			ns1#Attribute17: transactionStagingPayload.skuDescription,
+			ns1#Attribute19: transactionStagingPayload.categoryId,
+			ns1#TransactionQuantity: transactionStagingPayload.quantity,
+			ns1#SourceEventDate: transactionStagingPayload.FulfillmentDate,
+			ns1#Attribute44: transactionStagingPayload.itemType,
+			ns1#AttributeNumber7: (transactionStagingPayload.listPrice when transactionStagingPayload.listPrice? otherwise transactionStagingPayload.commissionPayableAmount) - (transactionStagingPayload.itemCost when transactionStagingPayload.itemCost != "" otherwise '0'),
+			ns1#Attribute14: transactionStagingPayload.serviceTransactionID,
+			ns1#Attribute12: transactionStagingPayload.mobileNumber,
+			ns1#Attribute42: transactionStagingPayload.deviceCategory,
+			ns1#Attribute39: transactionStagingPayload.activationType,
+			ns1#Attribute40: transactionStagingPayload.contractType,
+			ns1#AttributeNumber1: transactionStagingPayload.itemCost when transactionStagingPayload.skuIdType == 'original' otherwise '0',
+			ns1#InvoiceNumber: payload.OrderHeader.orderInfo.orderId,
+			ns1#ParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId,
+			ns1#SourceCurrencyCode: transactionStagingPayload.currencyCode,
+			ns1#SourceCurrencyTransactionAmount: transactionStagingPayload.listPrice when transactionStagingPayload.listPrice? otherwise transactionStagingPayload.commissionPayableAmount,
+			ns1#SourceTrxNumber : (([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType)),
+				//when (sizeOf (([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType))) > 30 
+				//otherwise ([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType),
+			//(ns1#SourceTrxNumber : [payload.OrderHeader.orderInfo.orderId,transactionStagingPayload.commercelineItemId,'00' ++ transactionStagingPayloadIndex] joinBy "-" ) when transactionStagingPayload.skuIdType != 'original',
+			//ns1#CreditedParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId,
+			ns1#TransactionType : p('TransactionType'),
+			ns1#BusinessUnitId : p('BusinessUnitId'),
+			ns1#Attribute3 : p('Attribute3'),
+			ns1#Attribute27 : p('Attribute27')
+			//numberCount: numberCount(transactionStagingPayload.skuIdType)
+			
+		}
+		})),
+		ns0#processControl: {
+			ns2#returnMode: 'Key',
+			ns2#exceptionReturnMode: 'Key',
+			ns2#partialFailureAllowed: true as :boolean
+		}
+	} 
+	
+	} when (sizeOf payload.commerceItems.commerceItem) > 0 otherwise {NoXML: 'No tag'}]]></dw:set-payload>
+                </dw:transform-message>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <logger message="OIC - SalesOrder - Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
+                <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
+                <until-successful maxRetries="${oic.maxretires}" millisBetweenRetries="${oic.milliseconds.between.maxretires}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="RetryBy-UntilSuccessful">
+                    <flow-ref name="atg-oicFlow-response-consumer" doc:name="atg-oicFlow-response-consumer"/>
+
+                </until-successful>
+
+            </when>
+            <otherwise>
+                <set-payload value="#['No request has been formed']" doc:name="Set Payload"/>
+            </otherwise>
+        </choice>
+        <!-- <json:validate-schema schemaLocation="atg-oic-salesorder-schema.json" doc:name="Validate JSON Schema"/> -->
+        <!-- <ws:consumer config-ref="OIC_Web_Service_Consumer" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/> -->
+        <logger message="OIC - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="OIC - WS - Failure - After Retries" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
+            <dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+       errorMessage:
+       {
+              errorCode: "Connection Exception",
+              errorDescription: "Connection Exception - SalesOrder OIC Service Failure"
+       }
+}]]></dw:set-payload>
+            </dw:transform-message>
+            	
+        </catch-exception-strategy>
+        
+    </flow>
+    <flow name="atg-oicFlow-response-consumer" processingStrategy="synchronous">
+    	<logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
+        <set-variable variableName="oicRequest" value="#[payload]" doc:name="Variable"/>
+        <ws:consumer config-ref="" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/
+%namespace ns1 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/
+---
+{
+	ns0#processIncentiveTransactionStagingResponse: {
+		((payload.ns0#processIncentiveTransactionStagingResponse.*ns0#result default []) map ((result , indexOfResult1) -> {
+			ns0#result: {
+				//Attribute2: result.ns1#Attribute2,
+				//AttributeNumber12: result.ns1#AttributeNumber12,
+				//AttributeNumber13: result.ns1#AttributeNumber13,
+				//AttributeNumber14: result.ns1#AttributeNumber14,
+				//BusinessUnitId: result.ns1#BusinessUnitId,
+				//CreditedParticipantId: result.ns1#CreditedParticipantId,
+				//SourceCurrencyTransactionAmount: result.ns1#SourceCurrencyTransactionAmount,
+				//SourceEventDate: result.ns1#SourceEventDate,
+				SourceTrxNumber: result.ns1#SourceTrxNumber
+				//TransactionId: result.ns1#TransactionId,
+				//TransactionType: result.ns1#TransactionType
+			}
+		}))
+	} when payload.ns0#processIncentiveTransactionStagingResponse != null otherwise payload.ns0#processIncentiveTransactionStagingResponse
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
+
+        <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+        	<catch-exception-strategy doc:name="SoapFault Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
+            	<logger message="OIC-Salesorder-SoapFault Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.oic"/>
+                <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
+                <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+       errorMessage:
+       {
+              errorCode: "Soap Fault Exception",
+              errorDescription: flowVars.exceptionMsg
+       }
+}]]></dw:set-payload>
+                </dw:transform-message>
+
+
+       		 </catch-exception-strategy>
+       		 <catch-exception-strategy doc:name="Catch Exception Strategy">
+            	<logger message="OIC-Salesorder-Connection Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.oic"/>
+                <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
+
+                <set-payload value="#[flowVars.oicRequest]" doc:name="Set Payload"/>
+
+        	</catch-exception-strategy>
+        </choice-exception-strategy>
+        
+    </flow>
+    
+</mule>
