@@ -164,29 +164,37 @@
     </dependencies>
 
 	<repositories>
-          <repository>
-            <id>Central</id>
-            <name>Central</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <layout>default</layout>
-        </repository>
-        <repository>
-            <id>mulesoft-releases</id>
-            <name>MuleSoft Releases Repository</name>
-            <url>http://repository.mulesoft.org/releases/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>mulesoft-release</id>
-            <name>mulesoft release repository</name>
-            <layout>default</layout>
-            <url>http://repository.mulesoft.org/releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+		<repository>
+			<id>Central</id>
+			<name>Central</name>			<url>http://repo1.maven.org/maven2/</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>mulesoft-releases</id>
+			<name>MuleSoft Releases Repository</name>
+			<url>http://repository.mulesoft.org/releases/</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>codelds</id>
+			<url>https://code.lds.org/nexus/content/groups/main-repo</url>
+		</repository>
+		<repository>
+			<id>muleforge-releases</id>
+			<name>MuleForge Snapshot Repository</name>
+			<url>https://repository-master.mulesoft.org/nexus/content/repositories/releases/</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>mulesoft-release</id>
+			<name>mulesoft release repository</name>
+			<layout>default</layout>
+			<url>http://repository.mulesoft.org/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 
 </project>
