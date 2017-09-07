@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <flow name="application-utils-Flow">
+        <jms:inbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="payload From Q to DB ::: #[payload]" level="INFO" doc:name="Logger"/>
+        <db:insert config-ref="Oracle_Configuration" doc:name="Database">
+            <db:parameterized-query><![CDATA[INSERT INTO APP_SYNC_PAYLOAD (ID,APP_ID,APP_RESOURCE,APP_METHOD,CORRELATION_ID,TRANSACTION_ID,REQUEST,RESPONSE,CREATE_TS)
+ VALUES (18,#[payload.APP_ID],#[payload.APP_RESOURCE],#[payload.APP_METHOD],#[payload.CORRELATION_ID],#[payload.TRANSACTION_ID],#[payload.REQUEST],#[payload.RESPONSE],CURRENT_TIMESTAMP)]]></db:parameterized-query>
+        </db:insert>
+    </flow>
+</mule>
