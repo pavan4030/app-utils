@@ -19,7 +19,8 @@ payload]]></dw:set-payload>
         <logger message="payload From Q to DB ::: #[payload]" level="INFO" doc:name="Logger"/>
         <db:insert config-ref="Oracle_Configuration" doc:name="Database">
             <db:parameterized-query><![CDATA[INSERT INTO APP_SYNC_PAYLOAD (ID,APP_ID,APP_RESOURCE,APP_METHOD,CORRELATION_ID,TRANSACTION_ID,REQUEST,RESPONSE,CREATE_TS)
- VALUES (18,#[payload.APP_ID],#[payload.APP_RESOURCE],#[payload.APP_METHOD],#[payload.CORRELATION_ID],#[payload.TRANSACTION_ID],#[payload.REQUEST],#[payload.RESPONSE],CURRENT_TIMESTAMP)]]></db:parameterized-query>
+ VALUES (APP_SYNC_PAYLOAD_SEQ.nextVal,#[payload.APP_ID],#[payload.APP_RESOURCE],#[payload.APP_METHOD],#[payload.CORRELATION_ID],#[payload.TRANSACTION_ID],#[payload.REQUEST],#[payload.RESPONSE],CURRENT_TIMESTAMP)]]></db:parameterized-query>
+
         </db:insert>
     </flow>
 </mule>
