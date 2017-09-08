@@ -54,7 +54,7 @@ VALUES(:seq,:processName,:sourceFile,:overallResult);]]></db:parameterized-query
     </db:template-query>
     
       <flow name="GatherBatchNotifications" doc:description="Gather Batch Execution Metrics from the ESB Notifications Queue. Message has to conform to the Execution Metrics JSON format">
-        <jms:inbound-endpoint queue="${notifications.queue}1" connector-ref="Active_MQ" doc:name="JMS"/>
+        <jms:inbound-endpoint queue="${notifications.queue}" connector-ref="Active_MQ" doc:name="JMS"/>
 
         <dw:transform-message doc:name="Transform Message" metadata:id="d27ed0e2-7799-496e-b6f9-ad69b07a0a55">
             <dw:input-payload mimeType="application/json"/>
