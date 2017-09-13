@@ -339,9 +339,18 @@ payload.mailrecipients]]></dw:set-variable>
 ---
 payload.mailsubject]]></dw:set-variable>
         </dw:transform-message>
+        
+        <scatter-gather doc:name="Scatter-Gather">
+            <processor-chain>
+                <parse-template location="generic-mail-template.html" doc:name="Generic Template"/>
+                <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailGenericrecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="SMTP"/>
+            </processor-chain>
+            <processor-chain>
+                <parse-template location="verbose-mail-template.html" doc:name="Verbose Template"/>
+                <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailVerboserecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="SMTP"/>
+            </processor-chain>
+        </scatter-gather>
 
-        <parse-template location="mail-template.html" doc:name="Parse Template"/>
-        <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" to="#[flowVars.mailIds]"/>
     </flow>
     
     
