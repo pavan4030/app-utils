@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder"
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder"
 	xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
 	xmlns:context="http://www.springframework.org/schema/context" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mulesoft.org/schema/mule/secure-property-placeholder/current/mule-secure-property-placeholder.xsd
 http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
@@ -7,7 +7,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
 
     <apikit:config name="system-api-oic-config" raml="system-api-oic.raml" consoleEnabled="false" doc:name="Router"/>
  
@@ -71,16 +72,29 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	<secure-property-placeholder:config name="Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:api-oic-${mule.env}.properties,file:///opt/app/esb/app-config/api-oic-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/>
     
     <flow name="system-api-oic-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <http:listener config-ref="shared-httpListenerConfig" path="/api-oic/*" doc:name="HTTP"/>
         <apikit:router config-ref="system-api-oic-config" doc:name="APIkit Router"/>
         <exception-strategy ref="system-api-oic-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="system-api-oic-console">
-        <http:listener config-ref="shared-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <http:listener config-ref="shared-httpListenerConfig" path="/api-oic/console/*" doc:name="HTTP"/>
         <apikit:console config-ref="system-api-oic-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="post:/salesorder-oic:system-api-oic-config">
+        <logger message="Salesorder System API - OIC - Request ::  #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
         <flow-ref name="atg-oicFlow" doc:name="atg-oicFlow"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	OICInput: flowVars.oicParsedRequest,
+	OICOutput:payload
+}]]></dw:set-payload>
+
+        </dw:transform-message>
+        <object-to-string-transformer doc:name="Object to String" mimeType="application/json"/>
+        <logger message="Salesorder System API - OIC - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
 
     </flow>
     <apikit:mapping-exception-strategy name="system-api-oic-apiKitGlobalExceptionMapping">

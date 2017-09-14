@@ -131,6 +131,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 	
 	} when (sizeOf payload.commerceItems.commerceItem) > 0 otherwise {NoXML: 'No tag'}]]></dw:set-payload>
                 </dw:transform-message>
+                <set-variable variableName="oicParsedRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
                 <object-to-string-transformer doc:name="Object to String"/>
                 <logger message="OIC - SalesOrder - Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
                 <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
@@ -196,12 +197,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 }]]></dw:set-payload>
         </dw:transform-message>
         <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
-        <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-payload]]></dw:set-payload>
-        </dw:transform-message>
+
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
 
         <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
