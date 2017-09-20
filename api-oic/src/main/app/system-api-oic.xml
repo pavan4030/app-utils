@@ -28,13 +28,15 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
             }  
           def parseDateAndConvert(string)
             {
-               java.text.SimpleDateFormat dateformat =new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-               
-                java.util.Date toDate = dateformat.parse(string);
-                java.text.SimpleDateFormat stringFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
-                String dateStr = stringFormat.format(toDate);
-                
-            	return dateStr;
+               if((string.matches("((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01]) ([2][0-3]|[0-1][0-9]|[1-9]):[0-5][0-9]:([0-5][0-9]|[6][0])"))){
+			   		java.text.SimpleDateFormat dateformat =new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			      	java.util.Date toDate = dateformat.parse(string);
+	                java.text.SimpleDateFormat stringFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+	                String dateStr = stringFormat.format(toDate);
+	                return dateStr;
+			    } else {
+			      return string;
+			    }
 	        }
 			def getCount(skuIdType){
 					counter = com.tccrocks.integration.salesorder.GenerateSequenceNumber.getInstance().getCounter(skuIdType);
@@ -47,13 +49,19 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 				}
 			def parseDateAndConvertTrecs(string)
 			{
-				java.text.SimpleDateFormat dateformat =new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-               
-                java.util.Date toDate = dateformat.parse(string);
-                java.text.SimpleDateFormat stringFormat = new java.text.SimpleDateFormat("yyyyMMdd");
-                String dateStr = stringFormat.format(toDate);
-                
-            	return dateStr;
+				if((string.matches("((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01]) ([2][0-3]|[0-1][0-9]|[1-9]):[0-5][0-9]:([0-5][0-9]|[6][0])"))){
+            		java.text.SimpleDateFormat dateformat =new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			      	java.util.Date toDate = dateformat.parse(string);
+	                java.text.SimpleDateFormat stringFormat = new java.text.SimpleDateFormat("yyyyMMdd");
+	                String dateStr = stringFormat.format(toDate);
+	                return dateStr;
+			    } else {
+			    	java.text.SimpleDateFormat dateformat =new java.text.SimpleDateFormat("yyyy-MM-dd");
+			     	java.util.Date toDate = dateformat.parse(string);
+	                java.text.SimpleDateFormat stringFormat = new java.text.SimpleDateFormat("yyyyMMdd");
+	                String dateStr = stringFormat.format(toDate);
+	                return dateStr;
+			    }
 			}
 			
 			def getOrderIdSubString(string) 
