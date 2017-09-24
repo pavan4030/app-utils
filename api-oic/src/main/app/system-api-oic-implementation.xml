@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json"
 	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -10,9 +10,11 @@
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
-http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
 
 <flow name="atg-oicFlow" processingStrategy="synchronous">
+        <set-variable variableName="oicSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
 
 
     <dw:transform-message doc:name="Transform Message">
@@ -60,7 +62,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 ---
 payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         </dw:transform-message>
-        <logger message="atg-oicFlow ----#[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
         <set-variable variableName="commerceItemsSize" value="#[new com.google.gson.JsonParser().parse(payload).getAsJsonObject().getAsJsonObject('commerceItems').getAsJsonArray('commerceItem').size()]" doc:name="Variable"/>
         <choice doc:name="Choice">
@@ -131,23 +133,61 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 	
 	} when (sizeOf payload.commerceItems.commerceItem) > 0 otherwise {NoXML: 'No tag'}]]></dw:set-payload>
                 </dw:transform-message>
-                <set-variable variableName="oicParsedRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
-                <object-to-string-transformer doc:name="Object to String"/>
-                <logger message="OIC - SalesOrder - Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
-                <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
-                <until-successful maxRetries="${oic.maxretires}" millisBetweenRetries="${oic.milliseconds.between.maxretires}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="RetryBy-UntilSuccessful">
-                    <flow-ref name="atg-oicFlow-response-consumer" doc:name="atg-oicFlow-response-consumer"/>
+                <flow-ref name="atg-oic-so-flow" doc:name="atg-oic-so-flow"/>
 
-                </until-successful>
 
             </when>
             <otherwise>
-                <set-payload value="#['No request has been formed']" doc:name="Set Payload"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"success": "true",
+	"payload": "OIC - No request has been formed"
+}]]></dw:set-payload>
+                </dw:transform-message>
+
             </otherwise>
         </choice>
-        <!-- <json:validate-schema schemaLocation="atg-oic-salesorder-schema.json" doc:name="Validate JSON Schema"/> -->
-        <!-- <ws:consumer config-ref="OIC_Web_Service_Consumer" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/> -->
-        <logger message="OIC - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
+        <logger message="System API - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="OIC - WS - Transformation Issue" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
+            <dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"success": "false",
+	"payload": "",
+	"error": {
+		"code": "OIC1020",
+		"description": "OIC - System API Service Exception -- Something is wrong in Service -- Please check with Administrator"
+	}
+}]]></dw:set-payload>
+            </dw:transform-message>
+            <message-properties-transformer doc:name="Message Properties">
+                    <add-message-property key="request" value="#[flowVars.oicSysAPIRequest]"/>
+                    <add-message-property key="exceptionMsg" value="Exception - Salesorder - OIC - Transformation Issue"/>
+                    <add-message-property key="ipAddress" value="#[server.ip]"/>
+                	<add-message-property key="host" value="#[server.host]"/>
+                	<add-message-property key="mailsubject" value="#[flowVars.salesOrderId  + ' - OIC']"/>
+                </message-properties-transformer>
+            <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
+                <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>
+            </enricher>
+                
+                
+            	
+        </catch-exception-strategy>
+        
+    </flow>
+    <flow name="atg-oic-so-flow" processingStrategy="synchronous">
+        <set-variable variableName="oicWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <until-successful maxRetries="${oic.maxretires}" millisBetweenRetries="${oic.milliseconds.between.maxretires}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="RetryBy-UntilSuccessful">
+            <flow-ref name="atg-oicFlow-response-consumer" doc:name="atg-oicFlow-response-consumer"/>
+        </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger message="OIC - WS - Failure - After Retries" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
             <dw:transform-message doc:name="Transform Message">
@@ -155,20 +195,34 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 %output application/json
 ---
 {
-       errorMessage:
-       {
-              errorCode: "Connection Exception",
-              errorDescription: "Connection Exception - SalesOrder OIC Service Failure"
-       }
+	"success": "false",
+	"payload": flowVars.oicWSRequest,
+	"error": {
+		"code": "OIC1010",
+		"description": "Connection Exception - SalesOrder OIC Service Failure"
+	}
 }]]></dw:set-payload>
             </dw:transform-message>
+           <message-properties-transformer doc:name="Message Properties">
+                    <add-message-property key="request" value="#[flowVars.oicWSRequest]"/>
+                    <add-message-property key="exceptionMsg" value="Exception - SalesOrder OIC Service Failure"/>
+                    <add-message-property key="ipAddress" value="#[server.ip]"/>
+                	<add-message-property key="host" value="#[server.host]"/>
+                	<add-message-property key="mailsubject" value="#[flowVars.salesOrderId  + ' - OIC']"/>
+                </message-properties-transformer>
+            <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
+                <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>
+            </enricher>
+            <enricher source="retryQueuePayload" target="#[payload]" doc:name="Message Enricher">
+                <flow-ref name="system-api-oic-implementationFlow-Retry-Queue-Flow" doc:name="system-api-oic-implementationFlow-Retry-Queue-Flow"/>
+            </enricher>
             	
         </catch-exception-strategy>
-        
     </flow>
     <flow name="atg-oicFlow-response-consumer" processingStrategy="synchronous">
-    	<logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
-        <set-variable variableName="oicRequest" value="#[payload]" doc:name="Variable"/>
+
+        <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
+        <logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
         <ws:consumer config-ref="" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
@@ -196,14 +250,23 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 	} when payload.ns0#processIncentiveTransactionStagingResponse != null otherwise payload.ns0#processIncentiveTransactionStagingResponse
 }]]></dw:set-payload>
         </dw:transform-message>
+        <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
         <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
 
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"success": "true",
+	"payload": payload
+}]]></dw:set-payload>
+        </dw:transform-message>
 
-        <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="OIC-Salesorder-SoapFault Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.oic"/>
+            	<logger message="OIC-Salesorder-SoapFault Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
                 <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
                 <dw:transform-message doc:name="Transform Message">
@@ -211,25 +274,37 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 %output application/json
 ---
 {
-       errorMessage:
-       {
-              errorCode: "Soap Fault Exception",
-              errorDescription: flowVars.exceptionMsg
-       }
+	"success": "false",
+	"payload": "",
+	"error": {
+		"code": "OIC1030",
+		"description": flowVars.exceptionMsg
+	}
 }]]></dw:set-payload>
                 </dw:transform-message>
+                <message-properties-transformer doc:name="Message Properties">
+                    <add-message-property key="request" value="#[flowVars.oicWSRequest]"/>
+                    <add-message-property key="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]"/>
+                    <add-message-property key="ipAddress" value="#[server.ip]"/>
+                	<add-message-property key="host" value="#[server.host]"/>
+                	<add-message-property key="mailsubject" value="#[flowVars.salesOrderId  + ' - OIC']"/>
+                </message-properties-transformer>
+            <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
+                <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>
+            </enricher>
 
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="OIC-Salesorder-Connection Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.oic"/>
+            	<logger message="OIC-Salesorder-Connection Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
-                <set-payload value="#[flowVars.oicRequest]" doc:name="Set Payload"/>
+                <set-payload value="#[flowVars.oicWSRequest]" doc:name="Set Payload"/>
 
         	</catch-exception-strategy>
         </choice-exception-strategy>
         
     </flow>
+    
     
 </mule>
