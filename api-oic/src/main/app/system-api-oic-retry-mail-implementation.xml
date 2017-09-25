@@ -130,7 +130,7 @@ return result;]]></scripting:script>
 
             <dw:transform-message doc:name="Transform Message">
                 <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
+%output application/xml
 %namespace ns0 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/
 %namespace ns1 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/
 %namespace ns2 http://xmlns.oracle.com/adf/svc/types/
@@ -194,24 +194,25 @@ return result;]]></scripting:script>
 	} when (sizeOf payload.commerceItems.commerceItem) > 0 otherwise {NoXML: 'No tag'}]]></dw:set-payload>
 		
             </dw:transform-message>
-
-            <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml skipNullOn = "everywhere"
----
-payload]]></dw:set-payload>
-                <dw:set-variable variableName="salesOrderId"><![CDATA[%dw 1.0
-%output application/java
----
-payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
-            </dw:transform-message>
-            <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+            <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
             <logger message="Json from Java Parsed Data ? #[payload]" level="INFO" doc:name="Logger"/>
         </transactional>
 
         
     	
     </sub-flow>
+    <flow name="system-api-oic-retry-mail-implementationFlow">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml skipNullOn = "everywhere"
+---
+payload]]></dw:set-payload>
+            <dw:set-variable variableName="salesOrderId"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
+        </dw:transform-message>
+    </flow>
 
 	<sub-flow name="delete-record-from-APP-Sync">
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
