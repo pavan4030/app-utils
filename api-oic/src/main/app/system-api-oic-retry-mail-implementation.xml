@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
 	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
 	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
@@ -12,7 +12,9 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
-http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
 
 	<flow name="system-api-oic-implementationFlow-Retry-Queue-Flow" processingStrategy="synchronous">
@@ -28,31 +30,22 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
             <add-message-property key="REQUEST_TYPE" value="${oic.app.sync.recovery.servicename}"/>
             <add-message-property key="AMQ_SCHEDULED_DELAY" value="${oic.app.sync.recovery.q.delay}"/>
         </message-properties-transformer>
-      <choice doc:name="Choice">
-            <when expression="#[payload.contains(&quot;Connection Exception&quot;)]">
-                <set-payload value="#[flowVars.oicWSRequest]" doc:name="Set Payload"/>
-                <scatter-gather doc:name="Scatter-Gather">
-                    <processor-chain>
-                        <set-payload value="#[flowVars.salesOrderId]" doc:name="Set Payload"/>
-                        <logger message="OIC Failed again and pushing to Q for #[flowVars.RETRY_COUNT]" level="INFO" doc:name="Logger"/>
-                        <jms:outbound-endpoint queue="${oic.app.sync.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
-                    </processor-chain>
-                    <flow-ref name="atg-push-payload-db" doc:name="atg-push-payload-db"/>
-                </scatter-gather>
-            
-      </when>
-            <otherwise>
-                <logger message="OIC Flow - Order ID Response is other than Connection Exception - Trying to delete the entry from APP_SYNC_RECOVERY table if exists" level="INFO" doc:name="Logger"/>
-                <flow-ref name="delete-record-from-APP-Sync" doc:name="delete-record-from-APP-Sync"/>
-            </otherwise>
-      </choice>
+        <set-payload value="#[flowVars.oicWSRequest]" doc:name="Set Payload"/>
+        <scatter-gather doc:name="Scatter-Gather">
+            <processor-chain>
+                <set-payload value="#[flowVars.salesOrderId]" doc:name="Set Payload"/>
+                <logger message="OIC Failed again and pushing to Q for #[flowVars.RETRY_COUNT]" level="INFO" doc:name="Logger"/>
+                <jms:outbound-endpoint queue="${oic.app.sync.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
+            </processor-chain>
+            <flow-ref name="atg-push-payload-db" doc:name="atg-push-payload-db"/>
+        </scatter-gather>
 	
 	</flow>
 	
 	
 	<flow name="atg-oicFlow-retry-from-queue" processingStrategy="synchronous">
        <jms:inbound-endpoint queue="${oic.app.sync.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
-        <set-variable variableName="RETRY_COUNT" value="#[Integer.parseInt(message.inboundProperties.RETRY_ATTEMPT_COUNT)+1]" doc:name="Variable"/>
+        <set-variable variableName="RETRY_COUNT" value="#[Integer.parseInt(null != message.inboundProperties.RETRY_ATTEMPT_COUNT? message.inboundProperties.RETRY_ATTEMPT_COUNT:1)+1]" doc:name="Variable"/>
         <set-variable variableName="salesOrderId" value="#[payload]" doc:name="Variable"/>
         <logger message="JMS Queue Reading the order ID - #[payload] and repushing for #[message.inboundProperties.RETRY_ATTEMPT_COUNT] time" level="INFO" doc:name="Logger"/>
 
@@ -103,11 +96,14 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
     <sub-flow name="db-fetch-results">
         <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
-                <db:dynamic-query><![CDATA[select * from APP_RECOVERY_SYNC_PAYLOAD where TRANSACTION_ID = '#[flowVars.salesOrderId]']]></db:dynamic-query>
+                <db:dynamic-query><![CDATA[select * from APP_RECOVERY_SYNC_PAYLOAD where TRANSACTION_ID = 'o1234567']]></db:dynamic-query>
 
             </db:select>
-            <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
+            <logger message="Payload ? #[payload] :: #[payload.size()==0] :: #[payload.size()]" level="INFO" doc:name="Logger"/>
+            <choice doc:name="Choice">
+                <when expression="#[payload != null &amp;&amp; payload.size() &gt; 0]">
+                   <dw:transform-message doc:name="Transform Message">
+                        <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
 payload map {
@@ -116,103 +112,19 @@ payload map {
 	UPDATE_TS: $.UPDATE_TS,
 	REQUEST : ($.REQUEST.characterStream) when $.REQUEST? otherwise ""
 }]]></dw:set-payload>
-            </dw:transform-message>
-            <scripting:component doc:name="Groovy">
-                <scripting:script engine="Groovy"><![CDATA[
-def slurper = new groovy.json.JsonSlurper();
-def result = "";
-for (objKey in payload) {
-	result = slurper.parseText(objKey.REQUEST);
-}
-return result;]]></scripting:script>
-            </scripting:component>
-
-
-            <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml
-%namespace ns0 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/
-%namespace ns1 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/
-%namespace ns2 http://xmlns.oracle.com/adf/svc/types/
----
-{
-	ns0#processIncentiveTransactionStaging: {
-		ns0#changeOperation: 'Merge',
-		(payload.commerceItems.commerceItem map ((transactionStagingPayload, transactionStagingPayloadIndex) -> {
-		
-		ns0#incentiveTransactionStaging: {
-			ns1#Attribute1: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId,
-			ns1#Attribute11: payload.OrderHeader.agentInfo.agentId,
-			ns1#Attribute15: payload.OrderHeader.customerInfo.tccCustomerName,
-			ns1#Attribute2: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreName,
-			ns1#Attribute25: payload.OrderHeader.agentInfo.commissionableAgentId,
-			ns1#Attribute26: payload.OrderHeader.agentInfo.commissionableAgentOrgRole,
-			ns1#Attribute29: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaId,
-			ns1#Attribute4: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictId,
-			ns1#Attribute5: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictName,
-			ns1#Attribute6: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketId,
-			ns1#Attribute7: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketName,
-			ns1#Attribute8: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaName,
-			ns1#Attribute41: transactionStagingPayload.commercelineItemId,
-			ns1#Attribute16: transactionStagingPayload.skuId,
-			ns1#Attribute17: transactionStagingPayload.skuDescription,
-			ns1#Attribute19: transactionStagingPayload.categoryId,
-			ns1#TransactionQuantity: transactionStagingPayload.quantity,
-			ns1#SourceEventDate: transactionStagingPayload.FulfillmentDate,
-			ns1#Attribute44: transactionStagingPayload.itemType,
-			ns1#AttributeNumber7: (transactionStagingPayload.listPrice when transactionStagingPayload.listPrice? otherwise transactionStagingPayload.commissionPayableAmount) - (transactionStagingPayload.itemCost when transactionStagingPayload.itemCost != "" otherwise '0'),
-			ns1#Attribute14: transactionStagingPayload.serviceTransactionID,
-			ns1#Attribute12: transactionStagingPayload.mobileNumber,
-			ns1#Attribute42: transactionStagingPayload.deviceCategory,
-			ns1#Attribute39: transactionStagingPayload.activationType,
-			ns1#Attribute40: transactionStagingPayload.contractType,
-			ns1#AttributeNumber1: transactionStagingPayload.itemCost when transactionStagingPayload.skuIdType == 'original' otherwise '0',
-			ns1#InvoiceNumber: payload.OrderHeader.orderInfo.orderId,
-			ns1#ParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId,
-			ns1#SourceCurrencyCode: transactionStagingPayload.currencyCode,
-			ns1#SourceCurrencyTransactionAmount: transactionStagingPayload.listPrice when transactionStagingPayload.listPrice? otherwise transactionStagingPayload.commissionPayableAmount,
-			ns1#SourceTrxNumber : (([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType)),
-				//when (sizeOf (([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType))) > 30 
-				//otherwise ([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType),
-			//(ns1#SourceTrxNumber : [payload.OrderHeader.orderInfo.orderId,transactionStagingPayload.commercelineItemId,'00' ++ transactionStagingPayloadIndex] joinBy "-" ) when transactionStagingPayload.skuIdType != 'original',
-			//ns1#CreditedParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId,
-			ns1#TransactionType : p('TransactionType'),
-			ns1#BusinessUnitId : p('BusinessUnitId'),
-			ns1#Attribute3 : p('Attribute3'),
-			ns1#Attribute27 : p('Attribute27')
-			//numberCount: numberCount(transactionStagingPayload.skuIdType)
-			
-		}
-		})),
-		ns0#processControl: {
-			ns2#returnMode: 'Key',
-			ns2#exceptionReturnMode: 'Key',
-			ns2#partialFailureAllowed: true as :boolean
-		}
-	} 
-	
-	} when (sizeOf payload.commerceItems.commerceItem) > 0 otherwise {NoXML: 'No tag'}]]></dw:set-payload>
-		
-            </dw:transform-message>
-            <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-            <logger message="Json from Java Parsed Data ? #[payload]" level="INFO" doc:name="Logger"/>
+                    </dw:transform-message>
+                    <set-payload value="#[payload[0].REQUEST]" mimeType="application/xml" doc:name="Set Payload"></set-payload>
+                </when>
+                <otherwise>
+                    <logger message="No Records found for this order in DB Table - Hence Stopping the record here" level="INFO" doc:name="Logger"/>
+                    <expression-filter expression="false" doc:name="Expression"/>
+                </otherwise>
+            </choice>
         </transactional>
 
         
     	
     </sub-flow>
-    <flow name="system-api-oic-retry-mail-implementationFlow">
-        <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml skipNullOn = "everywhere"
----
-payload]]></dw:set-payload>
-            <dw:set-variable variableName="salesOrderId"><![CDATA[%dw 1.0
-%output application/java
----
-payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
-        </dw:transform-message>
-    </flow>
 
 	<sub-flow name="delete-record-from-APP-Sync">
         <db:select config-ref="Oracle_Configuration" doc:name="Database">

@@ -64,6 +64,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         </dw:transform-message>
         <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+
         <set-variable variableName="commerceItemsSize" value="#[new com.google.gson.JsonParser().parse(payload).getAsJsonObject().getAsJsonObject('commerceItems').getAsJsonArray('commerceItem').size()]" doc:name="Variable"/>
         <choice doc:name="Choice">
             <when expression="#[flowVars.commerceItemsSize &gt; 0]">
@@ -133,6 +134,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 	
 	} when (sizeOf payload.commerceItems.commerceItem) > 0 otherwise {NoXML: 'No tag'}]]></dw:set-payload>
                 </dw:transform-message>
+                <set-variable variableName="RETRY_COUNT" value="1" doc:name="Variable"/>
                 <flow-ref name="atg-oic-so-flow" doc:name="atg-oic-so-flow"/>
 
 
@@ -210,6 +212,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                 	<add-message-property key="host" value="#[server.host]"/>
                 	<add-message-property key="mailsubject" value="#[flowVars.salesOrderId  + ' - OIC']"/>
                 </message-properties-transformer>
+
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>
             </enricher>
@@ -264,6 +267,9 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 	"payload": payload
 }]]></dw:set-payload>
         </dw:transform-message>
+        <enricher source="#[payload]" target="deleteFlowOutput" doc:name="Message Enricher">
+            <flow-ref name="delete-record-from-APP-Sync" doc:name="delete-record-from-APP-Sync"/>
+        </enricher>
 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
@@ -293,6 +299,9 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>
             </enricher>
+                <enricher source="#[payload]" target="deleteFlowOutput" doc:name="Message Enricher">
+                    <flow-ref name="delete-record-from-APP-Sync" doc:name="delete-record-from-APP-Sync"/>
+                </enricher>
 
 
        		 </catch-exception-strategy>
@@ -301,6 +310,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.oicWSRequest]" doc:name="Set Payload"/>
+
 
         	</catch-exception-strategy>
         </choice-exception-strategy>
