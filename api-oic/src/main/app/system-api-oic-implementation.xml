@@ -178,7 +178,15 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>
             </enricher>
-                
+            <message-properties-transformer doc:name="Message Properties" scope="invocation">
+                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
+                    <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
+                    <add-message-property key="appSyncRequest" value="#[flowVars.oicSysAPIRequest]"/>
+                	<add-message-property key="appSyncResponse" value="Exception - Salesorder - OIC - Transformation Issue"/>
+           </message-properties-transformer>
+           <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
+                <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+            </enricher>   
                 
             	
         </catch-exception-strategy>
@@ -219,6 +227,16 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             <enricher source="retryQueuePayload" target="#[payload]" doc:name="Message Enricher">
                 <flow-ref name="system-api-oic-implementationFlow-Retry-Queue-Flow" doc:name="system-api-oic-implementationFlow-Retry-Queue-Flow"/>
             </enricher>
+            
+            <message-properties-transformer doc:name="Message Properties" scope="invocation">
+                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
+                    <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
+                    <add-message-property key="appSyncRequest" value="#[flowVars.oicWSRequest]"/>
+                	<add-message-property key="appSyncResponse" value="Exception - SalesOrder OIC Service Failure"/>
+           </message-properties-transformer>
+         <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
+              <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+         </enricher>
             	
         </catch-exception-strategy>
     </flow>
@@ -255,6 +273,15 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         </dw:transform-message>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
         <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
+        <message-properties-transformer doc:name="Message Properties" scope="invocation">
+                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
+                    <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
+                    <add-message-property key="appSyncRequest" value="#[flowVars.oicWSRequest]"/>
+                	<add-message-property key="appSyncResponse" value="#[message.payloadAs(java.lang.String)]"/>
+           </message-properties-transformer>
+         <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
+              <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+         </enricher>
         <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
 
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
@@ -282,7 +309,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 ---
 {
 	"success": "false",
-	"payload": "",
+	"payload": flowVars.oicWSRequest,
 	"error": {
 		"code": "OIC1030",
 		"description": flowVars.exceptionMsg
@@ -302,7 +329,17 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                 <enricher source="#[payload]" target="deleteFlowOutput" doc:name="Message Enricher">
                     <flow-ref name="delete-record-from-APP-Sync" doc:name="delete-record-from-APP-Sync"/>
                 </enricher>
-
+			
+			<message-properties-transformer doc:name="Message Properties" scope="invocation">
+                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
+                    <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
+                    <add-message-property key="appSyncRequest" value="#[flowVars.oicWSRequest]"/>
+                	<add-message-property key="appSyncResponse" value="#[(exception.cause!=null)? exception.cause.message : exception]"/>
+           </message-properties-transformer>
+         	<enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
+              <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+         	</enricher>
+         
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
