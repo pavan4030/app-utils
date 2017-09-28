@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+    
+    <flow name="createUpdateSalesorder-serviceimpl">
+        <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+        <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="jdeSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
+
+        <dw:transform-message doc:name="Transform Message">
+            <dw:input-payload mimeType="application/json"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml skipNullOn = "everywhere"
+%namespace ns0 http://tcc.e1.bssv.JP554200/
+---
+{
+	ns0#createSalesOrder: {
+		orderHeader: {
+			orderInfo: {
+				orderDate: payload.OrderHeader.orderInfo.orderDate as :date,
+				orderId: payload.OrderHeader.orderInfo.orderId,
+				(originalOrderDate: payload.OrderHeader.orderInfo.originalOrderDate as :date) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate != "",
+                originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
+			},
+			customerInfo: {
+				tccCustomerId: payload.OrderHeader.customerInfo.shellCustomerId when payload.OrderHeader.customerInfo.shellCustomerId? otherwise payload.OrderHeader.customerInfo.tccCustomerId,
+				tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName
+			},
+			miscInfo: {
+				defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed,
+				CCRSCommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated
+			},
+			orderPriceInfo: {
+				(currencyCode: payload.commerceItems.commerceItem[0].currencyCode) when payload.commerceItems.commerceItem[0]?
+			},
+			agentInfo: {
+				agentId: payload.OrderHeader.agentInfo.agentId,
+				commissonableAgentId: payload.OrderHeader.agentInfo.commissionableAgentId
+			},
+			storeInfo: {
+				physicalStoreInfo: {
+					commissionableStoreInfo: {
+						commissionableStoreId:  payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId
+					},
+					physicalStoreId: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreId
+				}
+			}
+		},
+		commerceItems: {
+			(payload.commerceItems.commerceItem map ((commerceItem , indexOfCommerceItem) -> {
+				commerceItem: {
+					commerceItemInfo: {
+						skuId: "ORDEREDSKU" when (commerceItem.skuIdType == 'original' and ('ORDERED' == commerceItem.itemStatus or 'CANCELLED' == commerceItem.itemStatus) and not (['ORDEREDDPAYVOL','ORDEREDSECDEP','ORDEREDDPAYMAN'] contains commerceItem.skuId)) otherwise commerceItem.skuId ,
+						(originalSKUId: commerceItem.skuId) when commerceItem.skuIdType == 'original' and ('ORDERED' == commerceItem.itemStatus or 'CANCELLED' == commerceItem.itemStatus) and not (['ORDEREDDPAYVOL','ORDEREDSECDEP','ORDEREDDPAYMAN'] contains commerceItem.skuId),
+						quantity: commerceItem.quantity,
+						commerceLineItemId: commerceItem.commercelineItemId,
+						(fulfillmentDate: commerceItem.FulfillmentDate) when commerceItem.FulfillmentDate?,
+						serialNumber: commerceItem.SerialNumber,
+						itemStatus: commerceItem.itemStatus,
+						
+						preorderConfirmationId: commerceItem.preorderConfirmationId
+					},
+					serviceInfo:{
+						serviceBasicInfo:{
+							mobileNumber:commerceItem.mobileNumber,
+							serviceTransactionID:commerceItem.serviceTransactionID
+						}
+					},
+					itemPriceInfo: {
+						itemPrice:{
+							(
+								authCode: commerceItem.authCode
+							) when commerceItem.skuIdType == 'paymentGroup',
+							itemPrice: commerceItem.amount when (commerceItem.skuIdType == 'original' and ('ORDERED' == commerceItem.itemStatus or 'CANCELLED' == commerceItem.itemStatus)) otherwise (commerceItem.listPrice when commerceItem.listPrice? otherwise commerceItem.commissionReceivableAmount),
+							(itemCost: commerceItem.itemCost) when commerceItem.skuIdType == 'original' and  "SERVICE" == upper commerceItem.itemType
+					}
+				}
+			}
+			}
+			))
+		}
+	}
+}]]></dw:set-payload>
+            <dw:set-variable variableName="salesOrderId"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
+
+        </dw:transform-message>
+        <flow-ref name="api-jde-so-flow" doc:name="api-jde-so-flow"/>
+        <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+        <logger message="JDE - System API - Salesorder- Response - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="JDE Salesorder - Transformation Issue ? #[payload]" level="INFO" doc:name="Logger"/>
+            <dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"success": "false",
+	"payload": flowVars.jdeSysAPIRequest,
+	"error": {
+		"code": "JDE1020",
+		"description": "JDE - System API Service Exception -- Something is wrong in Service -- Please check with Administrator"
+	}
+}]]></dw:set-payload>
+            </dw:transform-message>
+
+        </catch-exception-strategy>
+		
+	</flow>
+    <flow name="api-jde-so-flow" processingStrategy="synchronous">
+    	<set-variable variableName="jdeWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
+        <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
+        <logger message="JDE - WS Salesorder Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.jde" doc:name="Logger"/>
+        <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.retry.interval.ms}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="Until Successful">
+            <flow-ref name="atg-jde-salesorderFlow-response-consumer" doc:name="atg-jde-salesorderFlow-response-consumer"/>
+        </until-successful>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="JDE - Failure - After Retries" level="ERROR" category="tcc.salesorder.jde" doc:name="Logger"/>
+            <dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"success": "false",
+	"payload": flowVars.jdeWSRequest,
+	"error": {
+		"code": "JDE1010",
+		"description": "Connection Exception - SalesOrder JDE Service Failure"
+	}
+}]]></dw:set-payload>
+                <dw:set-variable variableName="transactionId"><![CDATA[%dw 1.0
+%output application/java
+---
+flowVars.salesOrderId]]></dw:set-variable>
+            </dw:transform-message>
+        </catch-exception-strategy>
+    </flow>
+
+    <flow name="atg-jde-salesorderFlow-response-consumer" processingStrategy="synchronous">
+
+
+        <ws:consumer config-ref="Web_Service_Consumer_Salesorder" operation="createSalesOrder" doc:name="Web Service Consumer"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://tcc.e1.bssv.JP554200/
+---
+{
+	ns0#createSalesOrderResponse: {
+		orderCompany: payload.ns0#createSalesOrderResponse.orderCompany,
+		orderNumber: payload.ns0#createSalesOrderResponse.orderNumber,
+		orderNumberTCC: payload.ns0#createSalesOrderResponse.orderNumberTCC,
+		orderType: payload.ns0#createSalesOrderResponse.orderType
+	}
+}]]></dw:set-payload>
+            <dw:set-variable variableName="transactionId"><![CDATA[%dw 1.0
+%output application/java
+---
+flowVars.salesOrderId]]></dw:set-variable>
+        </dw:transform-message>
+
+        <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
+        <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
+        <logger message="JDE-WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.jde" doc:name="Logger"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"success": "true",
+	"payload": payload
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+        	<catch-exception-strategy doc:name="SoapFault - Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
+            	<logger message="JDE-Salesorder-SoapFault Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.jde"/>
+                
+                <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
+                <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"success": "false",
+	"payload": flowVars.jdeWSRequest,
+	"error": {
+		"code": "JDE1030",
+		"description": flowVars.exceptionMsg
+	}
+}]]></dw:set-payload>
+                </dw:transform-message>
+
+
+
+
+       		 </catch-exception-strategy>
+       		 <catch-exception-strategy doc:name="Catch Exception Strategy">
+            	<logger message="JDE-Salesorder-Connection Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.jde"/>
+                <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
+
+                <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/>
+
+
+
+        	</catch-exception-strategy>
+        </choice-exception-strategy>
+        
+    </flow>
+
+</mule>
