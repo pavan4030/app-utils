@@ -20,22 +20,22 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	<flow name="system-api-jde-salesorder-implementationFlow-Retry-Queue-Flow" processingStrategy="synchronous">
 		<message-properties-transformer scope="invocation" doc:name="Message Properties">
             <add-message-property key="appId" value="${jde.app.salesorder.recovery.appid}"/>
-            <add-message-property key="appMethod" value="${jde.app.salesorder.sync.recovery.appresource}"/>
-            <add-message-property key="appResource" value="${jde.app.salesorder.sync.recovery.appmethod}"/>
-            <add-message-property key="transaction_id" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.sync.recovery.appid} + '_' + message.id]"/>
+            <add-message-property key="appMethod" value="${jde.app.salesorder.recovery.appresource}"/>
+            <add-message-property key="appResource" value="${jde.app.salesorder.recovery.appmethod}"/>
+            <add-message-property key="transaction_id" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.recovery.appid} + '_' + message.id]"/>
         </message-properties-transformer>
         <message-properties-transformer doc:name="Message Properties">
             <add-message-property key="CORRELATION_ID" value="#[flowVars.orderId]"/>
             <add-message-property key="RETRY_ATTEMPT_COUNT" value="#[flowVars.RETRY_COUNT]"/>
-            <add-message-property key="REQUEST_TYPE" value="${jde.app.salesorder.sync.recovery.servicename}"/>
-            <add-message-property key="AMQ_SCHEDULED_DELAY" value="${jde.app.salesorder.sync.recovery.q.delay}"/>
+            <add-message-property key="REQUEST_TYPE" value="${jde.app.salesorder.recovery.servicename}"/>
+            <add-message-property key="AMQ_SCHEDULED_DELAY" value="${jde.app.salesorder.recovery.q.delay}"/>
         </message-properties-transformer>
         <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/>
         <scatter-gather doc:name="Scatter-Gather">
             <processor-chain>
                 <set-payload value="#[flowVars.orderId]" doc:name="Set Payload"/>
                 <logger message="JDE Salesorder Failed again and pushing to Q for #[flowVars.RETRY_COUNT]" level="INFO" doc:name="Logger"/>
-                <jms:outbound-endpoint queue="${jde.app.salesorder.sync.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
+                <jms:outbound-endpoint queue="${jde.app.salesorder.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
             </processor-chain>
             <flow-ref name="atg-push-payload-db" doc:name="atg-push-payload-db"/>
         </scatter-gather>
@@ -45,23 +45,23 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	
 	<flow name="system-api-jde-customer-implementationFlow-Retry-Queue-Flow" processingStrategy="synchronous">
 		<message-properties-transformer scope="invocation" doc:name="Message Properties">
-            <add-message-property key="appId" value="${jde.app.customer.sync.recovery.appid}"/>
-            <add-message-property key="appMethod" value="${jde.app.customer.sync.recovery.appresource}"/>
-            <add-message-property key="appResource" value="${jde.app.customer.sync.recovery.appmethod}"/>
-            <add-message-property key="correlation_id" value="#[flowVars.orderId + '_' + ${jde.app.customer.sync.recovery.appid} + '_' + message.id]"/>
+            <add-message-property key="appId" value="${jde.app.customer.recovery.appid}"/>
+            <add-message-property key="appMethod" value="${jde.app.customer.recovery.appresource}"/>
+            <add-message-property key="appResource" value="${jde.app.customer.recovery.appmethod}"/>
+            <add-message-property key="correlation_id" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
         </message-properties-transformer>
         <message-properties-transformer doc:name="Message Properties">
             <add-message-property key="CORRELATION_ID" value="#[flowVars.orderId]"/>
             <add-message-property key="RETRY_ATTEMPT_COUNT" value="#[flowVars.RETRY_COUNT]"/>
-            <add-message-property key="REQUEST_TYPE" value="${jde.app.customer.sync.recovery.servicename}"/>
-            <add-message-property key="AMQ_SCHEDULED_DELAY" value="${jde.app.customer.sync.recovery.q.delay}"/>
+            <add-message-property key="REQUEST_TYPE" value="${jde.app.customer.recovery.servicename}"/>
+            <add-message-property key="AMQ_SCHEDULED_DELAY" value="${jde.app.customer.recovery.q.delay}"/>
         </message-properties-transformer>
         <set-payload value="#[flowVars.jdeCustomerWSRequest]" doc:name="Set Payload"/>
         <scatter-gather doc:name="Scatter-Gather">
             <processor-chain>
                 <set-payload value="#[flowVars.orderId]" doc:name="Set Payload"/>
                 <logger message="JDE Customer failed again and pushing to Q for #[flowVars.RETRY_COUNT]" level="INFO" doc:name="Logger"/>
-                <jms:outbound-endpoint queue="${jde.app.customer.sync.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
+                <jms:outbound-endpoint queue="${jde.app.customer.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
             </processor-chain>
             <flow-ref name="atg-push-payload-db" doc:name="atg-push-payload-db"/>
         </scatter-gather>
@@ -70,7 +70,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	
 	
 	<flow name="atg-jdeSalesorderFlow-retry-from-queue" processingStrategy="synchronous">
-       <jms:inbound-endpoint queue="${jde.app.salesorder.sync.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
+       <jms:inbound-endpoint queue="${jde.app.salesorder.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
         <message-properties-transformer scope="invocation" doc:name="Message Properties">
             <add-message-property key="appId" value="${jde.app.salesorder.recovery.appid}"/>
             <add-message-property key="orderId" value="#[payload]"/>
@@ -87,11 +87,11 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
     
     
     <flow name="atg-jdeCustomerFlow-retry-from-queue" processingStrategy="synchronous">
-       <jms:inbound-endpoint queue="${jde.app.customer.sync.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
+       <jms:inbound-endpoint queue="${jde.app.customer.recovery.q}" connector-ref="Active_MQ" doc:name="JMS"/>
 
         
         <message-properties-transformer scope="invocation" doc:name="Message Properties">
-            <add-message-property key="appId" value="${jde.app.customer.sync.recovery.appid}"/>
+            <add-message-property key="appId" value="${jde.app.customer.recovery.appid}"/>
             <add-message-property key="orderId" value="#[payload]"/>
             <add-message-property key="RETRY_COUNT" value="#[Integer.parseInt(null != message.inboundProperties.RETRY_ATTEMPT_COUNT? message.inboundProperties.RETRY_ATTEMPT_COUNT:1)+1]"/>
         </message-properties-transformer>
@@ -201,21 +201,43 @@ payload map {
         </choice>
     </sub-flow>
     
-    <flow name="system-api-jde-implementationFlow-Mail-Flow" processingStrategy="synchronous">
+    <flow name="system-api-jde-salesorder-implementationFlow-Mail-Flow" processingStrategy="synchronous">
     	<dw:transform-message doc:name="Transform Message">
                 <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
 {
-	systemName: p('jde.mail.systemname'),
+	systemName: p('jde.salesorder.mail.systemname'),
 	HostName:outboundProperties.host,
 	HostIP:outboundProperties.ipAddress,
-	mailVerboserecipients: p('smtp.jd.verbose.mailrecipients'),
-	mailGenericrecipients: p('smtp.jd.generic.mailrecipients'),
+	mailVerboserecipients: p('smtp.jde.salesorder.verbose.mailrecipients'),
+	mailGenericrecipients: p('smtp.jde.salesorder.generic.mailrecipients'),
 	(request: outboundProperties.request),
 	exception: outboundProperties.exceptionMsg,
-	mailsubject : p('smtp.mail.subject.prefix') ++ outboundProperties.mailsubject,
-	header: p('jde.mail.header')
+	mailsubject : p('smtp.mail.jde.salesorder.subject.prefix') ++ outboundProperties.mailsubject,
+	header: p('jde.salesorder.mail.header')
+}]]></dw:set-payload>
+            </dw:transform-message>
+            <logger message="Error Message Details to Q - #[payload]" level="INFO" doc:name="Logger"/>
+            <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="${error.notifications.queue}"/>
+    </flow>
+    
+    
+    <flow name="system-api-jde-customer-implementationFlow-Mail-Flow" processingStrategy="synchronous">
+    	<dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	systemName: p('jde.customer.mail.systemname'),
+	HostName:outboundProperties.host,
+	HostIP:outboundProperties.ipAddress,
+	mailVerboserecipients: p('smtp.jde.customer.verbose.mailrecipients'),
+	mailGenericrecipients: p('smtp.jde.customer.generic.mailrecipients'),
+	(request: outboundProperties.request),
+	exception: outboundProperties.exceptionMsg,
+	mailsubject : p('smtp.mail.jde.customer.subject.prefix') ++ outboundProperties.mailsubject,
+	header: p('jde.customer.mail.header')
 }]]></dw:set-payload>
             </dw:transform-message>
             <logger message="Error Message Details to Q - #[payload]" level="INFO" doc:name="Logger"/>

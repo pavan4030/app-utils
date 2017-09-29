@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder"
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder"
 	xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json"
 	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
@@ -11,7 +12,8 @@
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mulesoft.org/schema/mule/secure-property-placeholder/current/mule-secure-property-placeholder.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mulesoft.org/schema/mule/secure-property-placeholder/current/mule-secure-property-placeholder.xsd
 http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
@@ -22,6 +24,8 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
+
+<db:oracle-config name="Oracle_Configuration" host="${db.host}" port="${db.port}" instance="${db.database}" user="${db.user}" password="${db.password}" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
 	<!-- Credit check config JDE -->
 	
 	<ws:consumer-config name="JDE_Check-Customer_Web_Service_Consumer" wsdlLocation="jde-webservice/AccountsReceivableManagerTCC_1.wsdl" service="AccountsReceivableManagerTCCService" port="AccountsReceivableManagerTCCPort" serviceAddress="${jde.credit.check.url}" doc:name="Web Service Consumer" connectorConfig="HTTP_Request_Configuration">
@@ -65,7 +69,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
     
     <secure-property-placeholder:config name="Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:system-api-jde-${mule.env}.properties,file:///opt/app/esb/app-config/system-api-jde-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/>
     <flow name="jdeService-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="/jde-esb-service/*" doc:name="HTTP"/>
+        <http:listener config-ref="shared-httpListenerConfig" path="/jde-esb-service-v2/*" doc:name="HTTP"/>
         <apikit:router config-ref="jdeService-config" doc:name="APIkit Router"/>
         <exception-strategy ref="jdeService-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
