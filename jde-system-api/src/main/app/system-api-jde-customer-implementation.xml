@@ -120,7 +120,7 @@ p('app_method_customer')]]></dw:set-variable> -->
                 	<add-message-property key="appSyncResponse" value="Exception - Customer - JDE - Transformation Issue"/>
            </message-properties-transformer>
            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
             </enricher>
             
         </catch-exception-strategy>
@@ -175,7 +175,7 @@ p('app_method_customer')]]></dw:set-variable> -->
                 	<add-message-property key="appSyncResponse" value="Exception - Customer JDE Service Failure"/>
            </message-properties-transformer>
            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
             </enricher>   
         </catch-exception-strategy>
     </flow>
@@ -201,7 +201,7 @@ payload]]></dw:set-payload>
                 	<add-message-property key="appSyncResponse" value="#[message.payloadAs(java.lang.String)]"/>
            </message-properties-transformer>
          <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-              <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+              <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
          </enricher>
          
         <set-variable variableName="exCausedBy" value="NoError" doc:name="Variable"/>
@@ -266,7 +266,7 @@ payload]]></dw:set-payload>
                 	<add-message-property key="appSyncResponse" value="#[(exception.cause!=null)? exception.cause.message : exception]"/>
            </message-properties-transformer>
            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
             </enricher>   
             
             <!-- Deleting the record from recovery table if any is existing for this orderId -->

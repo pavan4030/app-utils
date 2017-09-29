@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
-http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
 
     
-    <flow name="app-sync-payloadFlow">
+    <flow name="jde-salesorder-app-sync-payloadFlow" processingStrategy="synchronous">
         <set-variable variableName="correlationId" value="#[message.id]" doc:name="Variable"/>
 
 
@@ -20,17 +21,43 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 %namespace ns0 urn:vertexinc:o-series:tps:7:0
 ---
 {	
-APP_ID : outboundProperties.app_Id,
-APP_RESOURCE : outboundProperties.appResource,
-APP_METHOD : outboundProperties.appMethod,
-CORRELATION_ID : flowVars.correlationId,
-TRANSACTION_ID : flowVars.transactionId,
-REQUEST : flowVars.request,
-RESPONSE : flowVars.response
+APP_ID : p('jde.app.salesorder.recovery.appid'),
+APP_RESOURCE : p('jde.app.salesorder.recovery.appresource'),
+APP_METHOD : p('jde.app.salesorder.recovery.appmethod'),
+CORRELATION_ID :  flowVars.appSyncCorrelationId,
+TRANSACTION_ID : flowVars.appSyncTransactionId,
+REQUEST : flowVars.appSyncRequest,
+RESPONSE : flowVars.appSyncResponse
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="Q payload :::::::::: #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="JDE Salesorder Q payload :::::::::: #[payload]" level="INFO" doc:name="Logger"/>
 
         <jms:outbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS"/> 
     </flow>
+    
+    
+    <flow name="jde-customer-app-sync-payloadFlow" processingStrategy="synchronous">
+        <set-variable variableName="correlationId" value="#[message.id]" doc:name="Variable"/>
+
+
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+%namespace ns0 urn:vertexinc:o-series:tps:7:0
+---
+{	
+APP_ID : p('jde.app.customer.recovery.appid'),
+APP_RESOURCE : p('jde.app.customer.recovery.appresource'),
+APP_METHOD : p('jde.app.customer.recovery.appmethod'),
+CORRELATION_ID :  flowVars.appSyncCorrelationId,
+TRANSACTION_ID : flowVars.appSyncTransactionId,
+REQUEST : flowVars.appSyncRequest,
+RESPONSE : flowVars.appSyncResponse
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="JDE Customer Q payload :::::::::: #[payload]" level="INFO" doc:name="Logger"/>
+
+        <jms:outbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS"/> 
+    </flow>
+    
 </mule>

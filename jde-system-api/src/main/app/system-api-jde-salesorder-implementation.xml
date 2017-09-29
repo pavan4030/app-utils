@@ -144,7 +144,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                 	<add-message-property key="appSyncResponse" value="Exception - Salesorder - JDE - Transformation Issue"/>
            </message-properties-transformer>
            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+                <flow-ref name="jde-salesorder-app-sync-payloadFlow" doc:name="jde-salesorder-app-sync-payloadFlow"/>
             </enricher>   
 
         </catch-exception-strategy>
@@ -203,7 +203,7 @@ flowVars.salesOrderId]]></dw:set-variable>
                 	<add-message-property key="appSyncResponse" value="Exception - SalesOrder JDE Service Failure"/>
            </message-properties-transformer>
            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+                <flow-ref name="jde-salesorder-app-sync-payloadFlow" doc:name="jde-salesorder-app-sync-payloadFlow"/>
             </enricher>   
         </catch-exception-strategy>
     </flow>
@@ -239,7 +239,7 @@ flowVars.salesOrderId]]></dw:set-variable>
                 	<add-message-property key="appSyncResponse" value="#[message.payloadAs(java.lang.String)]"/>
            </message-properties-transformer>
          <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-              <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+              <flow-ref name="jde-salesorder-app-sync-payloadFlow" doc:name="jde-salesorder-app-sync-payloadFlow"/>
          </enricher>
 
         <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
@@ -301,7 +301,7 @@ flowVars.salesOrderId]]></dw:set-variable>
                 	<add-message-property key="appSyncResponse" value="#[(exception.cause!=null)? exception.cause.message : exception]"/>
            </message-properties-transformer>
            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+                <flow-ref name="jde-salesorder-app-sync-payloadFlow" doc:name="jde-salesorder-app-sync-payloadFlow"/>
             </enricher>   
             
             <!-- Deleting the record from recovery table if any is existing for this orderId -->
