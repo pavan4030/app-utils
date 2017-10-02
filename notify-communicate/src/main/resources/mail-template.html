@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<style>
+table {
+	border-collapse: collapse;
+	width: 80%;
+}
+
+th, td {
+	text-align: left;
+	padding: 8px;
+}
+
+tr:nth-child(even) {
+	background-color: #f2f2f2
+}
+
+th {
+	background-color: #DA1616;
+	color: white;
+}
+</style>
+<body>
+<br></br>
+	<table border=1>
+		<tbody>
+			<tr>
+				<th colspan=2>
+					<p align='center'>#[message.payload.header]</p>
+				</th>
+			</tr>
+			<tr>
+				<td><b>ESB Host</b></td>
+				<td>#[message.payload.HostName]</td>
+			</tr>
+			<tr>
+				<td><b>ESB IP<b></td>
+				<td>#[message.payload.HostIP]</td>
+			</tr>			
+			<tr>
+				<td><b>System</b></td>
+				<td>#[message.payload.systemName]</td>
+			</tr>	
+			<tr>
+				<td><b>Exception</b></td>
+				<td><xmp>#[message.payload.exception]</xmp></td>
+			</tr>
+			<tr>
+				<td><b>Source Request</b></td>
+				<td><xmp>#[message.payload.request]</xmp></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>
