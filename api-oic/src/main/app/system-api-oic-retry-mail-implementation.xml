@@ -25,7 +25,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             <add-message-property key="correlation_id" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
         </message-properties-transformer>
         <message-properties-transformer doc:name="Message Properties">
-            <add-message-property key="CORRELATION_ID" value="#[flowVars.correlation_id]"/>
+            <add-message-property key="CORRELATION_ID" value="#[flowVars.salesOrderId]"/>
             <add-message-property key="RETRY_ATTEMPT_COUNT" value="#[flowVars.RETRY_COUNT]"/>
             <add-message-property key="REQUEST_TYPE" value="${oic.app.sync.recovery.servicename}"/>
             <add-message-property key="AMQ_SCHEDULED_DELAY" value="${oic.app.sync.recovery.q.delay}"/>

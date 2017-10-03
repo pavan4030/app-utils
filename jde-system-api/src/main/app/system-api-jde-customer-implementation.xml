@@ -85,6 +85,15 @@ p('app_method_customer')]]></dw:set-variable> -->
         <flow-ref name="api-jde-customer-flow" doc:name="api-jde-customer-flow"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger level="INFO" doc:name="Logger"/>
+            <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
+                <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
+                <add-message-property key="appSyncRequest" value="#[flowVars.jdeCustomerSysAPIRequest]"/>
+                <add-message-property key="appSyncResponse" value="Exception - Customer - JDE - Transformation Issue"/>
+            </message-properties-transformer>
+            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
+                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
+            </enricher>
             <dw:transform-message doc:name="Transform Message">
                 <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -112,16 +121,7 @@ p('app_method_customer')]]></dw:set-variable> -->
             </enricher>
             
             <!-- APP Sync - Pushing details to DB -->
-            
-            <message-properties-transformer doc:name="Message Properties" scope="invocation">
-                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
-                    <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
-                    <add-message-property key="appSyncRequest" value="#[flowVars.jdeCustomerSysAPIRequest]"/>
-                	<add-message-property key="appSyncResponse" value="Exception - Customer - JDE - Transformation Issue"/>
-           </message-properties-transformer>
-           <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
-            </enricher>
+
             
         </catch-exception-strategy>
 		
@@ -135,6 +135,15 @@ p('app_method_customer')]]></dw:set-variable> -->
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger message="after retry::::" level="INFO" doc:name="Logger"/>
+            <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
+                <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
+                <add-message-property key="appSyncRequest" value="#[flowVars.jdeCustomerWSRequest]"/>
+                <add-message-property key="appSyncResponse" value="Exception - Customer JDE Service Failure"/>
+            </message-properties-transformer>
+            <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
+                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
+            </enricher>
             <dw:transform-message doc:name="Transform Message">
                 <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -167,16 +176,7 @@ p('app_method_customer')]]></dw:set-variable> -->
             </enricher>
             
             <!-- APP Sync - Pushing details to DB -->
-            
-            <message-properties-transformer doc:name="Message Properties" scope="invocation">
-                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
-                    <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
-                    <add-message-property key="appSyncRequest" value="#[flowVars.jdeCustomerWSRequest]"/>
-                	<add-message-property key="appSyncResponse" value="Exception - Customer JDE Service Failure"/>
-           </message-properties-transformer>
-           <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
-            </enricher>   
+   
         </catch-exception-strategy>
     </flow>
     
@@ -229,6 +229,15 @@ payload]]></dw:set-payload>
                 
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
                 <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
+                <message-properties-transformer scope="invocation" doc:name="Message Properties">
+                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
+                    <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
+                    <add-message-property key="appSyncRequest" value="#[flowVars.jdeCustomerWSRequest]"/>
+                    <add-message-property key="appSyncResponse" value="#[(exception.cause!=null)? exception.cause.message : exception]"/>
+                </message-properties-transformer>
+                <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
+                    <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
+                </enricher>
                 <dw:transform-message doc:name="Transform Message">
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -258,16 +267,7 @@ payload]]></dw:set-payload>
             </enricher>
             
             <!-- APP Sync - Pushing details to DB -->
-            
-            <message-properties-transformer doc:name="Message Properties" scope="invocation">
-                    <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
-                    <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
-                    <add-message-property key="appSyncRequest" value="#[flowVars.jdeCustomerWSRequest]"/>
-                	<add-message-property key="appSyncResponse" value="#[(exception.cause!=null)? exception.cause.message : exception]"/>
-           </message-properties-transformer>
-           <enricher source="#[payload]" target="appSyncMailSuccess" doc:name="Message Enricher">
-                <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
-            </enricher>   
+   
             
             <!-- Deleting the record from recovery table if any is existing for this orderId -->
             <enricher source="#[payload]" target="deleteFlowOutput" doc:name="Message Enricher">
