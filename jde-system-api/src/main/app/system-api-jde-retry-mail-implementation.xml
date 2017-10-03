@@ -180,9 +180,9 @@ payload map {
     </sub-flow>
 
 	<sub-flow name="delete-record-from-APP-Sync">
-        <logger message="Delete Record from APP Recovery Select Query ? select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.orderId]' and APP_ID = '#[flowVars.appId]'" level="INFO" doc:name="Logger"/>
+        <logger message="Delete Record from APP Recovery Select Query ? select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.orderId] and APP_ID = #[flowVars.appId]" level="INFO" doc:name="Logger"/>
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
-            <db:parameterized-query><![CDATA[select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.orderId]' and APP_ID = '#[flowVars.appId]']]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.orderId] and APP_ID = #[flowVars.appId]]]></db:parameterized-query>
 
 
 
@@ -193,10 +193,10 @@ payload map {
 
         <choice doc:name="Choice">
             <when expression="#[payload.size() &gt; 0]">
-                <logger message="Delete Record from APP Recovery Delete Query ? delete from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.orderId]' and APP_ID = '#[flowVars.appId]'" level="INFO" doc:name="Logger"/>
+                <logger message="Delete Record from APP Recovery Delete Query ? delete from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.orderId] and APP_ID = #[flowVars.appId]" level="INFO" doc:name="Logger"/>
 
                 <db:delete config-ref="Oracle_Configuration" doc:name="Database">
-                    <db:parameterized-query><![CDATA[delete from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.orderId]' and APP_ID = '#[flowVars.appId]']]></db:parameterized-query>
+                    <db:parameterized-query><![CDATA[delete from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.orderId] and APP_ID = #[flowVars.appId]]]></db:parameterized-query>
 
 
 
