@@ -111,7 +111,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 
         <object-to-string-transformer doc:name="Object to String" mimeType="application/json"/>
         <logger message="Salesorder System API - OIC - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
-
+		<remove-property propertyName="*" doc:name="Remove all the Properties to avoid sending back as HTTP Headers"/>
     </flow>
     <apikit:mapping-exception-strategy name="system-api-oic-apiKitGlobalExceptionMapping">
         <apikit:mapping statusCode="404">
