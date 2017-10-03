@@ -52,7 +52,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			(authCode: salesOrderSKUIdsPayload.authCode) when salesOrderSKUIdsPayload.authCode?,
 			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
             (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?
-		}) filter $.skuIdType != 'paymentGroup' and  $.skuIdType != 'taxPrice' and  $.skuIdType != 'valueAddedGainSpifAmount' and  $.itemStatus != 'ORDERED' and (upper $.skuId) != 'VZWSECDEPSRV' and (upper $.skuId) != 'VZWDPAYMANSRV' and (upper $.skuId) != 'VZWDPAYVOLSRV' and $.itemStatus != 'CANCELLED' and payload.OrderHeader.miscInfo.CCRScommissionCalculated != 'N'
+		}) filter $.skuIdType != 'paymentGroup' and  $.skuIdType != 'taxPrice' and  $.skuIdType != 'valueAddedGainSpifAmount' and  $.skuIdType != 'devicePaymentGrossAmountFinanced' and  $.itemStatus != 'ORDERED' and (upper $.skuId) != 'VZWSECDEPSRV' and (upper $.skuId) != 'VZWDPAYMANSRV' and (upper $.skuId) != 'VZWDPAYVOLSRV' and $.itemStatus != 'CANCELLED' and payload.OrderHeader.miscInfo.CCRScommissionCalculated != 'N'
 	}
 	
 }
