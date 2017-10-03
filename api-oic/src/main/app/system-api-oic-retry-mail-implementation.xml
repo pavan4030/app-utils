@@ -76,6 +76,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             <db:in-param name="vrequest" value="#[message.payloadAs(java.lang.String)]"/>
 
 
+
             
 </db:stored-procedure>
         <dw:transform-message doc:name="Transform Message">
@@ -98,7 +99,8 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
         <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
             <logger message="DB Fetch Results select Query ? select * from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}" level="INFO" doc:name="Logger"/>
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
-                <db:dynamic-query><![CDATA[select * from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}]]></db:dynamic-query>
+                <db:dynamic-query><![CDATA[select * from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.salesOrderId]' and APP_ID = '${oic.app.sync.recovery.appid}']]></db:dynamic-query>
+
 
 
             </db:select>
@@ -133,6 +135,7 @@ payload map {
         <logger message="Delete Record from APP Recovery Table Select Query ? select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}" level="INFO" doc:name="Logger"/>
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
             <db:parameterized-query><![CDATA[select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}]]></db:parameterized-query>
+
 
 
 
