@@ -26,6 +26,24 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 
 
 <db:oracle-config name="Oracle_Configuration" host="${db.host}" port="${db.port}" instance="${db.database}" user="${db.user}" password="${db.password}" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
+	
+	<configuration doc:name="Configuration">
+        <expression-language> 
+            <global-functions>
+            def toTimestamp(){ 
+            	return new java.sql.Timestamp(new java.util.Date().getTime()) 
+            } 
+            def toJsonArrayToString(jsonArray){ 
+            	return new com.google.gson.Gson().toJson(jsonArray).replace("[","").replace("]","").replace('"',"") 
+            }
+            def subString(inputString,first,second)
+			{
+				return org.apache.commons.lang.StringUtils.substring(inputString,first,second)
+			}
+            </global-functions> 
+        </expression-language>
+    </configuration>
+	
 	<!-- Credit check config JDE -->
 	
 	<ws:consumer-config name="JDE_Check-Customer_Web_Service_Consumer" wsdlLocation="jde-webservice/AccountsReceivableManagerTCC_1.wsdl" service="AccountsReceivableManagerTCCService" port="AccountsReceivableManagerTCCPort" serviceAddress="${jde.credit.check.url}" doc:name="Web Service Consumer" connectorConfig="HTTP_Request_Configuration">
