@@ -38,7 +38,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 				
 		customerType: 'C' when "BUSINESS" == payload.customerType otherwise 'N',
 		(businessInfo: {
-			businessName: subString(payload.businessDetails.businessName,0,39)
+			businessName: subString(payload.businessDetails.businessName,0,40)
 		}) when "BUSINESS" == payload.customerType,
 		(payload.phoneDetails map {
 			customerPhones:{
