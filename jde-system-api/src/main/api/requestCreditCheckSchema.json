@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "creditCheckRequest": {
+      "type": "object",
+      "properties": {
+        "tccCustomerId": {
+          "type": "string",
+          "minLength":1,
+          "maxLength":40
+        }
+      },
+      "required": [
+        "tccCustomerId"
+      ]
+    }
+  },
+  "required": [
+    "creditCheckRequest"
+  ]
+}

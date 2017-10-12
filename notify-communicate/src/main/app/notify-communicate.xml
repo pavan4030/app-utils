@@ -338,7 +338,16 @@ payload.mailrecipients]]></dw:set-variable>
 %output application/java
 ---
 payload.mailsubject]]></dw:set-variable>
+            <dw:set-variable variableName="mailGenericrecipients"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.mailGenericrecipients]]></dw:set-variable>
+			<dw:set-variable variableName="mailVerboserecipients"><![CDATA[%dw 1.0
+%output application/java
+---
+payload.mailVerboserecipients]]></dw:set-variable>
         </dw:transform-message>
+        <logger level="INFO" doc:name="Logger" message="Notification Error Payload ? #[payload] : Generic Recipients : #[flowVars.mailGenericrecipients] :: Verbose Recipients: #[flowVars.mailVerboserecipients]"/>
         
         <scatter-gather doc:name="Scatter-Gather">
             <processor-chain>

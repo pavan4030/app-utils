@@ -25,7 +25,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             <add-message-property key="correlation_id" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
         </message-properties-transformer>
         <message-properties-transformer doc:name="Message Properties">
-            <add-message-property key="CORRELATION_ID" value="#[flowVars.correlation_id]"/>
+            <add-message-property key="CORRELATION_ID" value="#[flowVars.salesOrderId]"/>
             <add-message-property key="RETRY_ATTEMPT_COUNT" value="#[flowVars.RETRY_COUNT]"/>
             <add-message-property key="REQUEST_TYPE" value="${oic.app.sync.recovery.servicename}"/>
             <add-message-property key="AMQ_SCHEDULED_DELAY" value="${oic.app.sync.recovery.q.delay}"/>
@@ -68,12 +68,14 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             <db:in-param name="vapp_id" value="#[flowVars.appId]"/>
             <db:in-param name="vapp_resource" value="#[flowVars.appResource]"/>
             <db:in-param name="vapp_method" value="#[flowVars.appMethod]"/>
-            <db:in-param name="vcorrelation_id" value="#[flowVars.correlation_id]"/>
+            <db:in-param name="vcorrelation_id" value="#[flowVars.salesOrderId.toString()]"/>
             <db:in-param name="vretry_count" value="#[flowVars.RETRY_COUNT]"/>
             <db:in-param name="vcreate_ts" value="#[function:now]"/>
             <db:in-param name="vupdate_ts" value="#[function:now]"/>
-            <db:in-param name="vtransaction_id" value="#[flowVars.salesOrderId.toString()]"/>
+            <db:in-param name="vtransaction_id" value="#[flowVars.correlation_id]"/>
             <db:in-param name="vrequest" value="#[message.payloadAs(java.lang.String)]"/>
+
+
 
             
 </db:stored-procedure>
@@ -95,8 +97,11 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
     
     <sub-flow name="db-fetch-results">
         <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
+            <logger message="DB Fetch Results select Query ? select * from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}" level="INFO" doc:name="Logger"/>
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
-                <db:dynamic-query><![CDATA[select * from APP_RECOVERY_SYNC_PAYLOAD where TRANSACTION_ID = 'o1234567']]></db:dynamic-query>
+                <db:dynamic-query><![CDATA[select * from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.salesOrderId]' and APP_ID = '${oic.app.sync.recovery.appid}']]></db:dynamic-query>
+
+
 
             </db:select>
             <logger message="Payload ? #[payload] :: #[payload.size()==0] :: #[payload.size()]" level="INFO" doc:name="Logger"/>
@@ -127,8 +132,11 @@ payload map {
     </sub-flow>
 
 	<sub-flow name="delete-record-from-APP-Sync">
+        <logger message="Delete Record from APP Recovery Table Select Query ? select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}" level="INFO" doc:name="Logger"/>
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
-            <db:parameterized-query><![CDATA[select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where TRANSACTION_ID = #[flowVars.salesOrderId] and APP_ID = #[flowVars.appId]]]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[select * from MULE_OWNER.APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}]]></db:parameterized-query>
+
+
 
 
 
@@ -137,9 +145,11 @@ payload map {
 
         <choice doc:name="Choice">
             <when expression="#[payload.size() &gt; 0]">
+                <logger message="Delete Record from APP Recovery Table Delete Query ? delete from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}" level="INFO" doc:name="Logger"/>
 
                 <db:delete config-ref="Oracle_Configuration" doc:name="Database">
-                    <db:parameterized-query><![CDATA[delete from APP_RECOVERY_SYNC_PAYLOAD where TRANSACTION_ID = #[flowVars.salesOrderId] and APP_ID = #[flowVars.appId]]]></db:parameterized-query>
+                    <db:parameterized-query><![CDATA[delete from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID = #[flowVars.salesOrderId] and APP_ID = ${oic.app.sync.recovery.appid}]]></db:parameterized-query>
+
 
                 </db:delete>
             </when>
