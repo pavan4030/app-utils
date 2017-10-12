@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.tccrocks.integration.jde</groupId>
-	<artifactId>jde-system-api</artifactId>
+	<artifactId>api-jde-system</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule</packaging>
 	<name>Mule jde-system-api Application</name>
