@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <flow name="createUpdateSalesorder-serviceimpl">
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
-        <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <set-variable variableName="jdeSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
 
         <dw:transform-message doc:name="Transform Message">
@@ -106,9 +106,9 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         <set-variable variableName="RETRY_COUNT" value="1" doc:name="Variable"/>
         <flow-ref name="api-jde-so-flow" doc:name="api-jde-so-flow"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
-        <logger message="JDE - System API - Salesorder- Response - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="JDE - System API - Salesorder- Response for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE Salesorder - Transformation Issue ? #[payload]" level="INFO" doc:name="Logger"/>
+            <logger message="JDE-SystemAPI- Salesorder - Transformation Error for #[flowVars.orderId] - #[payload]" level="ERROR" doc:name="Logger" category="tcc.jde.salesorder"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.recovery.appid} + '_' + message.id]"/>
@@ -153,12 +153,12 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
     <flow name="api-jde-so-flow" processingStrategy="synchronous">
     	<set-variable variableName="jdeWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE - WS Salesorder Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.jde" doc:name="Logger"/>
+        <logger message="JDE-SystemAPI - WS Salesorder Request for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.retry.interval.ms}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="Until Successful">
             <flow-ref name="atg-jde-salesorderFlow-response-consumer" doc:name="atg-jde-salesorderFlow-response-consumer"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE - Failure - After Retries" level="ERROR" category="tcc.salesorder.jde" doc:name="Logger"/>
+            <logger message="JDE-SystemAPI - Salesorder Failure - After Retries for #[flowVars.orderId] " level="ERROR" category="tcc.jde.salesorder" doc:name="Logger"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.recovery.appid} + '_' + message.id]"/>
@@ -244,7 +244,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
         <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE-WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.jde" doc:name="Logger"/>
+        <logger message="JDE-SystemAPI - WS - Salesorder-Response for #[flowVars.orderId] : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -312,7 +312,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="JDE-Salesorder-Connection Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.jde"/>
+            	<logger message="JDE SystemAPI - Salesorder-Connection Exception for #[flowVars.orderId] - Failure : #[flowVars.jdeRequest] - #[exception] " level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/>

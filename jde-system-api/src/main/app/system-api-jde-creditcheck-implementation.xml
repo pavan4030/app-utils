@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <flow name="credit-check-service-implementation" processingStrategy="synchronous">
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="ATG - Credit Check Request - #[payload]" level="INFO" category="tcc.jde.creditcheck" doc:name="Logger"/>
+        <logger message="ATG - Credit Check Request -  #[payload]" level="DEBUG" category="tcc.jde.creditcheck" doc:name="Logger"/>
 		<dw:transform-message  doc:name="Transform Message">
             <dw:input-payload/>
             <dw:set-payload><![CDATA[%dw 1.0
@@ -37,12 +37,12 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 ---
 payload.creditCheckRequest.tccCustomerId]]></dw:set-variable>
         </dw:transform-message>
-        <logger message="JDE - Credit Check Request - #[payload]" level="INFO" doc:name="Logger" category="tcc.jde.creditcheck"/>
+        <logger message="JDE - Credit Check Request for #[flowVars.TCCCustomerID] - #[payload]" level="INFO" doc:name="Logger" category="tcc.jde.creditcheck"/>
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.creditcheck.retry.interval.ms}" synchronous="true" doc:name="Until Successful">
             <ws:consumer config-ref="JDE_Check-Customer_Web_Service_Consumer" operation="doCreditCheck" doc:name="Web Service Consumer"/>
         </until-successful>
         <mulexml:dom-to-xml-transformer doc:name="DOM to XML"/>
-        <logger message="JDE - WS - Credit Check Response- #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.creditcheck"/>
+        <logger message="JDE - WS - Credit Check Response for #[flowVars.TCCCustomerID]- #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.creditcheck"/>
         
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
@@ -67,26 +67,26 @@ payload.creditCheckRequest.tccCustomerId]]></dw:set-variable>
         <json:validate-schema schemaLocation="responseCreditCheckSchema.json" doc:name="Validate JSON Schema"/>
 
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="ATG - CreditCheck Response - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.creditcheck"/>
+        <logger message="ATG - CreditCheck Response for #[flowVars.TCCCustomerID] - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.creditcheck"/>
 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
             <catch-exception-strategy doc:name="Catch Connection Exception" when="exception.causedBy(java.net.ConnectException)">
-                <logger message="JDE - Connection Exception - #[payload] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
+                <logger message="JDE - Connection Exception for #[flowVars.TCCCustomerID]- #[payload] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
                 <jms:outbound-endpoint queue="${jde.request.undelievered.queue}" connector-ref="Active_MQ" doc:name="Drop Payload to Queue"/>
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1050&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1050}&quot;' + '\n}\n}']" doc:name="SetErrorPayload"/>
 
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedBy(org.mule.module.json.validation.JsonSchemaValidationException)" doc:name="Invalid Request Exception">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1110&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1110} ' + flowVars.TCCCustomerID + '&quot;\n}\n}']" doc:name="Set Payload"/>
-                <logger message="JDE - InvalidRequestException - CreditCheck- #[payload]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
+                <logger message="JDE - InvalidRequestException #[flowVars.TCCCustomerID] - CreditCheck- #[payload]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedBy(org.mule.module.ws.consumer.SoapFaultException)" doc:name="Catch Exception Strategy">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1120&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1120}&quot;' + '\n}\n}']" doc:name="Set Payload"/>
-                <logger message="JDE - SoapFaultException - Credit Check - #[payload]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
+                <logger message="JDE - SoapFaultException for #[flowVars.TCCCustomerID]- Credit Check - #[payload]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
             </catch-exception-strategy>
             <catch-exception-strategy doc:name="Catch Exception Strategy">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1130&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1130}&quot;' + '\n}\n}']" doc:name="Set Payload"/>
-                <logger message="JDE - GenericException - CreditCheck #[payload]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
+                <logger message="JDE - GenericException for #[flowVars.TCCCustomerID]- CreditCheck #[payload]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
             </catch-exception-strategy>
         </choice-exception-strategy>
     </flow>
@@ -111,7 +111,7 @@ payload.creditCheckRequest.tccCustomerId]]></dw:set-variable>
         </message-properties-transformer>
         <json:json-to-xml-transformer doc:name="JSON to XML"/>
         <set-variable variableName="response" value="#[payload]" doc:name="Variable"/>
-        <flow-ref name="app-sync-payloadFlow" doc:name="app-sync-payloadFlow"/>
+        <flow-ref name="api-jde-customer-flow" doc:name="api-jde-customer-flow"/>
     </sub-flow>
 
    
