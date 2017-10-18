@@ -85,7 +85,7 @@ p('app_method_customer')]]></dw:set-variable> -->
         <logger message="JDE - System API - Customer- Processing : #[flowVars.orderId]" level="INFO" category="tcc.jde.customer" doc:name="Logger"/>
         <flow-ref name="api-jde-customer-flow" doc:name="api-jde-customer-flow"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger level="ERROR" doc:name="Logger"  message="JDE-SystemAPI- Customer - Transformation Error for  #[flowVars.orderId] - Failure :   #[message.exception]"/>
+            <logger level="ERROR" doc:name="Logger"  message="JDE-SystemAPI- Customer - Transformation Error for  #[flowVars.orderId] - Failure :   #[exception]"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
@@ -135,7 +135,7 @@ p('app_method_customer')]]></dw:set-variable> -->
             <flow-ref name="customer-jde-flow" doc:name="customer-jde-flow"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE-SystemAPI - Customer : Failure - After Retries for #[flowVars.orderId]- Failure :  #[message.exception]" level="ERROR"  doc:name="Logger"/>
+            <logger message="JDE-SystemAPI - Customer : Failure - After Retries for #[flowVars.orderId]- Failure :  #[exception]" level="ERROR"  doc:name="Logger"/>
 
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
@@ -227,7 +227,7 @@ payload]]></dw:set-payload>
             
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault - Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="JDE-Customer-SoapFault Exception  for #[flowVars.orderId]- Failure : - #[message.exception] " level="ERROR" doc:name="Logger" />
+            	<logger message="JDE-Customer-SoapFault Exception  for #[flowVars.orderId]- Failure : -  #[exception]" level="ERROR" doc:name="Logger" />
 
                 
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
@@ -280,7 +280,7 @@ payload]]></dw:set-payload>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="JDE-Customer-Connection Exception for #[flowVars.orderId] - Failure : - #[message.exception] " level="ERROR" doc:name="Logger" />
+            	<logger message="JDE-Customer-Connection Exception for #[flowVars.orderId] - Failure : -  #[exception]" level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.jdeCustomerWSRequest]" doc:name="Set Payload"/>

@@ -72,22 +72,22 @@ payload.creditCheckRequest.tccCustomerId]]></dw:set-variable>
 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
             <catch-exception-strategy doc:name="Catch Connection Exception" when="exception.causedBy(java.net.ConnectException)">
-                <logger message="JDE-SystemAPI-Creditcheck - Connection Exception for  #[flowVars.TCCCustomerID]  -  Failure :   #[message.exception]" level="ERROR" doc:name="Logger" />
+                <logger message="JDE-SystemAPI-Creditcheck - Connection Exception for  #[flowVars.TCCCustomerID]  -  Failure :   #[exception]" level="ERROR" doc:name="Logger" />
                 <jms:outbound-endpoint queue="${jde.request.undelievered.queue}" connector-ref="Active_MQ" doc:name="Drop Payload to Queue"/>
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1050&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1050}&quot;' + '\n}\n}']" doc:name="SetErrorPayload"/>
 
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedBy(org.mule.module.json.validation.JsonSchemaValidationException)" doc:name="Invalid Request Exception">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1110&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1110} ' + flowVars.TCCCustomerID + '&quot;\n}\n}']" doc:name="Set Payload"/>
-                <logger message="JDE-SystemAPI-Creditcheck  - CreditCheck- InvalidRequestException #[flowVars.TCCCustomerID] -  Failure :  #[message.exception]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
+                <logger message="JDE-SystemAPI-Creditcheck  - CreditCheck- InvalidRequestException #[flowVars.TCCCustomerID] -  Failure :   #[exception]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedBy(org.mule.module.ws.consumer.SoapFaultException)" doc:name="Catch Exception Strategy">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1120&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1120}&quot;' + '\n}\n}']" doc:name="Set Payload"/>
-                <logger message="JDE-SystemAPI-Creditcheck - SoapFaultException for #[flowVars.TCCCustomerID]- Failure :  #[message.exception]" level="ERROR" doc:name="Logger" />
+                <logger message="JDE-SystemAPI-Creditcheck - SoapFaultException for #[flowVars.TCCCustomerID]- Failure :   #[exception]" level="ERROR" doc:name="Logger" />
             </catch-exception-strategy>
             <catch-exception-strategy doc:name="Catch Exception Strategy">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1130&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1130}&quot;' + '\n}\n}']" doc:name="Set Payload"/>
-                <logger message="JDE-SystemAPI-Creditcheck - GenericException for #[flowVars.TCCCustomerID]- Failure :   #[message.exception]" level="ERROR" doc:name="Logger" />
+                <logger message="JDE-SystemAPI-Creditcheck - GenericException for #[flowVars.TCCCustomerID]- Failure :    #[exception]" level="ERROR" doc:name="Logger" />
             </catch-exception-strategy>
         </choice-exception-strategy>
     </flow>

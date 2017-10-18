@@ -110,7 +110,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         <logger message="JDE - System API - Salesorder- Response for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <logger message="JDE - System API - Salesorder - JDE response received  #[flowVars.orderId]" level="INFO" category="tcc.jde.salesorder" doc:name="Logger"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE-SystemAPI- Salesorder - Transformation Error for #[flowVars.orderId] - #[message.exception]" level="ERROR" doc:name="Logger" />
+            <logger message="JDE-SystemAPI- Salesorder - Transformation Error for #[flowVars.orderId] -  #[exception]" level="ERROR" doc:name="Logger" />
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.recovery.appid} + '_' + message.id]"/>
@@ -160,7 +160,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             <flow-ref name="atg-jde-salesorderFlow-response-consumer" doc:name="atg-jde-salesorderFlow-response-consumer"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE-SystemAPI - Salesorder Failure - After Retries for #[flowVars.orderId] - #[message.exception]" level="ERROR"  doc:name="Logger"/>
+            <logger message="JDE-SystemAPI - Salesorder Failure - After Retries for #[flowVars.orderId] -  #[exception]" level="ERROR"  doc:name="Logger"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.recovery.appid} + '_' + message.id]"/>
@@ -264,7 +264,7 @@ flowVars.salesOrderId]]></dw:set-variable>
                 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault - Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="JDE-Salesorder-SoapFault Exception - Failure for  #[flowVars.orderId] -  #[message.exception] " level="ERROR" doc:name="Logger" />
+            	<logger message="JDE-Salesorder-SoapFault Exception - Failure for  #[flowVars.orderId] -   #[exception]" level="ERROR" doc:name="Logger" />
                 
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
                 <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
@@ -314,7 +314,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="JDE SystemAPI - Salesorder-Connection Exception for #[flowVars.orderId] - Failure :  #[message.exception]" level="ERROR" doc:name="Logger" />
+            	<logger message="JDE SystemAPI - Salesorder-Connection Exception for #[flowVars.orderId] - Failure :   #[exception]" level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/>
