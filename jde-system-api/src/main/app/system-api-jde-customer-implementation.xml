@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <flow name="create-update-customer-serviceimpl" processingStrategy="synchronous">
        <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="JDE - System API - Customer - Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="JDE - System API - Customer - Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.customer"/>
         <set-variable variableName="jdeCustomerSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:input-payload/>
@@ -82,9 +82,10 @@ payload.id]]></dw:set-variable>
 p('app_method_customer')]]></dw:set-variable> -->
         </dw:transform-message>
         <set-variable variableName="RETRY_COUNT" value="1" doc:name="Variable"/>
+        <logger message="JDE - System API - Customer- Processing : #[flowVars.orderId]" level="INFO" category="tcc.jde.customer" doc:name="Logger"/>
         <flow-ref name="api-jde-customer-flow" doc:name="api-jde-customer-flow"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger level="ERROR" doc:name="Logger" category="tcc.jde.customer" message="JDE-SystemAPI- Customer - Transformation Error for  #[flowVars.orderId] - #[message.exception]"/>
+            <logger level="ERROR" doc:name="Logger"  message="JDE-SystemAPI- Customer - Transformation Error for  #[flowVars.orderId] - Failure :   #[message.exception]"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
@@ -129,12 +130,12 @@ p('app_method_customer')]]></dw:set-variable> -->
     <flow name="api-jde-customer-flow" processingStrategy="synchronous">
         <set-variable variableName="jdeCustomerWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE - WS Customer Request for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger"/>
+        <logger message="JDE - WS Customer Request for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.customer"/>
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.retry.interval.ms}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="Until Successful">
             <flow-ref name="customer-jde-flow" doc:name="customer-jde-flow"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE-SystemAPI - Customer: Failure - After Retries for #[flowVars.orderId]" level="ERROR" category="tcc.jde.customer" doc:name="Logger"/>
+            <logger message="JDE-SystemAPI - Customer : Failure - After Retries for #[flowVars.orderId]- Failure :  #[message.exception]" level="ERROR"  doc:name="Logger"/>
 
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
@@ -217,6 +218,7 @@ payload]]></dw:set-payload>
 	"payload": payload
 }]]></dw:set-payload>
         </dw:transform-message>
+        <logger message="JDE - System API - Customer - JDE response received : #[flowVars.orderId]" level="INFO" category="tcc.jde.customer" doc:name="Logger"/>
 
         <!-- Deleting the record from recovery table if any is existing for this orderId -->
             <enricher source="#[payload]" target="deleteFlowOutput" doc:name="Message Enricher">
@@ -225,7 +227,7 @@ payload]]></dw:set-payload>
             
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault - Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="JDE-Customer-SoapFault Exception  for #[flowVars.orderId]- Failure : - #[message.exception] " level="ERROR" doc:name="Logger" category="tcc.jde.customer"/>
+            	<logger message="JDE-Customer-SoapFault Exception  for #[flowVars.orderId]- Failure : - #[message.exception] " level="ERROR" doc:name="Logger" />
 
                 
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
@@ -278,7 +280,7 @@ payload]]></dw:set-payload>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="JDE-Customer-Connection Exception for #[flowVars.orderId] - Failure : - #[message.exception] " level="ERROR" doc:name="Logger" category="tcc.salesorder.jde"/>
+            	<logger message="JDE-Customer-Connection Exception for #[flowVars.orderId] - Failure : - #[message.exception] " level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.jdeCustomerWSRequest]" doc:name="Set Payload"/>
