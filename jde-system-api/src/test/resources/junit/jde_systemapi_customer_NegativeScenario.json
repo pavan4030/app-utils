@@ -1,0 +1,78 @@
+{
+  "id": "1234568",
+  "dateOfBirth": "12/12/2016",
+  "doNotCall": "Y",
+  "doNotText": "Y",
+  "doNotEmail": "N",
+  "phoneDetails": [
+    {
+      "phoneNumber": "151515152",
+    },
+    {
+      "phoneNumber": "151515152",
+    },
+    {
+      "phoneNumber": "151515152",
+    },
+    {
+      "phoneNumber": "151515152",
+      "type": "Work",
+      "preferredPhone": "Y"
+    }
+  ],
+  "emailDetails": [
+    {
+      "emailAddress": "abhi@gmail.com",
+      "type": "personal",
+      "preferredEmail": "Y"
+    },
+    {
+      "emailAddress": "sure4@gmail.com",
+      "type": "work",
+      "preferredEmail": "N"
+    }
+  ],
+  "tccAccountNumber": "12345678",
+  "firstName": "",
+  "lastName": "Tonne",
+  "employerName": "Nes12",
+  "jobTitle": "MTN",
+  "lastActivity": "03/02/2016",
+  "lastPurchaseDate": "02/29/2016",
+  "login": "NA",
+  "registrationDate": "02/29/2016",
+  "customerType": "CONSUMER",
+  "notes": "This first time testing",
+  "employeeId": "12348",
+  "storeId": "100100",
+  "verizonDetails": {
+    "verizonAccountNumber": "1234568785"
+  },
+  "businessDetails": {
+    "businessName": "business 1",
+    "taxExemptNumber": "123"
+  },
+  "authorizedUsers": {
+    "name": "suresh"
+  },
+  "homeAddress": {
+    "Id": "12568",
+    "address1": "San",
+    "address2": "Fransisco",
+    "city": "carmel",
+    "state": "IN",
+    "postalCode": "12345",
+    "country": "US",
+    "doNotMail": "N"
+  },
+  "shippingAddress": {
+    "Id": "12568",
+    "address1": "San2",
+    "address2": "Fransisco4",
+    "city": "Carmel",
+    "state": "IN",
+    "postalCode": "12356",
+    "country": "US",
+    "doNotMail": "Y"
+  }
+}
