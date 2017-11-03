@@ -103,12 +103,13 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
         </dw:transform-message>
-        <logger message="JDE - System API - Salesorder- Processing #[flowVars.orderId]" level="INFO" category="tcc.jde.salesorder" doc:name="Logger"/>
+        <logger message="JDE - System API - Salesorder- Processing #[flowVars.orderId]" level="INFO"  doc:name="Logger"/>
         <set-variable variableName="RETRY_COUNT" value="1" doc:name="Variable"/>
+
         <flow-ref name="api-jde-so-flow" doc:name="api-jde-so-flow"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
         <logger message="JDE - System API - Salesorder- Response for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
-        <logger message="JDE - System API - Salesorder - JDE response received  #[flowVars.orderId]" level="INFO" category="tcc.jde.salesorder" doc:name="Logger"/>
+        <logger message="JDE - System API - Salesorder - JDE response received  #[flowVars.orderId]" level="INFO"  doc:name="Logger"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger message="JDE-SystemAPI- Salesorder - Transformation Error for #[flowVars.orderId] -  #[exception]" level="ERROR" doc:name="Logger" />
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
@@ -214,6 +215,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
 
         <ws:consumer config-ref="Web_Service_Consumer_Salesorder" operation="createSalesOrder" doc:name="Web Service Consumer"/>
+
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
@@ -232,6 +234,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 ---
 flowVars.salesOrderId]]></dw:set-variable>
         </dw:transform-message>
+
         
         <!-- APP Sync - Pushing details to DB -->
         <message-properties-transformer doc:name="Message Properties" scope="invocation">

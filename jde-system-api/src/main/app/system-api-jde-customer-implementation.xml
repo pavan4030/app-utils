@@ -82,7 +82,7 @@ payload.id]]></dw:set-variable>
 p('app_method_customer')]]></dw:set-variable> -->
         </dw:transform-message>
         <set-variable variableName="RETRY_COUNT" value="1" doc:name="Variable"/>
-        <logger message="JDE - System API - Customer- Processing : #[flowVars.orderId]" level="INFO" category="tcc.jde.customer" doc:name="Logger"/>
+        <logger message="JDE - System API - Customer- Processing : #[flowVars.orderId]" level="INFO"  doc:name="Logger"/>
         <flow-ref name="api-jde-customer-flow" doc:name="api-jde-customer-flow"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger level="ERROR" doc:name="Logger"  message="JDE-SystemAPI- Customer - Transformation Error for  #[flowVars.orderId] - Failure :   #[exception]"/>
@@ -186,6 +186,7 @@ p('app_method_customer')]]></dw:set-variable> -->
     <flow name="customer-jde-flow" processingStrategy="synchronous">
 
         <ws:consumer config-ref="Web_Service_Consumer_Customer" operation="addOrUpdateCustomer" doc:name="Web Service Consumer Customer"/>
+
         
     
         <dw:transform-message doc:name="Transform Message">
@@ -218,7 +219,7 @@ payload]]></dw:set-payload>
 	"payload": payload
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="JDE - System API - Customer - JDE response received : #[flowVars.orderId]" level="INFO" category="tcc.jde.customer" doc:name="Logger"/>
+        <logger message="JDE - System API - Customer - JDE response received : #[flowVars.orderId]" level="INFO"  doc:name="Logger"/>
 
         <!-- Deleting the record from recovery table if any is existing for this orderId -->
             <enricher source="#[payload]" target="deleteFlowOutput" doc:name="Message Enricher">
