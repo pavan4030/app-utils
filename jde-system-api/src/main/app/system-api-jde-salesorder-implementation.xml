@@ -24,10 +24,10 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <set-variable variableName="jdeSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
+%output application/json skipNullOn = "everywhere"
 ---
 {
-	OrderHeader: {
+	OrderHeader:{
 		agentInfo: {
 			CommissionableAgentName: payload.OrderHeader.agentInfo.CommissionableAgentName,
 			agentId: payload.OrderHeader.agentInfo.agentId,
@@ -111,6 +111,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 }
 ]]></dw:set-payload>
         </dw:transform-message>
+        <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
         <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
 
         <dw:transform-message doc:name="Transform Message">
@@ -123,9 +124,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 	ns0#createSalesOrder: {
 		orderHeader: {
 			orderInfo: {
-				orderDate: payload.OrderHeader.orderInfo.orderDate as :date,
+				orderDate: payload.OrderHeader.orderInfo.orderDate,
 				orderId: payload.OrderHeader.orderInfo.orderId,
-				(originalOrderDate: payload.OrderHeader.orderInfo.originalOrderDate as :date) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate != "",
+				(originalOrderDate: payload.OrderHeader.orderInfo.originalOrderDate) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate != "",
                 originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
 			},
 			customerInfo: {
