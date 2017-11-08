@@ -37,7 +37,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 		},
 		customerInfo: {
 			tccCustomerId: payload.OrderHeader.customerInfo.tccCustomerId,
-			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerID,
+			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerId,
 			tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
 			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType
 		},
