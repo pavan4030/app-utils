@@ -40,6 +40,18 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 			{
 				return org.apache.commons.lang.StringUtils.substring(inputString,first,second)
 			}
+			def parseDateAndConvert(string)
+            {
+               if((string.matches("((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01]) ([2][0-3]|[0-1][0-9]|[1-9]):[0-5][0-9]:([0-5][0-9]|[6][0])"))){
+			   		java.text.SimpleDateFormat dateformat =new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			      	java.util.Date toDate = dateformat.parse(string);
+	                java.text.SimpleDateFormat stringFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+	                String dateStr = stringFormat.format(toDate);
+	                return dateStr;
+			    } else {
+			      return string;
+			    }
+	        }
             </global-functions> 
         </expression-language>
     </configuration>

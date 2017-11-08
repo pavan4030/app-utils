@@ -22,7 +22,55 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 %output application/json
 ---
 {
-	OrderHeader: payload.OrderHeader,
+	OrderHeader: {
+		agentInfo: {
+			CommissionableAgentName: payload.OrderHeader.agentInfo.CommissionableAgentName,
+			agentId: payload.OrderHeader.agentInfo.agentId,
+			commissionableAgentId: payload.OrderHeader.agentInfo.commissionableAgentId,
+			commissionableAgentOrgRole: payload.OrderHeader.agentInfo.commissionableAgentOrgRole,
+			commissionableAgentParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId
+		},
+		customerInfo: {
+			tccCustomerId: payload.OrderHeader.customerInfo.tccCustomerId,
+			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerID,
+			tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
+			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType
+		},
+		miscInfo: {
+			CCRScommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated,
+			defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed
+		},
+		orderInfo: {
+			orderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.orderDate) when payload.OrderHeader.orderInfo.orderDate != null and payload.OrderHeader.orderInfo.orderDate !="" otherwise "",
+			orderId: payload.OrderHeader.orderInfo.orderId,
+			orderStatus: payload.OrderHeader.orderInfo.orderStatus,
+			originalOrderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.originalOrderDate) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate !="" otherwise "",
+			originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
+		},
+		orderPriceInfo: {
+			amount: payload.OrderHeader.orderPriceInfo.amount,
+			currencyCode: payload.OrderHeader.orderPriceInfo.currencyCode,
+			discounted: payload.OrderHeader.orderPriceInfo.discounted,
+			tax: payload.OrderHeader.orderPriceInfo.tax,
+			total: payload.OrderHeader.orderPriceInfo.total
+		},
+		storeInfo: {
+			commissionableStoreInfo: {
+				commissionableStoreAreaId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaId,
+				commissionableStoreAreaName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaName,
+				commissionableStoreDistrictId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictId,
+				commissionableStoreDistrictName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictName,
+				commissionableStoreId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId,
+				commissionableStoreMarketId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketId,
+				commissionableStoreMarketName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketName,
+				commissionableStoreName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreName
+			},
+			physicalStoreInfo: {
+				physicalStoreId: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreId,
+				physicalStoreZipCode: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreZipCode
+			}
+		}
+	},
 	commerceItems:{
 		commerceItem: payload.commerceItems.commerceItem map ((salesOrderSKUIdsPayload, salesOrderSKUIdsPayloadIndex) -> {
 			(skuId: salesOrderSKUIdsPayload.skuId) when salesOrderSKUIdsPayload.skuId?,
