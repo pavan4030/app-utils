@@ -82,6 +82,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			(commercelineItemId: salesOrderSKUIdsPayload.commercelineItemId) when salesOrderSKUIdsPayload.commercelineItemId?,
 			(skuIdType: salesOrderSKUIdsPayload.skuIdType) when salesOrderSKUIdsPayload.skuIdType?,
 			(listPrice: salesOrderSKUIdsPayload.listPrice) when salesOrderSKUIdsPayload.listPrice?,
+			(amount: salesOrderSKUIdsPayload.amount) when salesOrderSKUIdsPayload.amount?,
 			(itemCost: salesOrderSKUIdsPayload.itemCost) when salesOrderSKUIdsPayload.itemCost?,
 			(itemStatus: salesOrderSKUIdsPayload.itemStatus) when salesOrderSKUIdsPayload.itemStatus?,
 			(discountType: salesOrderSKUIdsPayload.discountType) when salesOrderSKUIdsPayload.discountType?,
@@ -104,7 +105,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        		(currencyCode: salesOrderSKUIdsPayload.currencyCode) when salesOrderSKUIdsPayload.currencyCode?,
 			(authCode: salesOrderSKUIdsPayload.authCode) when salesOrderSKUIdsPayload.authCode?,
 			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
-            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?
+            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?,
+            (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
+            (preorderConfirmationId: salesOrderSKUIdsPayload.preorderConfirmationId) when salesOrderSKUIdsPayload.preorderConfirmationId?
 		})
 	}
 	
@@ -248,6 +251,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
     	<set-variable variableName="jdeWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
         <logger message="JDE-SystemAPI - WS Salesorder Request for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
+
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.retry.interval.ms}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="Until Successful">
             <flow-ref name="atg-jde-salesorderFlow-response-consumer" doc:name="atg-jde-salesorderFlow-response-consumer"/>
         </until-successful>
