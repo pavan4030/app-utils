@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+<mule xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json"
 	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -11,7 +11,8 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
 
 <flow name="atg-oicFlow" processingStrategy="synchronous">
         <set-variable variableName="oicSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
@@ -77,6 +78,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			(commercelineItemId: salesOrderSKUIdsPayload.commercelineItemId) when salesOrderSKUIdsPayload.commercelineItemId?,
 			(skuIdType: salesOrderSKUIdsPayload.skuIdType) when salesOrderSKUIdsPayload.skuIdType?,
 			(listPrice: salesOrderSKUIdsPayload.listPrice) when salesOrderSKUIdsPayload.listPrice?,
+			(amount: salesOrderSKUIdsPayload.amount) when salesOrderSKUIdsPayload.amount?,
 			(itemCost: salesOrderSKUIdsPayload.itemCost) when salesOrderSKUIdsPayload.itemCost?,
 			(itemStatus: salesOrderSKUIdsPayload.itemStatus) when salesOrderSKUIdsPayload.itemStatus?,
 			(discountType: salesOrderSKUIdsPayload.discountType) when salesOrderSKUIdsPayload.discountType?,
@@ -99,7 +101,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        		(currencyCode: salesOrderSKUIdsPayload.currencyCode) when salesOrderSKUIdsPayload.currencyCode?,
 			(authCode: salesOrderSKUIdsPayload.authCode) when salesOrderSKUIdsPayload.authCode?,
 			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
-            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?
+            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?,
+            (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
+            (preorderConfirmationId: salesOrderSKUIdsPayload.preorderConfirmationId) when salesOrderSKUIdsPayload.preorderConfirmationId?
 		}) filter $.skuIdType != 'paymentGroup' and  $.skuIdType != 'taxPrice' and  $.skuIdType != 'valueAddedGainSpifAmount' and  $.skuIdType != 'devicePaymentGrossAmountFinanced' and  $.itemStatus != 'ORDERED' and (upper $.skuId) != 'VZWSECDEPSRV' and (upper $.skuId) != 'VZWDPAYMANSRV' and (upper $.skuId) != 'VZWDPAYVOLSRV' and $.itemStatus != 'CANCELLED' and payload.OrderHeader.miscInfo.CCRScommissionCalculated != 'N'
 	}
 	
@@ -289,7 +293,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             	
         </catch-exception-strategy>
     </flow>
-    <flow name="atg-oicFlow-response-consumer" processingStrategy="synchronous">
+        <flow name="atg-oicFlow-response-consumer" processingStrategy="synchronous">
 
         <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
         <logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
@@ -297,29 +301,10 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
-%namespace ns0 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/
-%namespace ns1 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/
 ---
-{
-	ns0#processIncentiveTransactionStagingResponse: {
-		((payload.ns0#processIncentiveTransactionStagingResponse.*ns0#result default []) map ((result , indexOfResult1) -> {
-			ns0#result: {
-				//Attribute2: result.ns1#Attribute2,
-				//AttributeNumber12: result.ns1#AttributeNumber12,
-				//AttributeNumber13: result.ns1#AttributeNumber13,
-				//AttributeNumber14: result.ns1#AttributeNumber14,
-				//BusinessUnitId: result.ns1#BusinessUnitId,
-				//CreditedParticipantId: result.ns1#CreditedParticipantId,
-				//SourceCurrencyTransactionAmount: result.ns1#SourceCurrencyTransactionAmount,
-				//SourceEventDate: result.ns1#SourceEventDate,
-				SourceTrxNumber: result.ns1#SourceTrxNumber
-				//TransactionId: result.ns1#TransactionId,
-				//TransactionType: result.ns1#TransactionType
-			}
-		}))
-	} when payload.ns0#processIncentiveTransactionStagingResponse != null otherwise payload.ns0#processIncentiveTransactionStagingResponse
-}]]></dw:set-payload>
+payload]]></dw:set-payload>
         </dw:transform-message>
+
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
         <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
         <message-properties-transformer doc:name="Message Properties" scope="invocation">
