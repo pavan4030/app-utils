@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <flow name="createUpdateSalesorder-serviceimpl">
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
-        <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG"  category="tcc.salesorder" doc:name="Logger"/>
         <set-variable variableName="jdeSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
 
         <dw:transform-message doc:name="Transform Message">
@@ -153,7 +153,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
     <flow name="api-jde-so-flow" processingStrategy="synchronous">
     	<set-variable variableName="jdeWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE - WS Salesorder Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.jde" doc:name="Logger"/>
+        <logger message="JDE - WS Salesorder Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.salesorder" doc:name="Logger"/>
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.retry.interval.ms}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="Until Successful">
             <flow-ref name="atg-jde-salesorderFlow-response-consumer" doc:name="atg-jde-salesorderFlow-response-consumer"/>
         </until-successful>
@@ -244,7 +244,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
         <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE-WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.jde" doc:name="Logger"/>
+        <logger message="JDE-WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO"  doc:name="Logger"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -262,7 +262,7 @@ flowVars.salesOrderId]]></dw:set-variable>
                 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault - Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="JDE-Salesorder-SoapFault Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.jde"/>
+            	<logger message="JDE-Salesorder-SoapFault Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="ERROR" doc:name="Logger" />
                 
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
                 <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
@@ -312,7 +312,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="JDE-Salesorder-Connection Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="INFO" doc:name="Logger" category="tcc.salesorder.jde"/>
+            	<logger message="JDE-Salesorder-Connection Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/>
