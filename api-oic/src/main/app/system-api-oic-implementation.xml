@@ -170,7 +170,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 			//(ns1#SourceTrxNumber : [payload.OrderHeader.orderInfo.orderId,transactionStagingPayload.commercelineItemId,'00' ++ transactionStagingPayloadIndex] joinBy "-" ) when transactionStagingPayload.skuIdType != 'original',
 			//ns1#CreditedParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId,
 			ns1#TransactionType : p('TransactionType'),
-			ns1#BusinessUnitId : p('BusinessUnitId'),
+			ns1#BusinessUnitId : p('oic.BusinessUnitId'),
 			ns1#Attribute3 : p('Attribute3'),
 			ns1#Attribute27 : p('Attribute27')
 			//numberCount: numberCount(transactionStagingPayload.skuIdType)
