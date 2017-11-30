@@ -204,6 +204,8 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
             </otherwise>
         </choice>
+        <object-to-string-transformer doc:name="Object to String"/>
+        
         <logger message="System API - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger message="OIC - WS - Transformation Issue" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
