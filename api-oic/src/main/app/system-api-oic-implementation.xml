@@ -62,7 +62,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 ---
 payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         </dw:transform-message>
-        <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
+        <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.salesorder"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
 
         <set-variable variableName="commerceItemsSize" value="#[new com.google.gson.JsonParser().parse(payload).getAsJsonObject().getAsJsonObject('commerceItems').getAsJsonArray('commerceItem').size()]" doc:name="Variable"/>
@@ -118,7 +118,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 			//(ns1#SourceTrxNumber : [payload.OrderHeader.orderInfo.orderId,transactionStagingPayload.commercelineItemId,'00' ++ transactionStagingPayloadIndex] joinBy "-" ) when transactionStagingPayload.skuIdType != 'original',
 			//ns1#CreditedParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId,
 			ns1#TransactionType : p('TransactionType'),
-			ns1#BusinessUnitId : p('BusinessUnitId'),
+			ns1#BusinessUnitId : p('oic.BusinessUnitId'),
 			ns1#Attribute3 : p('Attribute3'),
 			ns1#Attribute27 : p('Attribute27')
 			//numberCount: numberCount(transactionStagingPayload.skuIdType)
@@ -152,9 +152,10 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
             </otherwise>
         </choice>
-        <logger message="System API - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="System API - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger" />
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="OIC - WS - Transformation Issue" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
+            <logger message="OIC - WS - Transformation Issue" level="ERROR" doc:name="Logger" />
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
@@ -200,7 +201,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             <flow-ref name="atg-oicFlow-response-consumer" doc:name="atg-oicFlow-response-consumer"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="OIC - WS - Failure - After Retries" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
+            <logger message="OIC - WS - Failure - After Retries" level="ERROR" doc:name="Logger" />
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
@@ -244,8 +245,8 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
     <flow name="atg-oicFlow-response-consumer" processingStrategy="synchronous">
 
         <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
-        <logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
-        <ws:consumer config-ref="" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
+        <logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.salesorder" doc:name="Logger"/>
+        <ws:consumer config-ref="OIC_Web_Service_Consumer" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
@@ -273,7 +274,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 }]]></dw:set-payload>
         </dw:transform-message>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
+        <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO"  doc:name="Logger"/>
         <message-properties-transformer doc:name="Message Properties" scope="invocation">
                     <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
                     <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
@@ -301,7 +302,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="OIC-Salesorder-SoapFault Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
+            	<logger message="OIC-Salesorder-SoapFault Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
                 <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
                 <message-properties-transformer scope="invocation" doc:name="Message Properties">
@@ -344,7 +345,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="OIC-Salesorder-Connection Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
+            	<logger message="OIC-Salesorder-Connection Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.oicWSRequest]" doc:name="Set Payload"/>
