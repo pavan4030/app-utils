@@ -1,0 +1,76 @@
+#%RAML 0.8
+title: esb-payloads
+version: v1.0
+baseUri: http://localhost:8092/api/esb-payloads-api
+protocols: [HTTP, HTTPS]
+
+/api/payloads/{correlationId}:
+ uriParameters: 
+  correlationId:  
+   description: Retrieve data based on correlationId from APP-SYNC-PAYLOAD
+   type: string
+   required: true
+ get: 
+  responses: 
+   200:  
+    body: 
+     application/json: 
+      example: |
+               {
+                   "success": "Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId"
+               }
+   400: 
+    body: 
+     application/json: 
+      example: |
+             {
+                "errorResponse": {
+                        "description": "Resource URL Error",
+                        "status": 400              
+                       }
+              }
+   500:
+    body: 
+     application/json: 
+      example: |
+              {
+                        "errorResponse": {
+                        "description": "Resource URL Error",
+                        "status": 400              
+                       }
+               }
+/api/payloads/{transactionId}: 
+ uriParameters: 
+  transactionId:
+   description: Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId
+   type: string
+   required: true
+ get: 
+  responses: 
+   200: 
+    body: 
+     application/json: 
+      example: |
+           {
+                   "success": "Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId"
+           }
+   400:   
+     body: 
+      application/json: 
+       example: |
+             {
+                "errorResponse": {
+                        "description": "Resource URL Error",
+                        "status": 400              
+                       }
+   500:  
+    body: 
+     application/json: 
+      example: |
+              {
+                        "errorResponse": {
+                        "description": "Resource URL Error",
+                        "status": 400              
+                       }
+               }                   
+  
