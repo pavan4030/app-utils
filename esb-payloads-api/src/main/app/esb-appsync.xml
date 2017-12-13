@@ -65,13 +65,13 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]']]></db:dynamic-query>
         </db:select>
-            <logger message="Database Results???#[payload]" level="INFO" doc:name="Logger"/>
+            <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger"/>
 
 
            
             <choice doc:name="Choice">
                 <when expression="#[payload != null]">
-                <logger message="before trans???? #[payload]" level="INFO" doc:name="Logger"/>
+
                     <dw:transform-message doc:name="Transform Message">
                         <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
@@ -90,7 +90,8 @@ LINEPAYLOAD: payload01.CREATE_TS ++ payload01.REQUEST.characterStream as :string
 
 })]]></dw:set-payload>
                     </dw:transform-message>
-                    <logger message="After transform ? ////////////////#[payload]" level="INFO" doc:name="Logger"/>
+                    <logger message="#[payload]" level="DEBUG" doc:name="Logger"/>
+
                     <dw:transform-message doc:name="Transform Message">
                         <dw:set-payload><![CDATA[%dw 1.0
 %output application/csv header=false
@@ -110,8 +111,9 @@ payload map {
         
 
         </transactional>
-        <logger message="SENT to File????????#[payload]" level="INFO" doc:name="Logger"/>
-        <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.ID  + '-' + server.dateTime].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
+        <logger message="writing to file : #[payload]" level="DEBUG" doc:name="Logger"/>
+        <set-variable variableName="outputFileName" value="#[flowVars.ID]-#[server.dateTime.format(&quot;yyyy-MM-dd HH-mm-ss&quot;)]" doc:name="Variable"/>
+        <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.outputFileName].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
 
     	
     </sub-flow>
