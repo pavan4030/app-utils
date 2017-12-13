@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.tccrocks.integration</groupId>
 	<artifactId>notify-communicate</artifactId>
-	<version>3.5.0</version>
+	<version>4.0.0</version>
 	<packaging>mule</packaging>
 	<name>ESB Notification Communication System</name>
 
