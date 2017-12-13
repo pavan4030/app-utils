@@ -23,10 +23,14 @@ http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mules
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
 
- <secure-property-placeholder:config name="AppSync_Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:activationType.properties,contractTerm.properties,esb-payloads-api-${mule.env}.properties, file:///opt/app/esb/app-config/esb-payloads-api-dev.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/> 
-<db:oracle-config name="Oracle_Configuration" host="10.206.14.4" port="1521" instance="TCCDEVDB" user="mule_user" password="DF24$87awG" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
-    <apikit:config name="esb-appsync-config" raml="esb-appsync.raml" consoleEnabled="false" doc:name="Router"/>
-    <file:connector name="esb-payloads-api" autoDelete="false" streaming="true" validateConnections="true" doc:name="File" writeToDirectory="${esb.payloads.appsync.output}"/>
+ <secure-property-placeholder:config name="AppSync_Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:esb-payloads-api-${mule.env}.properties, file:///opt/app/esb/app-config/esb-payloads-api-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/> 
+<!-- DB Configuration -->
+	
+	<db:oracle-config name="Oracle_Configuration" host="${db.host}" port="${db.port}" instance="${db.database}" user="${db.user}" password="${db.password}" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
+	<!--  End of DB Config -->
+	
+	<apikit:config name="esb-appsync-config" raml="esb-appsync.raml" consoleEnabled="false" doc:name="Router"/>
+    <file:connector name="File" autoDelete="true" streaming="true" validateConnections="true" doc:name="File"/>
     
     <flow name="esb-appsync-main">
         <http:listener config-ref="shared-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
@@ -107,8 +111,8 @@ payload map {
 
         </transactional>
         <logger message="SENT to File????????#[payload]" level="INFO" doc:name="Logger"/>
+        <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.ID  + '-' + server.dateTime].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
 
-        <file:outbound-endpoint path="D:\opt\app\shared\common\appsync" outputPattern="[flowVars.ID] - [function:dateStamp].txt" connector-ref="esb-payloads-api" responseTimeout="10000" doc:name="Textfile"/>
     	
     </sub-flow>
     <apikit:mapping-exception-strategy name="esb-appsync-apiKitGlobalExceptionMapping">
