@@ -18,7 +18,29 @@
 
 	<build>
 		<plugins>
-			
+			<plugin>
+			  <groupId>org.mule.tools.maven</groupId>
+			  <artifactId>mule-maven-plugin</artifactId>
+			  <version>2.2.1</version>
+			  <configuration>
+			        <deploymentType>arm</deploymentType>
+			        <username>${username}</username>
+			        <password>${password}</password>
+			        <target>${target}</target>
+			        <!-- One of: server, serverGroup, cluster -->
+			        <targetType>${targetType}</targetType>
+			        <environment>${environment}</environment>
+			    </configuration>
+			    <executions>
+			        <execution>
+			            <id>deploy</id>
+			            <phase>deploy</phase>
+			            <goals>
+			                <goal>deploy</goal>
+			            </goals>
+			        </execution>
+			    </executions>
+			</plugin>
 			<plugin>
 				<groupId>org.mule.tools.maven</groupId>
 				<artifactId>mule-app-maven-plugin</artifactId>
