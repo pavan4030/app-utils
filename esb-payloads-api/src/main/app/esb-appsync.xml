@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
  <secure-property-placeholder:config name="AppSync_Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:activationType.properties,contractTerm.properties,esb-payloads-api-${mule.env}.properties, file:///opt/app/esb/app-config/esb-payloads-api-dev.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/> 
 <db:oracle-config name="Oracle_Configuration" host="10.206.14.4" port="1521" instance="TCCDEVDB" user="mule_user" password="DF24$87awG" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
     <apikit:config name="esb-appsync-config" raml="esb-appsync.raml" consoleEnabled="false" doc:name="Router"/>
-    <file:connector name="esb-payloads-api" autoDelete="false" streaming="true" validateConnections="true" doc:name="File" writeToDirectory="D:\opt\app\shared\common\appsync"/>
+    <file:connector name="esb-payloads-api" autoDelete="false" streaming="true" validateConnections="true" doc:name="File" writeToDirectory="${esb.payloads.appsync.output}"/>
     
     <flow name="esb-appsync-main">
         <http:listener config-ref="shared-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
