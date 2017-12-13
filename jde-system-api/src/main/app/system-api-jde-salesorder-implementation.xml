@@ -20,8 +20,102 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <flow name="createUpdateSalesorder-serviceimpl">
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
-        <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG"  category="tcc.salesorder" doc:name="Logger"/>
+        <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <set-variable variableName="jdeSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json skipNullOn = "everywhere"
+---
+{
+	OrderHeader:{
+		agentInfo: {
+			CommissionableAgentName: payload.OrderHeader.agentInfo.CommissionableAgentName,
+			agentId: payload.OrderHeader.agentInfo.agentId,
+			commissionableAgentId: payload.OrderHeader.agentInfo.commissionableAgentId,
+			commissionableAgentOrgRole: payload.OrderHeader.agentInfo.commissionableAgentOrgRole,
+			commissionableAgentParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId
+		},
+		customerInfo: {
+			tccCustomerId: payload.OrderHeader.customerInfo.tccCustomerId,
+			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerId,
+			tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
+			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType
+		},
+		miscInfo: {
+			CCRScommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated,
+			defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed
+		},
+		orderInfo: {
+			orderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.orderDate) when payload.OrderHeader.orderInfo.orderDate != null and payload.OrderHeader.orderInfo.orderDate !="" otherwise "",
+			orderId: payload.OrderHeader.orderInfo.orderId,
+			orderStatus: payload.OrderHeader.orderInfo.orderStatus,
+			originalOrderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.originalOrderDate) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate !="" otherwise "",
+			originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
+		},
+		orderPriceInfo: {
+			amount: payload.OrderHeader.orderPriceInfo.amount,
+			currencyCode: payload.OrderHeader.orderPriceInfo.currencyCode,
+			discounted: payload.OrderHeader.orderPriceInfo.discounted,
+			tax: payload.OrderHeader.orderPriceInfo.tax,
+			total: payload.OrderHeader.orderPriceInfo.total
+		},
+		storeInfo: {
+			commissionableStoreInfo: {
+				commissionableStoreAreaId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaId,
+				commissionableStoreAreaName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaName,
+				commissionableStoreDistrictId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictId,
+				commissionableStoreDistrictName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictName,
+				commissionableStoreId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId,
+				commissionableStoreMarketId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketId,
+				commissionableStoreMarketName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketName,
+				commissionableStoreName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreName
+			},
+			physicalStoreInfo: {
+				physicalStoreId: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreId,
+				physicalStoreZipCode: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreZipCode
+			}
+		}
+	},
+	commerceItems:{
+		commerceItem: payload.commerceItems.commerceItem map ((salesOrderSKUIdsPayload, salesOrderSKUIdsPayloadIndex) -> {
+			(skuId: salesOrderSKUIdsPayload.skuId) when salesOrderSKUIdsPayload.skuId?,
+			(commercelineItemId: salesOrderSKUIdsPayload.commercelineItemId) when salesOrderSKUIdsPayload.commercelineItemId?,
+			(skuIdType: salesOrderSKUIdsPayload.skuIdType) when salesOrderSKUIdsPayload.skuIdType?,
+			(listPrice: salesOrderSKUIdsPayload.listPrice) when salesOrderSKUIdsPayload.listPrice?,
+			(amount: salesOrderSKUIdsPayload.amount) when salesOrderSKUIdsPayload.amount?,
+			(itemCost: salesOrderSKUIdsPayload.itemCost) when salesOrderSKUIdsPayload.itemCost?,
+			(itemStatus: salesOrderSKUIdsPayload.itemStatus) when salesOrderSKUIdsPayload.itemStatus?,
+			(discountType: salesOrderSKUIdsPayload.discountType) when salesOrderSKUIdsPayload.discountType?,
+			(impositionTypeId: salesOrderSKUIdsPayload.impositionTypeId) when salesOrderSKUIdsPayload.impositionTypeId?,
+			(commissionType: salesOrderSKUIdsPayload.commissionType) when salesOrderSKUIdsPayload.commissionType?,
+			(SerialNumber: salesOrderSKUIdsPayload.SerialNumber) when salesOrderSKUIdsPayload.SerialNumber?,
+			(skuDescription: salesOrderSKUIdsPayload.skuDescription) when salesOrderSKUIdsPayload.skuDescription?,
+	        (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
+	        (quantity: salesOrderSKUIdsPayload.quantity) when salesOrderSKUIdsPayload.quantity?,
+	        
+            FulfillmentDate: parseDateAndConvert(salesOrderSKUIdsPayload.FulfillmentDate) when salesOrderSKUIdsPayload.FulfillmentDate != null and salesOrderSKUIdsPayload.FulfillmentDate !="" otherwise "", 
+	        
+	        (itemType: salesOrderSKUIdsPayload.itemType) when salesOrderSKUIdsPayload.itemType?,
+	        (grossProfit: salesOrderSKUIdsPayload.grossProfit) when salesOrderSKUIdsPayload.grossProfit?,
+	        (serviceTransactionID: salesOrderSKUIdsPayload.serviceTransactionID) when salesOrderSKUIdsPayload.serviceTransactionID?,
+	        (mobileNumber: salesOrderSKUIdsPayload.mobileNumber) when salesOrderSKUIdsPayload.mobileNumber?,
+	        (deviceCategory: salesOrderSKUIdsPayload.deviceCategory) when salesOrderSKUIdsPayload.deviceCategory?,
+	        (activationType: salesOrderSKUIdsPayload.activationType) when salesOrderSKUIdsPayload.activationType?,
+	        (contractType: salesOrderSKUIdsPayload.contractType) when salesOrderSKUIdsPayload.contractType?,
+       		(currencyCode: salesOrderSKUIdsPayload.currencyCode) when salesOrderSKUIdsPayload.currencyCode?,
+			(authCode: salesOrderSKUIdsPayload.authCode) when salesOrderSKUIdsPayload.authCode?,
+			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
+            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?,
+            (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
+            (preorderConfirmationId: salesOrderSKUIdsPayload.preorderConfirmationId) when salesOrderSKUIdsPayload.preorderConfirmationId?
+		})
+	}
+	
+}
+]]></dw:set-payload>
+        </dw:transform-message>
+        <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+        <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
 
         <dw:transform-message doc:name="Transform Message">
             <dw:input-payload mimeType="application/json"/>
@@ -33,9 +127,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 	ns0#createSalesOrder: {
 		orderHeader: {
 			orderInfo: {
-				orderDate: payload.OrderHeader.orderInfo.orderDate as :date,
+				orderDate: payload.OrderHeader.orderInfo.orderDate,
 				orderId: payload.OrderHeader.orderInfo.orderId,
-				(originalOrderDate: payload.OrderHeader.orderInfo.originalOrderDate as :date) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate != "",
+				(originalOrderDate: payload.OrderHeader.orderInfo.originalOrderDate) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate != "",
                 originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
 			},
 			customerInfo: {
@@ -103,12 +197,15 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
         </dw:transform-message>
+        <logger message="JDE - System API - Salesorder- Processing #[flowVars.orderId]" level="INFO"  doc:name="Logger"/>
         <set-variable variableName="RETRY_COUNT" value="1" doc:name="Variable"/>
+
         <flow-ref name="api-jde-so-flow" doc:name="api-jde-so-flow"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
-        <logger message="JDE - System API - Salesorder- Response - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="JDE - System API - Salesorder- Response for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
+        <logger message="JDE - System API - Salesorder - JDE response received  #[flowVars.orderId]" level="INFO"  doc:name="Logger"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE Salesorder - Transformation Issue ? #[payload]" level="INFO" doc:name="Logger"/>
+            <logger message="JDE-SystemAPI- Salesorder - Transformation Error for #[flowVars.orderId] -  #[exception]" level="ERROR" doc:name="Logger" />
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.recovery.appid} + '_' + message.id]"/>
@@ -153,12 +250,13 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
     <flow name="api-jde-so-flow" processingStrategy="synchronous">
     	<set-variable variableName="jdeWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE - WS Salesorder Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.salesorder" doc:name="Logger"/>
+        <logger message="JDE-SystemAPI - WS Salesorder Request for #[flowVars.orderId] - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
+
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.retry.interval.ms}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="Until Successful">
             <flow-ref name="atg-jde-salesorderFlow-response-consumer" doc:name="atg-jde-salesorderFlow-response-consumer"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="JDE - Failure - After Retries" level="ERROR" category="tcc.salesorder.jde" doc:name="Logger"/>
+            <logger message="JDE-SystemAPI - Salesorder Failure - After Retries for #[flowVars.orderId] -  #[exception]" level="ERROR"  doc:name="Logger"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.salesorder.recovery.appid} + '_' + message.id]"/>
@@ -212,6 +310,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
 
         <ws:consumer config-ref="Web_Service_Consumer_Salesorder" operation="createSalesOrder" doc:name="Web Service Consumer"/>
+
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
@@ -230,6 +329,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 ---
 flowVars.salesOrderId]]></dw:set-variable>
         </dw:transform-message>
+
         
         <!-- APP Sync - Pushing details to DB -->
         <message-properties-transformer doc:name="Message Properties" scope="invocation">
@@ -244,7 +344,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
         <set-variable variableName="exCausedBy" value="noException" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE-WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO"  doc:name="Logger"/>
+        <logger message="JDE-SystemAPI - WS - Salesorder-Response for #[flowVars.orderId] : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -262,7 +362,7 @@ flowVars.salesOrderId]]></dw:set-variable>
                 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault - Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="JDE-Salesorder-SoapFault Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="ERROR" doc:name="Logger" />
+            	<logger message="JDE-Salesorder-SoapFault Exception - Failure for  #[flowVars.orderId] -   #[exception]" level="ERROR" doc:name="Logger" />
                 
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
                 <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
@@ -312,7 +412,7 @@ flowVars.salesOrderId]]></dw:set-variable>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="JDE-Salesorder-Connection Exception - Failure : #[flowVars.jdeRequest] - #[exception] " level="ERROR" doc:name="Logger" />
+            	<logger message="JDE SystemAPI - Salesorder-Connection Exception for #[flowVars.orderId] - Failure :   #[exception]" level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/>
