@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
+<mule xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:ws="http://www.mulesoft.org/schema/mule/ws"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json"
 	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -11,7 +11,8 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
 
 <flow name="atg-oicFlow" processingStrategy="synchronous">
         <set-variable variableName="oicSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
@@ -22,13 +23,62 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 %output application/json
 ---
 {
-	OrderHeader: payload.OrderHeader,
+	OrderHeader: {
+		agentInfo: {
+			CommissionableAgentName: payload.OrderHeader.agentInfo.CommissionableAgentName,
+			agentId: payload.OrderHeader.agentInfo.agentId,
+			commissionableAgentId: payload.OrderHeader.agentInfo.commissionableAgentId,
+			commissionableAgentOrgRole: payload.OrderHeader.agentInfo.commissionableAgentOrgRole,
+			commissionableAgentParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId
+		},
+		customerInfo: {
+			tccCustomerId: payload.OrderHeader.customerInfo.tccCustomerId,
+			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerID,
+			tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
+			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType
+		},
+		miscInfo: {
+			CCRScommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated,
+			defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed
+		},
+		orderInfo: {
+			orderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.orderDate) when payload.OrderHeader.orderInfo.orderDate != null and payload.OrderHeader.orderInfo.orderDate !="" otherwise "",
+			orderId: payload.OrderHeader.orderInfo.orderId,
+			orderStatus: payload.OrderHeader.orderInfo.orderStatus,
+			originalOrderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.originalOrderDate) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate !="" otherwise "",
+			originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
+		},
+		orderPriceInfo: {
+			amount: payload.OrderHeader.orderPriceInfo.amount,
+			currencyCode: payload.OrderHeader.orderPriceInfo.currencyCode,
+			discounted: payload.OrderHeader.orderPriceInfo.discounted,
+			tax: payload.OrderHeader.orderPriceInfo.tax,
+			total: payload.OrderHeader.orderPriceInfo.total
+		},
+		storeInfo: {
+			commissionableStoreInfo: {
+				commissionableStoreAreaId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaId,
+				commissionableStoreAreaName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaName,
+				commissionableStoreDistrictId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictId,
+				commissionableStoreDistrictName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictName,
+				commissionableStoreId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId,
+				commissionableStoreMarketId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketId,
+				commissionableStoreMarketName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketName,
+				commissionableStoreName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreName
+			},
+			physicalStoreInfo: {
+				physicalStoreId: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreId,
+				physicalStoreZipCode: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreZipCode
+			}
+		}
+	},
 	commerceItems:{
 		commerceItem: payload.commerceItems.commerceItem map ((salesOrderSKUIdsPayload, salesOrderSKUIdsPayloadIndex) -> {
 			(skuId: salesOrderSKUIdsPayload.skuId) when salesOrderSKUIdsPayload.skuId?,
 			(commercelineItemId: salesOrderSKUIdsPayload.commercelineItemId) when salesOrderSKUIdsPayload.commercelineItemId?,
 			(skuIdType: salesOrderSKUIdsPayload.skuIdType) when salesOrderSKUIdsPayload.skuIdType?,
 			(listPrice: salesOrderSKUIdsPayload.listPrice) when salesOrderSKUIdsPayload.listPrice?,
+			(amount: salesOrderSKUIdsPayload.amount) when salesOrderSKUIdsPayload.amount?,
 			(itemCost: salesOrderSKUIdsPayload.itemCost) when salesOrderSKUIdsPayload.itemCost?,
 			(itemStatus: salesOrderSKUIdsPayload.itemStatus) when salesOrderSKUIdsPayload.itemStatus?,
 			(discountType: salesOrderSKUIdsPayload.discountType) when salesOrderSKUIdsPayload.discountType?,
@@ -51,7 +101,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
        		(currencyCode: salesOrderSKUIdsPayload.currencyCode) when salesOrderSKUIdsPayload.currencyCode?,
 			(authCode: salesOrderSKUIdsPayload.authCode) when salesOrderSKUIdsPayload.authCode?,
 			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
-            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?
+            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?,
+            (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
+            (preorderConfirmationId: salesOrderSKUIdsPayload.preorderConfirmationId) when salesOrderSKUIdsPayload.preorderConfirmationId?
 		}) filter $.skuIdType != 'paymentGroup' and  $.skuIdType != 'taxPrice' and  $.skuIdType != 'valueAddedGainSpifAmount' and  $.skuIdType != 'devicePaymentGrossAmountFinanced' and  $.itemStatus != 'ORDERED' and (upper $.skuId) != 'VZWSECDEPSRV' and (upper $.skuId) != 'VZWDPAYMANSRV' and (upper $.skuId) != 'VZWDPAYVOLSRV' and $.itemStatus != 'CANCELLED' and payload.OrderHeader.miscInfo.CCRScommissionCalculated != 'N'
 	}
 	
@@ -62,7 +114,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 ---
 payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
         </dw:transform-message>
-        <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.salesorder"/>
+        <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
 
         <set-variable variableName="commerceItemsSize" value="#[new com.google.gson.JsonParser().parse(payload).getAsJsonObject().getAsJsonObject('commerceItems').getAsJsonArray('commerceItem').size()]" doc:name="Variable"/>
@@ -153,9 +205,10 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             </otherwise>
         </choice>
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="System API - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger" />
+        
+        <logger message="System API - SalesOrder - Response  #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.salesorder.oic"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="OIC - WS - Transformation Issue" level="ERROR" doc:name="Logger" />
+            <logger message="OIC - WS - Transformation Issue" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
@@ -201,7 +254,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             <flow-ref name="atg-oicFlow-response-consumer" doc:name="atg-oicFlow-response-consumer"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="OIC - WS - Failure - After Retries" level="ERROR" doc:name="Logger" />
+            <logger message="OIC - WS - Failure - After Retries" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
@@ -242,39 +295,20 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
             	
         </catch-exception-strategy>
     </flow>
-    <flow name="atg-oicFlow-response-consumer" processingStrategy="synchronous">
+        <flow name="atg-oicFlow-response-consumer" processingStrategy="synchronous">
 
         <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
-        <logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.salesorder" doc:name="Logger"/>
-        <ws:consumer config-ref="OIC_Web_Service_Consumer" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
+        <logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
+        <ws:consumer config-ref="" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
-%namespace ns0 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/types/
-%namespace ns1 http://xmlns.oracle.com/apps/incentiveCompensation/cn/transactionProcessing/transactionManagement/publicService/
 ---
-{
-	ns0#processIncentiveTransactionStagingResponse: {
-		((payload.ns0#processIncentiveTransactionStagingResponse.*ns0#result default []) map ((result , indexOfResult1) -> {
-			ns0#result: {
-				//Attribute2: result.ns1#Attribute2,
-				//AttributeNumber12: result.ns1#AttributeNumber12,
-				//AttributeNumber13: result.ns1#AttributeNumber13,
-				//AttributeNumber14: result.ns1#AttributeNumber14,
-				//BusinessUnitId: result.ns1#BusinessUnitId,
-				//CreditedParticipantId: result.ns1#CreditedParticipantId,
-				//SourceCurrencyTransactionAmount: result.ns1#SourceCurrencyTransactionAmount,
-				//SourceEventDate: result.ns1#SourceEventDate,
-				SourceTrxNumber: result.ns1#SourceTrxNumber
-				//TransactionId: result.ns1#TransactionId,
-				//TransactionType: result.ns1#TransactionType
-			}
-		}))
-	} when payload.ns0#processIncentiveTransactionStagingResponse != null otherwise payload.ns0#processIncentiveTransactionStagingResponse
-}]]></dw:set-payload>
+payload]]></dw:set-payload>
         </dw:transform-message>
+
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO"  doc:name="Logger"/>
+        <logger message="OIC- WS - Salesorder-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
         <message-properties-transformer doc:name="Message Properties" scope="invocation">
                     <add-message-property key="appSyncCorrelationId" value="#[flowVars.salesOrderId]"/>
                     <add-message-property key="appSyncTransactionId" value="#[flowVars.salesOrderId + '_' + ${oic.app.sync.recovery.appid} + '_' + message.id]"/>
@@ -302,7 +336,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
         <choice-exception-strategy doc:name="Choice Exception Strategy">
         	<catch-exception-strategy doc:name="SoapFault Catch Exception Strategy" when="#[exception != null &amp;&amp; (exception.causedBy(org.mule.module.ws.consumer.SoapFaultException))]">
-            	<logger message="OIC-Salesorder-SoapFault Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" />
+            	<logger message="OIC-Salesorder-SoapFault Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
                 <set-variable variableName="exCausedBy" value="soapFault" doc:name="Variable"/>
                 <set-variable variableName="exceptionMsg" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable"/>
                 <message-properties-transformer scope="invocation" doc:name="Message Properties">
@@ -345,7 +379,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
        		 </catch-exception-strategy>
        		 <catch-exception-strategy doc:name="Catch Exception Strategy">
-            	<logger message="OIC-Salesorder-Connection Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" />
+            	<logger message="OIC-Salesorder-Connection Exception - Failure : #[flowVars.oicWSRequest] - #[exception]" level="ERROR" doc:name="Logger" category="tcc.salesorder.oic"/>
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
                 <set-payload value="#[flowVars.oicWSRequest]" doc:name="Set Payload"/>

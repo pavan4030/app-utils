@@ -8,14 +8,14 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
     <flow name="creditCheckARAccountBalancejunitTest">
         <inbound-endpoint exchange-pattern="request-response" address="vm://creditCheckARAccountBalanceTest" doc:name="Generic"/>
-        <flow-ref name="post:/creditCheckARAccountBalance:jdeService-config" doc:name="post:/creditCheckARAccountBalance:jdeService-config"/>
+        <flow-ref name="creditCheckARAccountBalancejunitTest" doc:name="post:/creditCheckARAccountBalance:jdeService-config"/>
     </flow>
     <flow name="create-update-customerjunitTest">
         <inbound-endpoint exchange-pattern="request-response" address="vm://create-update-customerTest" doc:name="Generic"/>
-        <flow-ref name="post:/create-update-customer:jdeService-config" doc:name="post:/create-update-customer:jdeService-config"/>
+        <flow-ref name="create-update-customerjunitTest" doc:name="post:/create-update-customer:jdeService-config"/>
     </flow>
     <flow name="create-update-salesorderjunitTest">
         <inbound-endpoint exchange-pattern="request-response" address="vm://create-update-salesorderTest" doc:name="Generic"/>
-        <flow-ref name="post:/create-update-salesorder:jdeService-config" doc:name="post:/create-update-salesorder:jdeService-config"/>
+        <flow-ref name="create-update-salesorderjunitTest" doc:name="post:/create-update-salesorder:jdeService-config"/>
     </flow>
 </mule>
