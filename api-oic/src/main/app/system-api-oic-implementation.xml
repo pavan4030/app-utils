@@ -237,6 +237,9 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                     <add-message-property key="ipAddress" value="#[server.ip]"/>
                 	<add-message-property key="host" value="#[server.host]"/>
                 	<add-message-property key="mailsubject" value="#[flowVars.salesOrderId  + ' - OIC']"/>
+                	<add-message-property key="orderId" value="#[flowVars.salesOrderId]"/>
+                	<add-message-property key="correlationId" value="#[flowVars.salesOrderId + '_' + message.id]"/>
+					<add-message-property key="startDate" value="#[server.dateTime.plusMonths(-1)]"/>
                 </message-properties-transformer>
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>
@@ -283,6 +286,9 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                     <add-message-property key="ipAddress" value="#[server.ip]"/>
                 	<add-message-property key="host" value="#[server.host]"/>
                 	<add-message-property key="mailsubject" value="#[flowVars.salesOrderId  + ' - OIC']"/>
+                	<add-message-property key="orderId" value="#[flowVars.salesOrderId]"/>
+                	<add-message-property key="correlationId" value="#[flowVars.salesOrderId + '_' + message.id]"/>
+					<add-message-property key="startDate" value="#[server.dateTime.plusMonths(-1)]"/>
                 </message-properties-transformer>
 
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
@@ -299,7 +305,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 
         <set-property propertyName="Accept-Encoding" value="#[' ']" doc:name="Property"/>
         <logger message="OIC- WS - Salesorder-Request : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" category="tcc.salesorder.oic" doc:name="Logger"/>
-        <ws:consumer config-ref="" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
+        <ws:consumer config-ref="OIC_Web_Service_Consumer" operation="processIncentiveTransactionStaging" doc:name="Web Service Consumer"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/xml
@@ -367,6 +373,9 @@ payload]]></dw:set-payload>
                     <add-message-property key="ipAddress" value="#[server.ip]"/>
                 	<add-message-property key="host" value="#[server.host]"/>
                 	<add-message-property key="mailsubject" value="#[flowVars.salesOrderId  + ' - OIC']"/>
+                	<add-message-property key="orderId" value="#[flowVars.salesOrderId]"/>
+                	<add-message-property key="correlationId" value="#[flowVars.salesOrderId + '_' + message.id]"/>
+					<add-message-property key="startDate" value="#[server.dateTime.plusMonths(-1)]"/>
                 </message-properties-transformer>
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-oic-implementationFlow-Mail-Flow" doc:name="system-api-oic-implementationFlow-Mail-Flow"/>

@@ -34,7 +34,7 @@ th {
 				<td>#[message.payload.HostName]</td>
 			</tr>
 			<tr>
-				<td><b>ESB IP<b></td>
+				<td><b>ESB IP</b></td>
 				<td>#[message.payload.HostIP]</td>
 			</tr>			
 			<tr>
@@ -43,8 +43,14 @@ th {
 			</tr>	
 			<tr>
 				<td><b>Exception</b></td>
-				<td><xmp>#[message.payload.exception]</xmp></td>
-			</tr>							
+				<td>#[message.payload.exception]</td>
+			</tr>
+			<tr>
+				<td><b>salesorderFailureLink</b></td>
+				<td><a href=#[message.payload.exception]>salesorderFailureLink</a></td>
+			</tr>	
+			
+									
 		</tbody>
 	</table>
 </body>

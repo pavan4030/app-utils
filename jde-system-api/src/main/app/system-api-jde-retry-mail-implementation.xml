@@ -222,7 +222,8 @@ payload map {
 	(request: outboundProperties.request),
 	exception: outboundProperties.exceptionMsg,
 	mailsubject : p('smtp.mail.jde.salesorder.subject.prefix') ++ outboundProperties.mailsubject,
-	header: p('jde.salesorder.mail.header')
+	header: p('jde.salesorder.mail.header'),
+	salesorderFailureLink:p('salesorder.failure.alert.link') ++ ((outboundProperties.orderId) when outboundProperties.orderId? otherwise '') ++ ("&transactionID=" ++ (outboundProperties.correlationId) when outboundProperties.correlationId? otherwise "") ++ "&startDate=" ++ outboundProperties.startDate as :string {format: "yyyy/MM/dd"}
 }]]></dw:set-payload>
             </dw:transform-message>
             <logger message="Error Message Details to Q - #[payload]" level="INFO" doc:name="Logger"/>
