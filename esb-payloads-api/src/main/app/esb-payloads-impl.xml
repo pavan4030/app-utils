@@ -45,17 +45,17 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <logger message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.correlationId]" level="INFO" doc:name="Logger"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.correlationId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
-        <logger message="App-Sync-Payload  process completed sucessfully for CorrelationId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for  : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
         <set-payload value="{
     &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId&quot;
 }" doc:name="Set Payload"/>
 
     </flow>
     <flow name="get:/api/payloads/{transactionId}:esb-payloads-api-config">
-        <logger level="INFO" doc:name="Logger"/>
+        <logger level="INFO" doc:name="Logger" message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.correlationId]"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.transactionId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
-        <logger message="App-Sync-Payload  process completed sucessfully for TransactionId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for  : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
         <set-payload value="{          &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId&quot;  }" doc:name="Set Payload"/>
     </flow>
     <sub-flow name="Esb-fetch-AppSyncPayload">
@@ -64,6 +64,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
             <logger message="Database processing for APP_SYNC_PAYLOAD where CORRELATION_ID /TRANSACTION_ID = '#[flowVars.ID]' " level="INFO" doc:name="Logger"/>
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]']]></db:dynamic-query>
+
         </db:select>
             <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
 
