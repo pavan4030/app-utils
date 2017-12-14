@@ -29,19 +29,19 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 	<db:oracle-config name="Oracle_Configuration" host="${db.host}" port="${db.port}" instance="${db.database}" user="${db.user}" password="${db.password}" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
 	<!--  End of DB Config -->
 	
-	<apikit:config name="esb-appsync-config" raml="esb-appsync.raml" consoleEnabled="false" doc:name="Router"/>
+	<apikit:config name="esb-payloads-api-config" raml="esb-payloads-api.raml" consoleEnabled="false" doc:name="Router"/>
     <file:connector name="File" autoDelete="true" streaming="true" validateConnections="true" doc:name="File"/>
     
     <flow name="esb-appsync-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
-        <apikit:router config-ref="esb-appsync-config" doc:name="APIkit Router"/>
-        <exception-strategy ref="esb-appsync-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+        <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="esb-payloads-api-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="esb-payloads-api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="esb-appsync-console">
-        <http:listener config-ref="shared-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
-        <apikit:console config-ref="esb-appsync-config" doc:name="APIkit Console"/>
+        <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="esb-payloads-api-config" doc:name="APIkit Console"/>
     </flow>
-    <flow name="get:/api/payloads/{correlationId}:esb-appsync-config">
+    <flow name="get:/api/payloads/{correlationId}:esb-payloads-api-config">
         <logger message="#[message.inboundProperties.'http.uri.params'.correlationId]" level="INFO" doc:name="Logger"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.correlationId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
@@ -50,7 +50,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 }" doc:name="Set Payload"/>
 
     </flow>
-    <flow name="get:/api/payloads/{transactionId}:esb-appsync-config">
+    <flow name="get:/api/payloads/{transactionId}:esb-payloads-api-config">
         <logger level="INFO" doc:name="Logger"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.transactionId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
@@ -117,7 +117,7 @@ payload map {
 
     	
     </sub-flow>
-    <apikit:mapping-exception-strategy name="esb-appsync-apiKitGlobalExceptionMapping">
+    <apikit:mapping-exception-strategy name="esb-payloads-api-apiKitGlobalExceptionMapping">
         <apikit:mapping statusCode="404">
             <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
             <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
