@@ -42,9 +42,10 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <apikit:console config-ref="esb-payloads-api-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="get:/api/payloads/{correlationId}:esb-payloads-api-config">
-        <logger message="#[message.inboundProperties.'http.uri.params'.correlationId]" level="INFO" doc:name="Logger"/>
+        <logger message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.correlationId]" level="INFO" doc:name="Logger"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.correlationId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for CorrelationId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
         <set-payload value="{
     &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId&quot;
 }" doc:name="Set Payload"/>
@@ -54,18 +55,17 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <logger level="INFO" doc:name="Logger"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.transactionId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
-        <set-payload value="{   
-      &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId&quot; 
-}" doc:name="Set Payload"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for TransactionId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
+        <set-payload value="{          &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId&quot;  }" doc:name="Set Payload"/>
     </flow>
     <sub-flow name="Esb-fetch-AppSyncPayload">
     <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
         
-            <logger message="DB Fetch Results Select Query ? select * from APP_RECOVERY_SYNC_PAYLOAD where CORRELATION_ID /TRANSACTION_ID = '#[flowVars.ID]' " level="INFO" doc:name="Logger"/>
+            <logger message="Database processing for APP_SYNC_PAYLOAD where CORRELATION_ID /TRANSACTION_ID = '#[flowVars.ID]' " level="INFO" doc:name="Logger"/>
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]']]></db:dynamic-query>
         </db:select>
-            <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger"/>
+            <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
 
 
            
@@ -90,7 +90,7 @@ LINEPAYLOAD: payload01.CREATE_TS ++ payload01.REQUEST.characterStream as :string
 
 })]]></dw:set-payload>
                     </dw:transform-message>
-                    <logger message="#[payload]" level="DEBUG" doc:name="Logger"/>
+                    <logger message="Data sent to transformer : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
 
                     <dw:transform-message doc:name="Transform Message">
                         <dw:set-payload><![CDATA[%dw 1.0
@@ -111,7 +111,7 @@ payload map {
         
 
         </transactional>
-        <logger message="writing to file : #[payload]" level="DEBUG" doc:name="Logger"/>
+        <logger message="Writing to file : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
         <set-variable variableName="outputFileName" value="#[flowVars.ID]-#[server.dateTime.format(&quot;yyyy-MM-dd HH-mm-ss&quot;)]" doc:name="Variable"/>
         <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.outputFileName].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
 
