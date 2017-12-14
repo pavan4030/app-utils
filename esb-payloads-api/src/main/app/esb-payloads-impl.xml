@@ -32,30 +32,30 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 	<apikit:config name="esb-payloads-api-config" raml="esb-payloads-api.raml" consoleEnabled="false" doc:name="Router"/>
     <file:connector name="File" autoDelete="true" streaming="true" validateConnections="true" doc:name="File"/>
     
-    <flow name="esb-appsync-main">
+    <flow name="esb-payloads-api-main">
         <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/*" doc:name="HTTP"/>
         <apikit:router config-ref="esb-payloads-api-config" doc:name="APIkit Router"/>
         <exception-strategy ref="esb-payloads-api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
-    <flow name="esb-appsync-console">
+    <flow name="esb-payloads-api-console">
         <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/console/*" doc:name="HTTP"/>
         <apikit:console config-ref="esb-payloads-api-config" doc:name="APIkit Console"/>
     </flow>
-    <flow name="get:/api/payloads/{correlationId}:esb-payloads-api-config">
+    <flow name="get:/api/payloads/correlationId/{correlationId}:esb-payloads-api-config">
         <logger message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.correlationId]" level="INFO" doc:name="Logger"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.correlationId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
-        <logger message="App-Sync-Payload  process completed sucessfully for  : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for correlationId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
         <set-payload value="{
     &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId&quot;
 }" doc:name="Set Payload"/>
 
     </flow>
-    <flow name="get:/api/payloads/{transactionId}:esb-payloads-api-config">
-        <logger level="INFO" doc:name="Logger" message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.correlationId]"/>
+    <flow name="get:/api/payloads/transactionId/{transactionId}:esb-payloads-api-config">
+        <logger level="INFO" doc:name="Logger" message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.transactionId]"/>
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.transactionId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
-        <logger message="App-Sync-Payload  process completed sucessfully for  : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for transactionId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
         <set-payload value="{          &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId&quot;  }" doc:name="Set Payload"/>
     </flow>
     <sub-flow name="Esb-fetch-AppSyncPayload">

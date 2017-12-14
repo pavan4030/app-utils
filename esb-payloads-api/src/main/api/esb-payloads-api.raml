@@ -4,7 +4,7 @@ version: v1.0
 baseUri: http://localhost:8092/api/esb-payloads-api
 protocols: [HTTP, HTTPS]
 
-/api/payloads/{correlationId}:
+/api/payloads/correlationId/{correlationId}:
  uriParameters: 
   correlationId:  
    description: Retrieve data based on correlationId from APP-SYNC-PAYLOAD
@@ -39,7 +39,7 @@ protocols: [HTTP, HTTPS]
                         "status": 400              
                        }
                }
-/api/payloads/{transactionId}: 
+/api/payloads/transactionId/{transactionId}: 
  uriParameters: 
   transactionId:
    description: Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId
