@@ -141,7 +141,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 				CCRSCommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated
 			},
 			orderPriceInfo: {
-				(currencyCode: payload.commerceItems.commerceItem[0].currencyCode) when payload.commerceItems.commerceItem[0]?
+				(currencyCode: payload.OrderHeader.orderPriceInfo.currencyCode) when payload.OrderHeader.orderPriceInfo? and payload.OrderHeader.orderPriceInfo.currencyCode?
 			},
 			agentInfo: {
 				agentId: payload.OrderHeader.agentInfo.agentId,
@@ -173,7 +173,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 					serviceInfo:{
 						serviceBasicInfo:{
 							mobileNumber:commerceItem.mobileNumber,
-							serviceTransactionID:commerceItem.serviceTransactionID
+							serviceTransactionID:commerceItem.serviceTransactionID,
+							activationType: commerceItem.activationType,
+							contractType: commerceItem.contractType
 						}
 					},
 					itemPriceInfo: {
