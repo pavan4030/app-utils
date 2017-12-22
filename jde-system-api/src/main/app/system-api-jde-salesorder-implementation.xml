@@ -238,6 +238,9 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                     <add-message-property key="ipAddress" value="#[server.ip]"/>
                 	<add-message-property key="host" value="#[server.host]"/>
                 	<add-message-property key="mailsubject" value="#[flowVars.orderId  + ' - JDE']"/>
+                	<add-message-property key="orderId" value="#[flowVars.orderId]"/>
+                	<add-message-property key="correlationId" value="#[flowVars.orderId + '_' + message.id]"/>
+					<add-message-property key="startDate" value="#[server.dateTime.plusMonths(-1)]"/>
                 </message-properties-transformer>
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-jde-salesorder-implementationFlow-Mail-Flow" doc:name="system-api-jde-salesorder-implementationFlow-Mail-Flow"/>
@@ -298,6 +301,9 @@ flowVars.salesOrderId]]></dw:set-variable>
                     <add-message-property key="ipAddress" value="#[server.ip]"/>
                 	<add-message-property key="host" value="#[server.host]"/>
                 	<add-message-property key="mailsubject" value="#[flowVars.orderId  + ' - JDE']"/>
+                	<add-message-property key="orderId" value="#[flowVars.orderId]"/>
+                	<add-message-property key="correlationId" value="#[flowVars.orderId + '_' + message.id]"/>
+					<add-message-property key="startDate" value="#[server.dateTime.plusMonths(-1)]"/>
                 </message-properties-transformer>
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-jde-salesorder-implementationFlow-Mail-Flow" doc:name="system-api-jde-salesorder-implementationFlow-Mail-Flow"/>
@@ -398,6 +404,9 @@ flowVars.salesOrderId]]></dw:set-variable>
                     <add-message-property key="ipAddress" value="#[server.ip]"/>
                 	<add-message-property key="host" value="#[server.host]"/>
                 	<add-message-property key="mailsubject" value="#[flowVars.orderId  + ' - JDE']"/>
+                	<add-message-property key="orderId" value="#[flowVars.orderId]"/>
+                	<add-message-property key="correlationId" value="#[flowVars.orderId + '_' + message.id]"/>
+					<add-message-property key="startDate" value="#[server.dateTime.plusMonths(-1)]"/>
                 </message-properties-transformer>
             <enricher source="#[payload]" target="mailSuccess" doc:name="Message Enricher">
                 <flow-ref name="system-api-jde-salesorder-implementationFlow-Mail-Flow" doc:name="system-api-jde-salesorder-implementationFlow-Mail-Flow"/>
