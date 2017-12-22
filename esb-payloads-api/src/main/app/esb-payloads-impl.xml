@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"  
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" 
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:secure-property-placeholder="http://www.mulesoft.org/schema/mule/secure-property-placeholder" 
+xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/secure-property-placeholder http://www.mulesoft.org/schema/mule/secure-property-placeholder/current/mule-secure-property-placeholder.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
+
+ <secure-property-placeholder:config name="AppSync_Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:esb-payloads-api-${mule.env}.properties, file:///opt/app/esb/app-config/esb-payloads-api-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/> 
+<!-- DB Configuration -->
+	
+	<db:oracle-config name="Oracle_Configuration" host="${db.host}" port="${db.port}" instance="${db.database}" user="${db.user}" password="${db.password}" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
+	<!--  End of DB Config -->
+	
+	<apikit:config name="esb-payloads-api-config" raml="esb-payloads-api.raml" consoleEnabled="false" doc:name="Router"/>
+    <file:connector name="File" autoDelete="true" streaming="true" validateConnections="true" doc:name="File"/>
+    
+    <flow name="esb-payloads-api-main">
+        <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="esb-payloads-api-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="esb-payloads-api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="esb-payloads-api-console">
+        <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="esb-payloads-api-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="get:/api/payloads/correlationId/{correlationId}:esb-payloads-api-config">
+        <logger message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.correlationId]" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.correlationId]" doc:name="Variable"/>
+        <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for correlationId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
+        <set-payload value="{
+    &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId&quot;
+}" doc:name="Set Payload"/>
+
+    </flow>
+    <flow name="get:/api/payloads/transactionId/{transactionId}:esb-payloads-api-config">
+        <logger level="INFO" doc:name="Logger" message="App-Sync Payload data processing for : #[message.inboundProperties.'http.uri.params'.transactionId]"/>
+        <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.transactionId]" doc:name="Variable"/>
+        <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
+        <logger message="App-Sync-Payload  process completed sucessfully for transactionId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
+        <set-payload value="{          &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId&quot;  }" doc:name="Set Payload"/>
+    </flow>
+    <sub-flow name="Esb-fetch-AppSyncPayload">
+    <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
+        
+            <logger message="Database processing for APP_SYNC_PAYLOAD where CORRELATION_ID /TRANSACTION_ID = '#[flowVars.ID]' " level="INFO" doc:name="Logger"/>
+        <db:select config-ref="Oracle_Configuration" doc:name="Database">
+                <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]' order by CREATE_TS]]></db:dynamic-query>
+
+
+        </db:select>
+            <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
+
+
+            <choice doc:name="Choice">
+                <when expression="#[payload != null]">
+
+                    <dw:transform-message doc:name="Transform Message">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map ((payload01, indexOfPayload01) -> {
+ID : payload01.ID,
+APP_ID :payload01.APP_ID,
+APP_RESOURCE : payload01.APP_RESOURCE,
+APP_METHOD : payload01.APP_METHOD,
+CORRELATION_ID : payload01.CORRELATION_ID,
+TRANSACTION_ID : payload01.TRANSACTION_ID,
+REQUEST : payload01.REQUEST.characterStream,
+RESPONSE : payload01.RESPONSE.characterStream,
+CREATE_TS: payload01."TO_CHAR(CREATE_TS)",
+LINEPAYLOAD: payload01.CREATE_TS ++ payload01.REQUEST.characterStream as :string ++ "\n" ++ payload01.RESPONSE.characterStream as :string
+
+})]]></dw:set-payload>
+                    </dw:transform-message>
+                    <logger message="Data sent to transformer : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
+
+                    <dw:transform-message doc:name="Transform Message">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/csv header=false
+---
+payload map {
+	REQUEST : ($.LINEPAYLOAD) when $.LINEPAYLOAD? otherwise ""
+}]]></dw:set-payload>
+                    </dw:transform-message>
+
+
+                </when>
+                <otherwise>
+                    <logger message="No Records found for this order in DB Table - Hence Stopping the record here" level="INFO" doc:name="Logger"/>
+                    <expression-filter expression="false" doc:name="Expression"/>
+                </otherwise>
+            </choice>
+        
+
+        </transactional>
+        <logger message="Writing to file : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
+        <set-variable variableName="outputFileName" value="#[flowVars.ID]-#[server.dateTime.format(&quot;yyyyMMdd-HHmmss&quot;)]" doc:name="Variable"/>
+        <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.outputFileName].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
+
+    	
+    </sub-flow>
+    <apikit:mapping-exception-strategy name="esb-payloads-api-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>
