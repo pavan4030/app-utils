@@ -55,7 +55,7 @@ REQUEST : flowVars.appSyncRequest,
 RESPONSE : flowVars.appSyncResponse
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="JDE - System API - Customer - App-Sync-Payload -  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.customer"/>
+        <logger message="JDE - System API - Customer - App-Sync-Payload -  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
 
         <jms:outbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS"/> 
     </flow>
@@ -80,7 +80,7 @@ REQUEST : flowVars.request,
 RESPONSE : flowVars.response
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="JDE - System API - Creditcheck - App-Sync-Payload #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.creditcheck"/>
+        <logger message="JDE - System API - Creditcheck - App-Sync-Payload #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
 
         <jms:outbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS"/> 
     </flow>

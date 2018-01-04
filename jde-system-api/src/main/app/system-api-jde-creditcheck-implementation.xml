@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <flow name="credit-check-service-implementation" processingStrategy="synchronous">
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="ATG - Credit Check Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)] " level="DEBUG" category="tcc.jde.creditcheck" doc:name="Logger"/>
+        <logger message="ATG - Credit Check Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)] " level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
 
 
 		<dw:transform-message  doc:name="Transform Message">
@@ -80,7 +80,7 @@ payload.creditCheckRequest.tccCustomerId]]></dw:set-variable>
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedBy(org.mule.module.json.validation.JsonSchemaValidationException)" doc:name="Invalid Request Exception">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1110&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1110} ' + flowVars.TCCCustomerID + '&quot;\n}\n}']" doc:name="Set Payload"/>
-                <logger message="JDE-SystemAPI-Creditcheck  - CreditCheck- InvalidRequestException #[flowVars.TCCCustomerID] -  Failure :   #[exception]" level="ERROR" doc:name="Logger" category="tcc.jde.creditcheck"/>
+                <logger message="JDE-SystemAPI-Creditcheck  - CreditCheck- InvalidRequestException #[flowVars.TCCCustomerID] -  Failure :   #[exception]" level="ERROR" doc:name="Logger" />
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedBy(org.mule.module.ws.consumer.SoapFaultException)" doc:name="Catch Exception Strategy">
                 <set-payload value="#['{\n&quot;errorMessage&quot;:' + '{\n&quot;errorCode&quot;: ' + ' &quot;JDE1120&quot;,' + '\n&quot;errorDescription&quot;: ' + ' &quot;${JDE1120}&quot;' + '\n}\n}']" doc:name="Set Payload"/>

@@ -109,7 +109,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
     <flow name="post:/creditCheckARAccountBalance:jdeService-config">
         <flow-ref name="credit-check-service-implementation" doc:name="credit-check-service-implementation"/>
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="Credit Check AR Account- JDE - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="Credit Check AR Account- JDE - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
        <remove-property propertyName="*" doc:name="Remove all the Properties to avoid sending back as HTTP Headers"/>
     </flow>
     
@@ -119,7 +119,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <logger message="Create - Update - Customer" level="INFO" doc:name="Logger"/>
         <flow-ref name="create-update-customer-serviceimpl" doc:name="create-update-customer-serviceimpl"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
-        <logger message="System API Customer - JDE - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="System API Customer - JDE - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <remove-property propertyName="*" doc:name="Remove all the Properties to avoid sending back as HTTP Headers"/>
        
 		
@@ -129,7 +129,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <logger message="Create - Update - Salesorder" level="INFO" doc:name="Logger"/>
         <flow-ref name="createUpdateSalesorder-serviceimpl" doc:name="createUpdateSalesorder-serviceimpl"/>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
-        <logger message="System API Salesorder - JDE - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="System API Salesorder - JDE - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <remove-property propertyName="*" doc:name="Remove all the Properties to avoid sending back as HTTP Headers"/>
 
 		

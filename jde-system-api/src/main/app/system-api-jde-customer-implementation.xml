@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     
     <flow name="create-update-customer-serviceimpl" processingStrategy="synchronous">
        <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="JDE - System API - Customer - Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.customer" doc:name="Logger"/>
+        <logger message="JDE - System API - Customer - Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
         <set-variable variableName="jdeCustomerSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:input-payload/>
@@ -84,7 +84,7 @@ p('app_method_customer')]]></dw:set-variable> -->
         <set-variable variableName="RETRY_COUNT" value="1" doc:name="Variable"/>
         <flow-ref name="api-jde-customer-flow" doc:name="api-jde-customer-flow"/>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger level="INFO" doc:name="Logger"/>
+            <logger level="ERROR" doc:name="Logger" message="JDE-SystemAPI- Customer - Transformation Error for #[flowVars.orderId] -  #[exception]"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
@@ -129,12 +129,12 @@ p('app_method_customer')]]></dw:set-variable> -->
     <flow name="api-jde-customer-flow" processingStrategy="synchronous">
         <set-variable variableName="jdeCustomerWSRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
-        <logger message="JDE - WS Customer Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.customer" doc:name="Logger"/>
+        <logger message="JDE - WS Customer Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.retry.interval.ms}" failureExpression="#[&quot;connectionEx&quot; == flowVars.exCausedBy]" synchronous="true" doc:name="Until Successful">
             <flow-ref name="customer-jde-flow" doc:name="customer-jde-flow"/>
         </until-successful>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="after retry::::" level="INFO" doc:name="Logger"/>
+            <logger message="JDE-SystemAPI - Customer Failure - After Retries for #[flowVars.orderId] -  #[exception]" level="ERROR" doc:name="Logger"/>
             <message-properties-transformer scope="invocation" doc:name="Message Properties">
                 <add-message-property key="appSyncCorrelationId" value="#[flowVars.orderId]"/>
                 <add-message-property key="appSyncTransactionId" value="#[flowVars.orderId + '_' + ${jde.app.customer.recovery.appid} + '_' + message.id]"/>
@@ -157,11 +157,14 @@ p('app_method_customer')]]></dw:set-variable> -->
 	}
 }]]></dw:set-payload>
             </dw:transform-message>
+            <async doc:name="Async">
+                <enricher source="#[payload]" target="#[flowVars.retryFlow]" doc:name="Message Enricher">
+                    <flow-ref name="system-api-jde-customer-implementationFlow-Retry-Queue-Flow" doc:name="system-api-jde-customer-implementationFlow-Retry-Queue-Flow"/>
+                </enricher>
+            </async>
             
             <!-- Recovery Flow -->
-            <enricher source="#[payload]" target="#[flowVars.retryFlow]" doc:name="Message Enricher">
-                <flow-ref name="system-api-jde-customer-implementationFlow-Retry-Queue-Flow" doc:name="system-api-jde-customer-implementationFlow-Retry-Queue-Flow"/>
-            </enricher>
+
             
             <!-- Mail triggering reference -->
             <message-properties-transformer doc:name="Message Properties">
@@ -206,7 +209,7 @@ payload]]></dw:set-payload>
          
         <set-variable variableName="exCausedBy" value="NoError" doc:name="Variable"/>
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="JDE-WS - Customer-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="INFO" doc:name="Logger"/>
+        <logger message="JDE-WS - Customer-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json

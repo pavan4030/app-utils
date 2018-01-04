@@ -288,11 +288,14 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
 ---
 flowVars.salesOrderId]]></dw:set-variable>
             </dw:transform-message>
+            <async doc:name="Async">
+                <enricher source="#[payload]" target="#[flowVars.retryFlow]" doc:name="Message Enricher">
+                    <flow-ref name="system-api-jde-salesorder-implementationFlow-Retry-Queue-Flow" doc:name="system-api-jde-salesorder-implementationFlow-Retry-Queue-Flow"/>
+                </enricher>
+            </async>
             
             <!-- Recovery Flow -->
-            <enricher source="#[payload]" target="#[flowVars.retryFlow]" doc:name="Message Enricher">
-                <flow-ref name="system-api-jde-salesorder-implementationFlow-Retry-Queue-Flow" doc:name="system-api-jde-salesorder-implementationFlow-Retry-Queue-Flow"/>
-            </enricher>
+
             
             <!-- Mail triggering reference -->
             <message-properties-transformer doc:name="Message Properties">
