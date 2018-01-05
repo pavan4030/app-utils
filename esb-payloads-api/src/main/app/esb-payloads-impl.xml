@@ -63,13 +63,13 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         
             <logger message="Database processing for APP_SYNC_PAYLOAD where CORRELATION_ID /TRANSACTION_ID = '#[flowVars.ID]' " level="INFO" doc:name="Logger"/>
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
-                <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]' order by CREATE_TS]]></db:dynamic-query>
-
+                <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]']]></db:dynamic-query>
 
         </db:select>
             <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
 
 
+           
             <choice doc:name="Choice">
                 <when expression="#[payload != null]">
 
@@ -113,7 +113,7 @@ payload map {
 
         </transactional>
         <logger message="Writing to file : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
-        <set-variable variableName="outputFileName" value="#[flowVars.ID]-#[server.dateTime.format(&quot;yyyyMMdd-HHmmss&quot;)]" doc:name="Variable"/>
+        <set-variable variableName="outputFileName" value="#[flowVars.ID]-#[server.dateTime.format(&quot;yyyy-MM-dd HH-mm-ss&quot;)]" doc:name="Variable"/>
         <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.outputFileName].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
 
     	

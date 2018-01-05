@@ -76,10 +76,10 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             <add-message-property key="orderId" value="#[payload]"/>
             <add-message-property key="RETRY_COUNT" value="#[Integer.parseInt(null != message.inboundProperties.RETRY_ATTEMPT_COUNT? message.inboundProperties.RETRY_ATTEMPT_COUNT:1)+1]"/>
         </message-properties-transformer>
-        <logger message="JMS Queue Reading the order ID - #[payload] and repushing for #[message.inboundProperties.RETRY_ATTEMPT_COUNT] time" level="INFO" doc:name="Logger"/>
+        <logger message="JMS Queue Reading the order ID - #[payload] and repushing for #[message.inboundProperties.RETRY_ATTEMPT_COUNT] time" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
 
         <flow-ref name="db-fetch-results" doc:name="db-fetch-results"/>
-        <logger message="DB Fetch Results done ? #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="DB Fetch Results done ? #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
 
         <flow-ref name="api-jde-so-flow" doc:name="api-jde-so-flow"/>
 
@@ -95,10 +95,10 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             <add-message-property key="orderId" value="#[payload]"/>
             <add-message-property key="RETRY_COUNT" value="#[Integer.parseInt(null != message.inboundProperties.RETRY_ATTEMPT_COUNT? message.inboundProperties.RETRY_ATTEMPT_COUNT:1)+1]"/>
         </message-properties-transformer>
-        <logger message="JMS Queue Reading the order ID - #[payload] and repushing for #[message.inboundProperties.RETRY_ATTEMPT_COUNT] time" level="INFO" doc:name="Logger"/>
+        <logger message="JMS Queue Reading the order ID - #[payload] and repushing for #[message.inboundProperties.RETRY_ATTEMPT_COUNT] time" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
 
         <flow-ref name="db-fetch-results" doc:name="db-fetch-results"/>
-        <logger message="DB Fetch Results done ? #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="DB Fetch Results done ? #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
 
         <flow-ref name="api-jde-customer-flow" doc:name="api-jde-customer-flow"/>
 
@@ -152,7 +152,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 
 
             </db:select>
-            <logger message="Payload ? #[payload] :: #[payload.size()==0] :: #[payload.size()]" level="INFO" doc:name="Logger"/>
+            <logger message="Payload ? #[payload] :: #[payload.size()==0] :: #[payload.size()]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
             <choice doc:name="Choice">
                 <when expression="#[payload != null &amp;&amp; payload.size() &gt; 0]">
                    <dw:transform-message doc:name="Transform Message">
@@ -203,7 +203,7 @@ payload map {
                 </db:delete>
             </when>
             <otherwise>
-                <logger message="APP RECOVERY DB - Delete the Existing Record Flow - No Record found with this ID" level="INFO" doc:name="Logger" category="tcc.salesorder.db"/>
+                <logger message="APP RECOVERY DB - Delete the Existing Record Flow - No Record found with this ID" level="INFO" doc:name="Logger" />
             </otherwise>
         </choice>
     </sub-flow>
@@ -226,7 +226,7 @@ payload map {
 	salesorderFailureLink:p('salesorder.failure.alert.link') ++ ((outboundProperties.orderId) when outboundProperties.orderId? otherwise '') ++ "&startDate=" ++ outboundProperties.startDate as :string {format: "yyyy/MM/dd"}
 }]]></dw:set-payload>
             </dw:transform-message>
-            <logger message="Error Message Details to Q - #[payload]" level="INFO" doc:name="Logger"/>
+            <logger message="Error Message Details to Q - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
             <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="${error.notifications.queue}"/>
     </flow>
     
@@ -248,7 +248,7 @@ payload map {
 	header: p('jde.customer.mail.header')
 }]]></dw:set-payload>
             </dw:transform-message>
-            <logger message="Error Message Details to Q - #[payload]" level="INFO" doc:name="Logger"/>
+            <logger message="Error Message Details to Q - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
             <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="${error.notifications.queue}"/>
     </flow>
     

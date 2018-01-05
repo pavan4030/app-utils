@@ -1,0 +1,87 @@
+#%RAML 0.8
+title: esb-payloads
+version: v1.0
+baseUri: http://localhost:8092/api/esb-payloads-api
+protocols: [HTTP, HTTPS]
+mediaType: application/json
+
+/api/payloads:
+     get: 
+      queryParameters: 
+       correlationId:
+        description: Retrieve data based on correlationId
+        type: string
+        required: true        
+      responses: 
+       200: 
+         body: 
+          application/json: 
+           example: |
+             {
+                 "correlationID": "b678e560-39e1-11e6-8604-f85f20524153_100004"
+             }
+       400: 
+         body: 
+          application/json: 
+           example: |
+            {
+              "errorResponse": {
+                      "description": "Resource URL Error" ,
+                      "status": 400              
+                     }
+            }
+       500: 
+         body: 
+          application/json: 
+           example: |
+            {
+                      "errorResponse": {
+                      "description": "Resource URL Error" ,
+                      "status": 400              
+                     }
+                 }
+     /api/payloads:    
+           get: 
+             queryParameters: 
+              transactionId:
+               description: Retrieve data based on transactionId
+               type: string
+               required: true
+             responses: 
+              200: 
+               body: 
+                application/json: 
+                 example: |
+                   {
+                       "transactionId": "100004"
+                   }
+              400: 
+               body: 
+                application/json: 
+                 example: |
+                  {
+                    "errorResponse": {
+                            "description": "Resource URL Error" ,
+                            "status": 400              
+                           }
+                  }
+              500: 
+               body: 
+                application/json: 
+                 example: |
+                  {
+                            "errorResponse": {
+                            "description": "Resource URL Error" ,
+                            "status": 400              
+                           }
+                       }              
+           
+    
+ 
+    
+    
+   
+     
+    
+    
+

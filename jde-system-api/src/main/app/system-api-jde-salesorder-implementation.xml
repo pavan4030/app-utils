@@ -141,7 +141,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 				CCRSCommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated
 			},
 			orderPriceInfo: {
-				(currencyCode: payload.commerceItems.commerceItem[0].currencyCode) when payload.commerceItems.commerceItem[0]?
+				(currencyCode: payload.OrderHeader.orderPriceInfo.currencyCode) when payload.OrderHeader.orderPriceInfo? and payload.OrderHeader.orderPriceInfo.currencyCode?
 			},
 			agentInfo: {
 				agentId: payload.OrderHeader.agentInfo.agentId,
@@ -173,7 +173,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 					serviceInfo:{
 						serviceBasicInfo:{
 							mobileNumber:commerceItem.mobileNumber,
-							serviceTransactionID:commerceItem.serviceTransactionID
+							serviceTransactionID:commerceItem.serviceTransactionID,
+							activationType: commerceItem.activationType,
+							contractType: commerceItem.contractType
 						}
 					},
 					itemPriceInfo: {
@@ -291,7 +293,6 @@ flowVars.salesOrderId]]></dw:set-variable>
                     <flow-ref name="system-api-jde-salesorder-implementationFlow-Retry-Queue-Flow" doc:name="system-api-jde-salesorder-implementationFlow-Retry-Queue-Flow"/>
                 </enricher>
             </async>
-
             
             <!-- Recovery Flow -->
 
@@ -428,7 +429,7 @@ flowVars.salesOrderId]]></dw:set-variable>
             	<logger message="JDE SystemAPI - Salesorder-Connection Exception for #[flowVars.orderId] - Failure :   #[exception]" level="ERROR" doc:name="Logger" />
                 <set-variable variableName="exCausedBy" value="connectionEx" doc:name="Variable"/>
 
-              <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/> 
+                <set-payload value="#[flowVars.jdeWSRequest]" doc:name="Set Payload"/>
 
 
 

@@ -175,7 +175,7 @@ payload map {
 	mailsubject : p('smtp.mail.subject.prefix') ++ outboundProperties.mailsubject,
 	header: p('oic.mail.header'),
 	salesorderFailureLink:p('salesorder.failure.alert.link') ++ ((outboundProperties.orderId) when outboundProperties.orderId? otherwise '') ++ "&startDate=" ++ outboundProperties.startDate as :string {format: "yyyy/MM/dd"}
-	}]]></dw:set-payload>
+}]]></dw:set-payload>
             </dw:transform-message>
             <logger message="OIC - Error Message Details to Q - #[payload]" level="INFO" doc:name="Logger"/>
             <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="${error.notifications.queue}"/>
