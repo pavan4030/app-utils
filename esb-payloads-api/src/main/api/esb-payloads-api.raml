@@ -1,13 +1,13 @@
 #%RAML 0.8
 title: esb-payloads-api
-version: v1.0
-baseUri: http://localhost:8092/api/esb-payloads-api
+version: v1
+baseUri: http://localhost:8092/api/esb-payloads-api/{version}
 protocols: [HTTP, HTTPS]
 
 /api/payloads/correlationId/{correlationId}:
  uriParameters: 
   correlationId:  
-   description: Retrieve data based on correlationId from APP-SYNC-PAYLOAD
+   description: Extract payload data using correlationId 
    type: string
    required: true
  get: 
@@ -17,7 +17,7 @@ protocols: [HTTP, HTTPS]
      application/json: 
       example: |
                {
-                   "success": "Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId"
+                   "result": "Transaction successful"
                }
    400: 
     body: 
@@ -42,6 +42,41 @@ protocols: [HTTP, HTTPS]
 /api/payloads/transactionId/{transactionId}: 
  uriParameters: 
   transactionId:
+   description:  Extract payload data using transaction id 
+   type: string
+   required: true
+ get: 
+  responses: 
+   200: 
+    body: 
+     application/json: 
+      example: |
+           {
+                   "result": "Transaction successful"
+           }
+   400:   
+     body: 
+      application/json: 
+       example: |
+             {
+                "errorResponse": {
+                        "description": "Resource URL Error",
+                        "status": 400              
+                       }
+   500:  
+    body: 
+     application/json: 
+      example: |
+              {
+                        "errorResponse": {
+                        "description": "Resource URL Error",
+                        "status": 400              
+                       }
+               }       
+
+/api/payloads/orderId/{orderId}: 
+ uriParameters: 
+  orderId:
    description: Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId
    type: string
    required: true
@@ -52,7 +87,7 @@ protocols: [HTTP, HTTPS]
      application/json: 
       example: |
            {
-                   "success": "Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId"
+                   "success": "Sucessfully got OrderId"
            }
    400:   
      body: 
@@ -73,4 +108,7 @@ protocols: [HTTP, HTTPS]
                         "status": 400              
                        }
                }                   
-  
+              
+
+       
+        
