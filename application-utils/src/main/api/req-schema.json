@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "ID": {
+      "type": "string"
+    },
+    "CommeceLineId": {
+      "type": "string"
+    },
+    "LineGrossProfit": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ID",
+    "CommeceLineId",
+    "LineGrossProfit"
+  ]
+}

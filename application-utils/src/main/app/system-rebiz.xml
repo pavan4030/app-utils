@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+
+    <apikit:config name="system-rebiz-config" raml="system-rebiz.raml" consoleEnabled="false" doc:name="Router" keepRamlBaseUri="false"/>
+    <flow name="system-rebiz-main">
+        <http:listener config-ref="shared-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="system-rebiz-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="system-rebiz-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="system-rebiz-console">
+        <http:listener config-ref="shared-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="system-rebiz-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="post:/db/rebiz:application/json:system-rebiz-config">
+        <flow-ref name="insert-into-DB" doc:name="insert-into-DB"/>
+        <set-payload value="{&#xA;  &quot;success&quot;: {&#xA;    &quot;code&quot;: &quot;200&quot;,&#xA;    &quot;message&quot;: &quot;Rebiz- pushed to DB Successfully&quot;&#xA;   }&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <apikit:mapping-exception-strategy name="system-rebiz-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+    <flow name="insert-into-DB">
+        <object-to-string-transformer doc:name="Object to String"/>
+        <dw:transform-message metadata:id="320f34ad-1b8b-4fab-81a8-3f3c66e1ce40" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	ID: payload.ID,
+	CommeceLineId: payload.CommeceLineId ,
+	LineGrossProfit: payload.LineGrossProfit as :number
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="#[message.payload.CommeceLineId]" level="INFO" doc:name="Logger"/>
+        <enricher source="#[payload]" target="#[flowVars.comerceLineID]" doc:name="Message Enricher">
+            <db:select config-ref="Oracle_Configuration" doc:name="Database">
+                <db:parameterized-query><![CDATA[select COMMERCE_LINE_ITEM_ID from SO_COMM_LINE_ITEMS where COMMERCE_LINE_ITEM_ID=#[message.payload.CommeceLineId] and SALESORDER_ID=#[message.payload.ID]]]></db:parameterized-query>
+
+            </db:select>
+        </enricher>
+        <logger message="#[flowVars.comerceLineID] ''''''''''''''   #[flowVars.comerceLineID.size()]" level="INFO" doc:name="Logger"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.comerceLineID.size() == 0]">
+                <db:insert config-ref="Oracle_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[insert into SO_COMM_LINE_ITEMS(ID,SALESORDER_ID,COMMERCE_LINE_ITEM_ID,LINE_GROSS_PROFIT,CREATE_TS,REBIZ_PUBLISHED) values(SO_COMM_LINE_ITEMS_SEQ.NEXTVAL,#[message.payload.ID],#[message.payload.CommeceLineId],#[message.payload.LineGrossProfit],#[function:now],0)]]></db:parameterized-query>
+
+                </db:insert>
+            </when>
+            <when expression="#[flowVars.comerceLineID.size() &gt; 0]">
+                <db:update config-ref="Oracle_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[update SO_COMM_LINE_ITEMS set LINE_GROSS_PROFIT=#[message.payload.LineGrossProfit], UPDATE_TS=#[function:now], REBIZ_PUBLISHED=0  where COMMERCE_LINE_ITEM_ID=#[flowVars.comerceLineID[0].COMMERCE_LINE_ITEM_ID] and SALESORDER_ID=#[message.payload.ID]]]></db:parameterized-query>
+                </db:update>
+            </when>
+            <otherwise>
+                <logger message="No query matches" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+    </flow>
+</mule>
