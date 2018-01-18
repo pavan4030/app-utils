@@ -26,7 +26,10 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
  <secure-property-placeholder:config name="AppSync_Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:esb-payloads-api-${mule.env}.properties, file:///opt/app/esb/app-config/esb-payloads-api-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/> 
 <!-- DB Configuration -->
 	
-	<db:oracle-config name="Oracle_Configuration" host="${db.host}" port="${db.port}" instance="${db.database}" user="${db.user}" password="${db.password}" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration"/>
+	<db:oracle-config name="Oracle_Configuration" host="${db.host}" port="${db.port}" instance="${db.database}" user="${db.user}" password="${db.password}" driverClassName="oracle.jdbc.driver.OracleDriver" doc:name="Oracle Configuration">
+        <db:pooling-profile maxPoolSize="10" minPoolSize="5"/>
+        <reconnect frequency="20000" count="20"/>
+    </db:oracle-config>
 	<!--  End of DB Config -->
 	
 	<apikit:config name="esb-payloads-api-config" raml="esb-payloads-api.raml" consoleEnabled="false" doc:name="Router"/>
@@ -47,7 +50,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
         <logger message="App-Sync-Payload  process completed sucessfully for correlationId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
         <set-payload value="{
-    &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on CorrelationId&quot;
+    &quot;result&quot;: &quot;Transaction was Successful !! &quot;
 }" doc:name="Set Payload"/>
 
     </flow>
@@ -56,14 +59,30 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.transactionId]" doc:name="Variable"/>
         <flow-ref name="Esb-fetch-AppSyncPayload" doc:name="Esb-fetch-AppSyncPayload"/>
         <logger message="App-Sync-Payload  process completed sucessfully for transactionId : #[flowVars.ID]" level="INFO" doc:name="Logger"/>
-        <set-payload value="{          &quot;success&quot;: &quot;Sucessfully get Data from APP-SYNC-PAYLOAD based on TransactionId&quot;  }" doc:name="Set Payload"/>
+        <set-payload value="{
+    &quot;result&quot;: &quot;Transaction was Successful !! &quot;
+}" doc:name="Set Payload"/>
     </flow>
+    
+        <flow name="get:/api/payloads/orderId/{orderId}:esb-payloads-api-config">
+         
+     	<logger level="INFO" doc:name="Logger" message="Retrieve Salesorder payload: #[message.inboundProperties.'http.uri.params'.orderId]" />
+        <set-variable variableName="ID" value="#[message.inboundProperties.'http.uri.params'.orderId]" doc:name="Variable" />
+        <flow-ref name="Esb-fetch-salesOrderJson" doc:name="Esb-fetch-salesOrderJson" />
+        <logger message="Retrieved order : #[flowVars.ID]" level="INFO" doc:name="Logger" />
+        <set-payload value="{ &quot;success&quot;: &quot;Retrieved order - TransactionId&quot;  }" doc:name="Set Payload" />
+        
+    </flow>
+    
+    
+    
     <sub-flow name="Esb-fetch-AppSyncPayload">
     <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
         
             <logger message="Database processing for APP_SYNC_PAYLOAD where CORRELATION_ID /TRANSACTION_ID = '#[flowVars.ID]' " level="INFO" doc:name="Logger"/>
         <db:select config-ref="Oracle_Configuration" doc:name="Database">
-                <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]']]></db:dynamic-query>
+                <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST,RESPONSE,TO_CHAR(CREATE_TS) as CREATE_TS from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' or TRANSACTION_ID = '#[flowVars.ID]' order by ID]]></db:dynamic-query>
+
 
         </db:select>
             <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
@@ -113,11 +132,62 @@ payload map {
 
         </transactional>
         <logger message="Writing to file : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api"/>
-        <set-variable variableName="outputFileName" value="#[flowVars.ID]-#[server.dateTime.format(&quot;yyyy-MM-dd HH-mm-ss&quot;)]" doc:name="Variable"/>
+        <set-variable variableName="outputFileName" value="#[flowVars.ID]-#[server.dateTime.format(&quot;yyyyMMdd-HHmmss&quot;)]" doc:name="Variable"/>
         <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.outputFileName].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
 
     	
     </sub-flow>
+    
+            <sub-flow name="Esb-fetch-salesOrderJson">
+        <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
+            <logger message="Database processing for salesorder where CORRELATION_ID = '#[flowVars.ID]' " level="INFO" doc:name="Logger" />
+            <db:select config-ref="Oracle_Configuration" doc:name="Database">
+                <db:dynamic-query><![CDATA[select ID,regexp_replace(REQUEST,'[[:space:]]',' ') as REQUEST from APP_SYNC_PAYLOAD where CORRELATION_ID = '#[flowVars.ID]' and app_id =213]]></db:dynamic-query>
+
+            </db:select>
+            <logger message="Database Results :  #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api" />
+            <choice doc:name="Choice">
+                <when expression="#[payload != null]">
+                    <dw:transform-message doc:name="Transform Message">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map ((payload01, indexOfPayload01) -> {
+//ID : payload01.ID,
+//APP_ID :payload01.APP_ID,
+//APP_RESOURCE : payload01.APP_RESOURCE,
+//APP_METHOD : payload01.APP_METHOD,
+//CORRELATION_ID : payload01.CORRELATION_ID,
+//TRANSACTION_ID : payload01.TRANSACTION_ID,
+//REQUEST : payload01.REQUEST.characterStream,
+//RESPONSE : payload01.RESPONSE.characterStream,
+//CREATE_TS: payload01."TO_CHAR(CREATE_TS)",
+LINEPAYLOAD: payload01.REQUEST.characterStream as :string 
+
+})]]></dw:set-payload>
+                    </dw:transform-message>
+                    <logger message="Data sent to transformer : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api" />
+                    <dw:transform-message doc:name="Transform Message">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/csv header=false
+---
+payload map {
+	REQUEST : ($.LINEPAYLOAD) when $.LINEPAYLOAD? otherwise ""
+}]]></dw:set-payload>
+                    </dw:transform-message>
+                </when>
+                <otherwise>
+                    <logger message="No Records found for this order in DB Table - Hence Stopping the record here" level="INFO" doc:name="Logger" />
+                    <expression-filter expression="false" doc:name="Expression" />
+                </otherwise>
+            </choice>
+        </transactional>
+        <logger message="Writing to file : #[payload]" level="DEBUG" doc:name="Logger" category="tcc.esb-payloads-api" />
+        <set-variable variableName="outputFileName" value="#[flowVars.ID]" doc:name="Variable" />
+        <file:outbound-endpoint path="${esb.payloads.appsync.output}" outputPattern="#[flowVars.outputFileName].txt" connector-ref="File" responseTimeout="10000" doc:name="File" />
+    </sub-flow>
+    
+    
     <apikit:mapping-exception-strategy name="esb-payloads-api-apiKitGlobalExceptionMapping">
         <apikit:mapping statusCode="404">
             <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
