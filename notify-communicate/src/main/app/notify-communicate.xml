@@ -294,16 +294,15 @@ ExecutionMetrics: {
 ---
 payload]]></dw:set-payload>
         </dw:transform-message>
-        <db:select config-ref="Oracle_Configuration" doc:name="Retrieve Email Ids">
-            <db:parameterized-query><![CDATA[SELECT EMAIL FROM CONTACTS WHERE CONTACT_ID IN (WITH T AS (SELECT (SELECT CONTACT_ID FROM APPLICATION WHERE APP_ID = #[message.payload.ExecutionMetrics.ApplicationID]) STR  FROM DUAL)   SELECT    
+
+        <enricher source="#[payload]" target="#[flowVars.mailIds]" doc:name="Message Enricher">
+            <db:select config-ref="Oracle_Configuration" doc:name="Retrieve Email Ids">
+                <db:parameterized-query><![CDATA[SELECT EMAIL FROM CONTACTS WHERE CONTACT_ID IN (WITH T AS (SELECT (SELECT CONTACT_ID FROM APPLICATION WHERE APP_ID = #[message.payload.ExecutionMetrics.ApplicationID]) STR  FROM DUAL)   SELECT    
  REGEXP_SUBSTR (STR, '[^,]+', 1, LEVEL) SPLIT_VALUES  FROM T 
  CONNECT BY LEVEL <= (SELECT LENGTH (REPLACE (STR, ',', NULL)) FROM T))]]></db:parameterized-query>
-        </db:select>
 
-
-       <!--  <enricher source="#[payload]" target="#[flowVars.mailIds]" doc:name="Message Enricher">
-
-        </enricher> -->
+            </db:select>
+        </enricher>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
@@ -319,7 +318,7 @@ flowVars.mailIds..EMAIL]]></dw:set-variable>
 payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName]]></dw:set-variable>
         </dw:transform-message>
 
-        <set-variable variableName="mailIds" value="#[flowVars.mailIds.toString().replace('[','').replace(']','')]" doc:name="Variable"/>
+        <!-- <set-variable variableName="mailIds" value="#[flowVars.mailIds.toString().replace('[','').replace(']','')]" doc:name="Variable"/> -->
 
         <parse-template location="mail-templete.html" doc:name="Parse Template"/>
         <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.mailIds]"/>
