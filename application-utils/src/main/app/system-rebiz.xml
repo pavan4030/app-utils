@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
@@ -9,6 +11,10 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
 
     <apikit:config name="system-rebiz-config" raml="system-rebiz.raml" consoleEnabled="false" doc:name="Router" keepRamlBaseUri="false"/>
+    <sftp:connector name="atg-rebiz-sftp-connector-config" validateConnections="true" duplicateHandling="overwrite" doc:name="SFTP">
+        <reconnect frequency="${sftp.outbound.retry.frequency.between}" count="${sftp.outbound.retry}"/>
+    </sftp:connector>
+
     <flow name="system-rebiz-main">
         <http:listener config-ref="shared-httpListenerConfig" path="obee-api/*" doc:name="HTTP"/>
         <apikit:router config-ref="system-rebiz-config" doc:name="APIkit Router"/>
@@ -88,7 +94,7 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
             </batch:step>
         </batch:process-records>
         <batch:on-complete>
-            <logger message="Batch is completed" level="INFO" doc:name="Logger"/>
+            <logger message="Total Records=#[payload.loadedRecords] Success Records=#[payload.successfulRecords]  Failed Records=#[payload.failedRecords] " level="INFO" doc:name="Logger"/>
         </batch:on-complete>
     </batch:job>
     <flow name="system-rebizFlow-upsertFlow" processingStrategy="synchronous">
@@ -168,11 +174,13 @@ payload map {
             <when expression="#[payload.size() !=0]">
                 <dw:transform-message doc:name="Transform Message">
                     <dw:set-payload><![CDATA[%dw 1.0
-%output application/csv
+%output application/csv separator="|"
 ---
 payload]]></dw:set-payload>
                 </dw:transform-message>
                 <logger message="To be write into file" level="INFO" doc:name="Logger"/>
+               
+ <sftp:outbound-endpoint exchange-pattern="one-way" connector-ref="atg-rebiz-sftp-connector-config" outputPattern="#[message.inboundProperties.originalFileName].error" host="${sftp.host}" port="${sftp.port}" path="${sftp.path.input.obiee.error}" user="${sftp.username}" password="${sftp.password}" responseTimeout="10000" duplicateHandling="overwrite" doc:name="Obiee-Error"/>
             </when>
             <otherwise>
                 <logger message="No records" level="INFO" doc:name="Logger"/>

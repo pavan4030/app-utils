@@ -18,7 +18,6 @@
   "required": [
     "orderId",
     "commerceLineId",
-    "lineGrossProfit",
     "rebizPublished"
   ]
 }
