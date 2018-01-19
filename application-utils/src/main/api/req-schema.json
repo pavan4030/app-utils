@@ -1,20 +1,24 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
+  "type": "array",
   "properties": {
-    "ID": {
+    "orderId": {
       "type": "string"
     },
-    "CommeceLineId": {
+    "commerceLineId": {
       "type": "string"
     },
-    "LineGrossProfit": {
+    "lineGrossProfit": {
+      "type": "string"
+    },
+    "rebizPublished": {
       "type": "string"
     }
   },
   "required": [
-    "ID",
-    "CommeceLineId",
-    "LineGrossProfit"
+    "orderId",
+    "commerceLineId",
+    "lineGrossProfit",
+    "rebizPublished"
   ]
 }

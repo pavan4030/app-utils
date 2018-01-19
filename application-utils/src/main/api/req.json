@@ -1,5 +1,21 @@
-{
-"ID":"o102010",
-"CommeceLineId":"c10000000001",
-"LineGrossProfit":"200"
-}
+[{
+	"orderId": "o102010",
+	"commerceLineId": "c10000000001",
+	"lineGrossProfit": "20",
+	"rebizPublished": "0"
+}, {
+	"orderId": "o102010",
+	"commerceLineId": "c10000000002",
+	"lineGrossProfit": "30",
+	"rebizPublished": "0"
+}, {
+	"orderId": "o102011",
+	"commerceLineId": "c10000000003",
+	"lineGrossProfit": "15",
+	"rebizPublished": "0"
+}, {
+	"orderId": "o102011",
+	"commerceLineId": "c10000000004",
+	"lineGrossProfit": "25",
+	"rebizPublished": "0"
+}]
