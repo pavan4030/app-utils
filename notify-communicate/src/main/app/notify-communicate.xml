@@ -318,10 +318,10 @@ flowVars.mailIds..EMAIL]]></dw:set-variable>
 payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName]]></dw:set-variable>
         </dw:transform-message>
 
-        <!-- <set-variable variableName="mailIds" value="#[flowVars.mailIds.toString().replace('[','').replace(']','')]" doc:name="Variable"/> -->
+        <set-variable variableName="MailIds" value="#[flowVars.mailIds.toString().replace('[','').replace(']','')]" doc:name="Variable"/>
 
         <parse-template location="mail-templete.html" doc:name="Parse Template"/>
-        <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.mailIds]"/>
+        <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.MailIds]"/>
     </flow>
     <flow name="notify-communicate-error-Flow">
         <jms:inbound-endpoint doc:name="JMS" connector-ref="Active_MQ"  queue="${error.notifications.queue}"/>
