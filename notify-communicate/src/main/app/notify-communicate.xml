@@ -312,7 +312,7 @@ payload]]></dw:set-payload>
 %output application/java
 ---
 //flowVars.mailIds..EMAIL
-payload.mailrecipients]]></dw:set-variable> 
+flowVars.mailIds]]></dw:set-variable> 
             <dw:set-variable variableName="processName"><![CDATA[%dw 1.0
 %output application/java
 ---
