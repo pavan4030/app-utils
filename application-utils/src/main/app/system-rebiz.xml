@@ -12,7 +12,7 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 
     <apikit:config name="system-rebiz-config" raml="system-rebiz.raml" consoleEnabled="false" doc:name="Router" keepRamlBaseUri="false"/>
     <sftp:connector name="atg-rebiz-sftp-connector-config" validateConnections="true" duplicateHandling="overwrite" doc:name="SFTP">
-        <reconnect frequency="${sftp.outbound.retry.frequency.between}" count="${sftp.outbound.retry}"/>
+        <reconnect frequency="${mule.sftp.outbound.retry.frequency.between}" count="${mule.sftp.outbound.retry}"/>
     </sftp:connector>
 
     <flow name="system-rebiz-main">
@@ -180,7 +180,7 @@ payload]]></dw:set-payload>
                 </dw:transform-message>
                 <logger message="To be write into file" level="INFO" doc:name="Logger"/>
                
- <sftp:outbound-endpoint exchange-pattern="one-way" connector-ref="atg-rebiz-sftp-connector-config" outputPattern="#[message.inboundProperties.originalFileName].error" host="${sftp.host}" port="${sftp.port}" path="${sftp.path.input.obiee.error}" user="${sftp.username}" password="${sftp.password}" responseTimeout="10000" duplicateHandling="overwrite" doc:name="Obiee-Error"/>
+ <sftp:outbound-endpoint exchange-pattern="one-way" connector-ref="atg-rebiz-sftp-connector-config" outputPattern="GrossProfit.error" host="${mule.sftp.host}" port="${mule.sftp.port}" path="${mule.sftp.path.input.obiee.error}" user="${mule.sftp.username}" password="${mule.sftp.password}" responseTimeout="10000" duplicateHandling="overwrite" doc:name="Obiee-Error"/>
             </when>
             <otherwise>
                 <logger message="No records" level="INFO" doc:name="Logger"/>
