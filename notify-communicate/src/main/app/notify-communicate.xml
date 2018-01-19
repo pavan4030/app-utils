@@ -294,21 +294,25 @@ ExecutionMetrics: {
 ---
 payload]]></dw:set-payload>
         </dw:transform-message>
-
-        <enricher source="#[payload]" target="#[flowVars.mailIds]" doc:name="Message Enricher">
-            <db:select config-ref="Oracle_Configuration" doc:name="Retrieve Email Ids">
-                <db:parameterized-query><![CDATA[SELECT EMAIL FROM CONTACTS WHERE CONTACT_ID IN (WITH T AS (SELECT (SELECT CONTACT_ID FROM APPLICATION WHERE APP_ID = #[message.payload.ExecutionMetrics.ApplicationID]) STR  FROM DUAL)   SELECT    
+        <db:select config-ref="Oracle_Configuration" doc:name="Retrieve Email Ids">
+            <db:parameterized-query><![CDATA[SELECT EMAIL FROM CONTACTS WHERE CONTACT_ID IN (WITH T AS (SELECT (SELECT CONTACT_ID FROM APPLICATION WHERE APP_ID = #[message.payload.ExecutionMetrics.ApplicationID]) STR  FROM DUAL)   SELECT    
  REGEXP_SUBSTR (STR, '[^,]+', 1, LEVEL) SPLIT_VALUES  FROM T 
  CONNECT BY LEVEL <= (SELECT LENGTH (REPLACE (STR, ',', NULL)) FROM T))]]></db:parameterized-query>
+        </db:select>
 
-            </db:select>
-        </enricher>
+
+       <!--  <enricher source="#[payload]" target="#[flowVars.mailIds]" doc:name="Message Enricher">
+
+        </enricher> -->
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
 payload]]></dw:set-payload>
-           
+             <dw:set-variable variableName="mailIds"><![CDATA[%dw 1.0
+%output application/java
+---
+flowVars.mailIds..EMAIL]]></dw:set-variable> 
             <dw:set-variable variableName="processName"><![CDATA[%dw 1.0
 %output application/java
 ---
