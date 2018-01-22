@@ -16,12 +16,12 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
     </sftp:connector>
 
     <flow name="system-rebiz-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="obee-api/*" doc:name="HTTP"/>
+        <http:listener config-ref="shared-httpListenerConfig" path="obiee-api/*" doc:name="HTTP"/>
         <apikit:router config-ref="system-rebiz-config" doc:name="APIkit Router"/>
         <exception-strategy ref="system-rebiz-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="system-rebiz-console">
-        <http:listener config-ref="shared-httpListenerConfig" path="obee-api/console/*" doc:name="HTTP"/>
+        <http:listener config-ref="shared-httpListenerConfig" path="obiee-api/console/*" doc:name="HTTP"/>
         <apikit:console config-ref="system-rebiz-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="post:/db/rebiz:application/json:system-rebiz-config">
@@ -38,6 +38,20 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
 }]]></dw:set-payload>
         </dw:transform-message>
 
+    </flow>
+    <flow name="post:/db/rebiz_insertion:application/json:system-rebiz-config">
+        <flow-ref name="rebiz-insertion" doc:name="rebiz-insertion"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+  "success": {
+    "code": "200",
+    "message": "Rebiz- pushed to DB Successfully"
+   }
+}]]></dw:set-payload>
+        </dw:transform-message>
     </flow>
     <apikit:mapping-exception-strategy name="system-rebiz-apiKitGlobalExceptionMapping">
         <apikit:mapping statusCode="404">
@@ -102,6 +116,7 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
                 <db:parameterized-query><![CDATA[select COMMERCE_LINE_ITEM_ID from SO_COMM_LINE_ITEMS where COMMERCE_LINE_ITEM_ID=#[message.payload.commerceLineId] and SALESORDER_ID=#[message.payload.orderId]]]></db:parameterized-query>
 
+
             </db:select>
         </enricher>
         <choice doc:name="Choice">
@@ -111,6 +126,7 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
                     <db:update config-ref="Oracle_Configuration" doc:name="Database">
                         <db:parameterized-query><![CDATA[update SO_COMM_LINE_ITEMS set LINE_GROSS_PROFIT=#[message.payload.lineGrossProfit], UPDATE_TS=#[function:now], REBIZ_PUBLISHED=#[message.payload.rebizPublished]  where COMMERCE_LINE_ITEM_ID=#[message.payload.commerceLineId] and SALESORDER_ID=#[message.payload.orderId]]]></db:parameterized-query>
 
+
                     </db:update>
                 </enricher>
             </when>
@@ -119,6 +135,7 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
                 <enricher source="#[payload]" target="#[flowVars.dbSuccess]" doc:name="Message Enricher">
                     <db:insert config-ref="Oracle_Configuration" doc:name="Database">
                         <db:parameterized-query><![CDATA[insert into SO_COMM_LINE_ITEMS(ID,SALESORDER_ID,COMMERCE_LINE_ITEM_ID,LINE_GROSS_PROFIT,CREATE_TS,REBIZ_PUBLISHED) values(SO_COMM_LINE_ITEMS_SEQ.NEXTVAL,#[message.payload.orderId],#[message.payload.commerceLineId],#[message.payload.lineGrossProfit],#[function:now],#[message.payload.rebizPublished])]]></db:parameterized-query>
+
 
                     </db:insert>
                 </enricher>
@@ -151,6 +168,111 @@ http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/ba
             </dw:transform-message>
         </catch-exception-strategy>
     </flow>
+    <flow name="rebiz-insertion">
+        <object-to-string-transformer doc:name="Object to String"/>
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map {
+  orderId: $.orderId,
+  commerceLineId: $.commerceLineId ,
+  lineGrossProfit: $.lineGrossProfit,
+  rebizPublished: $.rebizPublished
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger level="INFO" doc:name="Logger"/>
+        <batch:execute name="system-rebizBatch1" doc:name="system-rebizBatch1"/>
+    </flow>
+    <batch:job name="system-rebizBatch1" max-failed-records="-1">
+        <batch:process-records>
+            <batch:step name="Batch_Step2" accept-policy="ALL">
+                <logger level="INFO" doc:name="Logger" message="log in batch:  #[message.payload]"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	orderId: payload.orderId,
+	commerceLineId: payload.commerceLineId ,
+	lineGrossProfit: payload.lineGrossProfit,
+	rebizPublished: payload.rebizPublished
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <flow-ref name="system-rebizFlow-insertion" doc:name="system-rebizFlow-insertion"/>
+            </batch:step>
+            <batch:step name="Batch_Step1" accept-expression="#['FAILURE' == payload.status]" accept-policy="ALL">
+                <logger message="Failed Record ? #[payload]" level="INFO" doc:name="Logger"/>
+                <batch:commit streaming="true" doc:name="Batch Commit">
+                    <flow-ref name="system-rebizFlow-errors-csv" doc:name="system-rebizFlow-errors-csv"/>
+                </batch:commit>
+            </batch:step>
+            <batch:step name="Batch_Step3" accept-expression="#['SUCCESS' == payload.status]" accept-policy="ALL">
+                <logger message="Success Record ? #[payload]" level="INFO" doc:name="Logger"/>
+            </batch:step>
+        </batch:process-records>
+        <batch:on-complete>
+            <logger message="Total Records=#[payload.loadedRecords] Success Records=#[payload.successfulRecords]  Failed Records=#[payload.failedRecords] " level="INFO" doc:name="Logger"/>
+        </batch:on-complete>
+    </batch:job>
+    <flow name="system-rebizFlow-insertion">
+        <enricher source="#[payload]" target="#[flowVars.commerceLine]" doc:name="Message Enricher">
+            <db:select config-ref="Oracle_Configuration" doc:name="Database">
+                <db:parameterized-query><![CDATA[select COMMERCE_LINE_ITEM_ID from SO_COMM_LINE_ITEMS where COMMERCE_LINE_ITEM_ID=#[message.payload.commerceLineId] and SALESORDER_ID=#[message.payload.orderId]]]></db:parameterized-query>
+            </db:select>
+        </enricher>
+
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.commerceLine ==null || flowVars.commerceLine.size() == 0]">
+                <db:insert config-ref="Oracle_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[insert into SO_COMM_LINE_ITEMS(ID,SALESORDER_ID,COMMERCE_LINE_ITEM_ID,LINE_GROSS_PROFIT,CREATE_TS,REBIZ_PUBLISHED) values(SO_COMM_LINE_ITEMS_SEQ.NEXTVAL,#[message.payload.orderId],#[message.payload.commerceLineId],#[message.payload.lineGrossProfit],#[function:now],0)]]></db:parameterized-query>
+                </db:insert>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+  status: "SUCCESS",
+  orderId: payload.orderId,
+  commerceLineId: payload.commerceLineId ,
+  lineGrossProfit: payload.lineGrossProfit,
+  rebizPublished: payload.rebizPublished
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <when expression="#[flowVars.commerceLine !=null || flowVars.commerceLine.size() &gt; 0]">
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+  status: "FAILURE",
+  orderId: payload.orderId,
+  commerceLineId: payload.commerceLineId ,
+  lineGrossProfit: payload.lineGrossProfit,
+  rebizPublished: payload.rebizPublished
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <otherwise>
+                <logger message="Default in choice " level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+  status: "FAILURE",
+  orderId: payload.orderId,
+  commerceLineId: payload.commerceLineId ,
+  lineGrossProfit: payload.lineGrossProfit,
+  rebizPublished: payload.rebizPublished
+}]]></dw:set-payload>
+            </dw:transform-message>
+        </catch-exception-strategy>
+    </flow>
     <flow name="insert-into-DB">
         <object-to-string-transformer doc:name="Object to String"/>
         <dw:transform-message doc:name="Transform Message">
@@ -164,7 +286,7 @@ payload map {
   rebizPublished: $.rebizPublished
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message=" #[message.payload]" level="INFO" doc:name="Logger"/>
         <batch:execute name="system-rebizBatch" doc:name="system-rebizBatch"/>
 
     </flow>
@@ -180,10 +302,10 @@ payload]]></dw:set-payload>
                 </dw:transform-message>
                 <logger message="To be write into file" level="INFO" doc:name="Logger"/>
                
- <sftp:outbound-endpoint exchange-pattern="one-way" connector-ref="atg-rebiz-sftp-connector-config" outputPattern="GrossProfit.error" host="${mule.sftp.host}" port="${mule.sftp.port}" path="${mule.sftp.path.input.obiee.error}" user="${mule.sftp.username}" password="${mule.sftp.password}" responseTimeout="10000" duplicateHandling="overwrite" doc:name="Obiee-Error"/>
+ <sftp:outbound-endpoint exchange-pattern="one-way" connector-ref="atg-rebiz-sftp-connector-config" outputPattern="GrossProfit_#[server.dateTime.format(&quot;yyyyMMddHHmmss&quot;)].txt" host="${mule.sftp.host}" port="${mule.sftp.port}" path="${mule.sftp.path.input.obiee.error}" user="${mule.sftp.username}" password="${mule.sftp.password}" responseTimeout="10000" duplicateHandling="overwrite" doc:name="Obiee-Error"/>
             </when>
             <otherwise>
-                <logger message="No records" level="INFO" doc:name="Logger"/>
+                <logger message="No records " level="INFO" doc:name="Logger"/>
             </otherwise>
         </choice>
     </flow>
