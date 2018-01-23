@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ftp="http://www.mulesoft.org/schema/mule/ee/ftp" xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
 	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
@@ -8,12 +8,18 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/ftp http://www.mulesoft.org/schema/mule/ee/ftp/current/mule-ftp-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
 
     <apikit:config name="system-rebiz-config" raml="system-rebiz.raml" consoleEnabled="false" doc:name="Router" keepRamlBaseUri="false"/>
     <sftp:connector name="atg-rebiz-sftp-connector-config" validateConnections="true" duplicateHandling="overwrite" doc:name="SFTP">
         <reconnect frequency="${mule.sftp.outbound.retry.frequency.between}" count="${mule.sftp.outbound.retry}"/>
     </sftp:connector>
+    <ftp:connector name="FTP" pollingFrequency="1000" streaming="true" validateConnections="true" doc:name="FTP">
+        <reconnect frequency="${mule.sftp.outbound.retry.frequency.between}" count="${mule.sftp.outbound.retry}"/>
+    </ftp:connector>
+    <file:connector name="File" autoDelete="false" outputAppend="true" streaming="true" validateConnections="true" doc:name="File"/>
 
     <flow name="system-rebiz-main">
         <http:listener config-ref="shared-httpListenerConfig" path="obiee-api/*" doc:name="HTTP"/>
@@ -301,8 +307,8 @@ payload map {
 payload]]></dw:set-payload>
                 </dw:transform-message>
                 <logger message="To be write into file" level="INFO" doc:name="Logger"/>
-               
- <sftp:outbound-endpoint exchange-pattern="one-way" connector-ref="atg-rebiz-sftp-connector-config" outputPattern="GrossProfit_#[server.dateTime.format(&quot;yyyyMMddHHmmss&quot;)].txt" host="${mule.sftp.host}" port="${mule.sftp.port}" path="${mule.sftp.path.input.obiee.error}" user="${mule.sftp.username}" password="${mule.sftp.password}" responseTimeout="10000" duplicateHandling="overwrite" doc:name="Obiee-Error"/>
+                <file:outbound-endpoint path="${mule.sftp.path.input.obiee.error}" outputPattern="GrossProfit_#[server.dateTime.format(&quot;yyyyMMddHHmmss&quot;)].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>
+
             </when>
             <otherwise>
                 <logger message="No records " level="INFO" doc:name="Logger"/>
