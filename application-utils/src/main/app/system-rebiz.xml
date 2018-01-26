@@ -224,13 +224,15 @@ payload map {
     <flow name="system-rebizFlow-insertion">
         <enricher source="#[payload]" target="#[flowVars.commerceLine]" doc:name="Message Enricher">
             <db:select config-ref="Oracle_Configuration" doc:name="Database">
-                <db:parameterized-query><![CDATA[select COMMERCE_LINE_ITEM_ID from SO_COMM_LINE_ITEMS where COMMERCE_LINE_ITEM_ID=#[message.payload.commerceLineId] and SALESORDER_ID=#[message.payload.orderId]]]></db:parameterized-query>
+                <db:parameterized-query><![CDATA[select COMMERCE_LINE_ITEM_ID from SO_COMM_LINE_ITEMS where LOWER(TRIM(COMMERCE_LINE_ITEM_ID)) LIKE #[message.payload.commerceLineId] and LOWER(TRIM(SALESORDER_ID)) LIKE #[message.payload.orderId]]]></db:parameterized-query>
             </db:select>
+
         </enricher>
         <choice doc:name="Choice">
             <when expression="#[flowVars.commerceLine ==null || flowVars.commerceLine.size() == 0]">
                 <db:insert config-ref="Oracle_Configuration" doc:name="Database">
-                    <db:parameterized-query><![CDATA[insert into SO_COMM_LINE_ITEMS(ID,SALESORDER_ID,COMMERCE_LINE_ITEM_ID,LINE_GROSS_PROFIT,CREATE_TS,REBIZ_PUBLISHED) values(SO_COMM_LINE_ITEMS_SEQ.NEXTVAL,#[message.payload.orderId],#[message.payload.commerceLineId],#[message.payload.lineGrossProfit],#[function:now],0)]]></db:parameterized-query>
+                    <db:parameterized-query><![CDATA[insert into SO_COMM_LINE_ITEMS(ID,SALESORDER_ID,COMMERCE_LINE_ITEM_ID,LINE_GROSS_PROFIT,CREATE_TS,REBIZ_PUBLISHED) values(SO_COMM_LINE_ITEMS_SEQ.NEXTVAL,LOWER(#[message.payload.orderId]),#[message.payload.commerceLineId],#[message.payload.lineGrossProfit],#[function:now],0)]]></db:parameterized-query>
+
                 </db:insert>
                 <dw:transform-message doc:name="Transform Message">
                     <dw:set-payload><![CDATA[%dw 1.0
