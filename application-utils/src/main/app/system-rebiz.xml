@@ -227,7 +227,6 @@ payload map {
                 <db:parameterized-query><![CDATA[select COMMERCE_LINE_ITEM_ID from SO_COMM_LINE_ITEMS where COMMERCE_LINE_ITEM_ID=#[message.payload.commerceLineId] and SALESORDER_ID=#[message.payload.orderId]]]></db:parameterized-query>
             </db:select>
         </enricher>
-
         <choice doc:name="Choice">
             <when expression="#[flowVars.commerceLine ==null || flowVars.commerceLine.size() == 0]">
                 <db:insert config-ref="Oracle_Configuration" doc:name="Database">
@@ -245,25 +244,30 @@ payload map {
   rebizPublished: payload.rebizPublished
 }]]></dw:set-payload>
                 </dw:transform-message>
+                <logger message="Rebiz Records Insertion -  Added" level="INFO" doc:name="Logger"/>
             </when>
             <when expression="#[flowVars.commerceLine !=null || flowVars.commerceLine.size() &gt; 0]">
                 <dw:transform-message doc:name="Transform Message">
-                    <dw:set-payload><![CDATA[%dw 1.0
+                    <dw:set-variable variableName="orderId"><![CDATA[%dw 1.0
 %output application/java
 ---
 {
-  status: "FAILURE",
+  status: "RECORD ALREADY EXISTS",
   orderId: payload.orderId,
   commerceLineId: payload.commerceLineId ,
   lineGrossProfit: payload.lineGrossProfit,
   rebizPublished: payload.rebizPublished
-}]]></dw:set-payload>
+}]]></dw:set-variable>
+
                 </dw:transform-message>
+                <logger message="Rebiz Records Insertion - Already exists - No action" level="INFO" doc:name="Logger"/>
             </when>
             <otherwise>
                 <logger message="Default in choice " level="INFO" doc:name="Logger"/>
+
             </otherwise>
         </choice>
+
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <dw:transform-message doc:name="Transform Message">
                 <dw:set-payload><![CDATA[%dw 1.0
