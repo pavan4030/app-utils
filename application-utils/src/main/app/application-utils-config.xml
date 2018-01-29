@@ -17,7 +17,9 @@ http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smt
         <reconnect frequency="20000" count="200"/>
     </jms:activemq-connector>
 <secure-property-placeholder:config name="Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:application-utils-${mule.env}.properties,file:///opt/app/esb/app-config/application-utils-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/>
-<db:oracle-config name="Oracle_Configuration" host="${oracle.host}" port="${oracle.port}" instance="${oracle.instance}" user="${oracle.user}" password="${oracle.password}" doc:name="Oracle Configuration"/>
+<db:oracle-config name="Oracle_Configuration" host="${oracle.host}" port="${oracle.port}" instance="${oracle.instance}" user="${oracle.user}" password="${oracle.password}" doc:name="Oracle Configuration">
+        <db:pooling-profile maxPoolSize="10" minPoolSize="2"/>
+    </db:oracle-config>
     <smtp:connector name="SMTP" contentType="text/html" validateConnections="true" doc:name="SMTP"/>
  
 
