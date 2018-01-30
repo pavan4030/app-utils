@@ -91,6 +91,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
             <batch:step name="Batch_Step" accept-policy="ALL">
                 <logger message="log in batch:  #[message.payload]" level="INFO" doc:name="Logger"/>
                 <dw:transform-message metadata:id="320f34ad-1b8b-4fab-81a8-3f3c66e1ce40" doc:name="Transform Message">
+                <dw:input-payload mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
@@ -101,6 +102,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 	rebizPublished: payload.rebizPublished
 }]]></dw:set-payload>
                 </dw:transform-message>
+
                 <flow-ref name="system-rebizFlow-upsertFlow" doc:name="system-rebizFlow-upsertFlow"/>
             </batch:step>
             <batch:step name="Batch_Step-DB-Failures" accept-expression="#['FAILURE' == payload.status]" accept-policy="ALL">
@@ -148,6 +150,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
             </otherwise>
         </choice>
         <dw:transform-message doc:name="Transform Message">
+        <dw:input-payload mimeType="application/java"/>
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
@@ -187,7 +190,7 @@ payload map {
   rebizPublished: $.rebizPublished
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger level="INFO" doc:name="Logger"/>
+
         <batch:execute name="system-rebizBatch1" doc:name="system-rebizBatch1"/>
     </flow>
     <batch:job name="system-rebizBatch1" max-failed-records="-1">
@@ -195,6 +198,7 @@ payload map {
             <batch:step name="Batch_Step2" accept-policy="ALL">
                 <logger level="INFO" doc:name="Logger" message="log in batch:  #[message.payload]"/>
                 <dw:transform-message doc:name="Transform Message">
+                <dw:input-payload mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
@@ -205,6 +209,7 @@ payload map {
 	rebizPublished: payload.rebizPublished
 }]]></dw:set-payload>
                 </dw:transform-message>
+
                 <flow-ref name="system-rebizFlow-insertion" doc:name="system-rebizFlow-insertion"/>
             </batch:step>
             <batch:step name="Batch_Step1" accept-expression="#['FAILURE' == payload.status]" accept-policy="ALL">
@@ -263,6 +268,7 @@ payload map {
 
                 </dw:transform-message>
                 <logger message="Rebiz Records Insertion - Already exists - No action" level="INFO" doc:name="Logger"/>
+
             </when>
             <otherwise>
                 <logger message="Default in choice " level="INFO" doc:name="Logger"/>
