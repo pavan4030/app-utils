@@ -89,7 +89,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
     <batch:job name="system-rebizBatch" max-failed-records="-1">
         <batch:process-records>
             <batch:step name="Batch_Step" accept-policy="ALL">
-                <logger message="log in batch:  #[message.payload]" level="INFO" doc:name="Logger"/>
+                <logger message="log in batch:  #[message.payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
                 <dw:transform-message metadata:id="320f34ad-1b8b-4fab-81a8-3f3c66e1ce40" doc:name="Transform Message">
                 <dw:input-payload mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
@@ -106,13 +106,13 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
                 <flow-ref name="system-rebizFlow-upsertFlow" doc:name="system-rebizFlow-upsertFlow"/>
             </batch:step>
             <batch:step name="Batch_Step-DB-Failures" accept-expression="#['FAILURE' == payload.status]" accept-policy="ALL">
-                <logger message="Failed Record ? #[payload]" level="INFO" doc:name="Logger"/>
+                <logger message="Failed Record ? #[payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
                 <batch:commit streaming="true" doc:name="Batch Commit">
                     <flow-ref name="system-rebizFlow-errors-csv" doc:name="system-rebizFlow-errors-csv"/>
                 </batch:commit>
             </batch:step>
             <batch:step name="Batch_Step-Success-Records" accept-expression="#['SUCCESS' == payload.status]" accept-policy="ALL">
-                <logger message="Success Record ? #[payload]" level="INFO" doc:name="Logger"/>
+                <logger message="Success Record ? #[payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
             </batch:step>
         </batch:process-records>
         <batch:on-complete>
@@ -130,7 +130,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
         </enricher>
         <choice doc:name="Choice">
             <when expression="#[flowVars.commerceLine !=null &amp;&amp; flowVars.commerceLine.size() &gt; 0]">
-                <logger message="Commerce Item Id is updated into the table" level="INFO" doc:name="Logger"/>
+                <logger message="Commerce Item Id is updated into the table" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
                 <enricher source="#[payload]" target="#[flowVars.dbSuccess]" doc:name="Message Enricher">
                     <db:update config-ref="Oracle_Configuration" doc:name="Database">
                         <db:parameterized-query><![CDATA[update SO_COMM_LINE_ITEMS set LINE_GROSS_PROFIT=#[message.payload.lineGrossProfit], UPDATE_TS=#[function:now], REBIZ_PUBLISHED=#[message.payload.rebizPublished]  where COMMERCE_LINE_ITEM_ID=#[message.payload.commerceLineId] and SALESORDER_ID=#[message.payload.orderId]]]></db:parameterized-query>
@@ -140,7 +140,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
                 </enricher>
             </when>
             <otherwise>
-                <logger message="Commerce Item Id is inserted into the table" level="INFO" doc:name="Logger"/>
+                <logger message="Commerce Item Id is inserted into the table" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
                 <enricher source="#[payload]" target="#[flowVars.dbSuccess]" doc:name="Message Enricher">
                     <db:insert config-ref="Oracle_Configuration" doc:name="Database">
                         <db:parameterized-query><![CDATA[insert into SO_COMM_LINE_ITEMS(ID,SALESORDER_ID,COMMERCE_LINE_ITEM_ID,LINE_GROSS_PROFIT,CREATE_TS,REBIZ_PUBLISHED) values(SO_COMM_LINE_ITEMS_SEQ.NEXTVAL,LOWER(TRIM(#[message.payload.orderId])),LOWER(TRIM(#[message.payload.commerceLineId])),#[message.payload.lineGrossProfit],#[function:now],#[message.payload.rebizPublished])]]></db:parameterized-query>
@@ -196,7 +196,7 @@ payload map {
     <batch:job name="system-rebizBatch1" max-failed-records="-1">
         <batch:process-records>
             <batch:step name="Batch_Step2" accept-policy="ALL">
-                <logger level="INFO" doc:name="Logger" message="log in batch:  #[message.payload]"/>
+                <logger level="DEBUG" doc:name="Logger" message="log in batch:  #[message.payload]" category="tcc.apputils"/>
                 <dw:transform-message doc:name="Transform Message">
                 <dw:input-payload mimeType="application/java"/>
                     <dw:set-payload><![CDATA[%dw 1.0
@@ -213,13 +213,13 @@ payload map {
                 <flow-ref name="system-rebizFlow-insertion" doc:name="system-rebizFlow-insertion"/>
             </batch:step>
             <batch:step name="Batch_Step1" accept-expression="#['FAILURE' == payload.status]" accept-policy="ALL">
-                <logger message="Failed Record ? #[payload]" level="INFO" doc:name="Logger"/>
+                <logger message="Failed Record ? #[payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
                 <batch:commit streaming="true" doc:name="Batch Commit">
                     <flow-ref name="system-rebizFlow-errors-csv" doc:name="system-rebizFlow-errors-csv"/>
                 </batch:commit>
             </batch:step>
             <batch:step name="Batch_Step3" accept-expression="#['SUCCESS' == payload.status]" accept-policy="ALL">
-                <logger message="Success Record ? #[payload]" level="INFO" doc:name="Logger"/>
+                <logger message="Success Record ? #[payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
             </batch:step>
         </batch:process-records>
         <batch:on-complete>
@@ -304,7 +304,7 @@ payload map {
   rebizPublished: $.rebizPublished
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger message=" #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message=" #[message.payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
         <batch:execute name="system-rebizBatch" doc:name="system-rebizBatch"/>
 
     </flow>
