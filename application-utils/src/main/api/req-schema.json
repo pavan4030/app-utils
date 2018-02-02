@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "properties": {
+    "orderId": {
+      "type": "string"
+    },
+    "commerceLineId": {
+      "type": "string"
+    },
+    "lineGrossProfit": {
+      "type": "string"
+    },
+    "rebizPublished": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "orderId",
+    "commerceLineId",
+    "rebizPublished"
+  ]
+}
