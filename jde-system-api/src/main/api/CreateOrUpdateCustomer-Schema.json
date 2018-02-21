@@ -128,14 +128,10 @@
 			"type": ["string", "null"]
 		},
 		"employeeId": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 5
+			"type": ["string", "null"]
 		},
 		"storeId": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 8
+			"type": ["string", "null"]
 		},
 		"verizonDetails": {
 			"type": ["null", "object"],
@@ -267,9 +263,7 @@
 		"tccAccountNumber",
 		"firstName",
 		"lastName",
-		"customerType",
-		"employeeId",
-		"storeId"
+		"customerType"
 
 	]
 }
