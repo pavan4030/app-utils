@@ -64,7 +64,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         </ws:security>
     </ws:consumer-config>
     
-    <http:request-config name="HTTP_Request_Configuration" doc:name="HTTP Request Configuration" responseTimeout="10000" >
+    <http:request-config name="HTTP_Request_Configuration" doc:name="HTTP Request Configuration" responseTimeout="10000">
         <http:basic-authentication username="${jde.username}" password="${jde.password}"/>
     </http:request-config>
 	
@@ -99,7 +99,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
     
     <secure-property-placeholder:config name="Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:system-api-jde-${mule.env}.properties,file:///opt/app/esb/app-config/system-api-jde-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/>
     <flow name="jdeService-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="/jde-esb-service-v2/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="/jde-esb-service-v2/*" doc:name="HTTP"/>
         <apikit:router config-ref="jdeService-config" doc:name="APIkit Router"/>
         <exception-strategy ref="jdeService-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>

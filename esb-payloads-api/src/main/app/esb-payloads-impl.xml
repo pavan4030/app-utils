@@ -36,12 +36,12 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
     <file:connector name="File" autoDelete="true" streaming="true" validateConnections="true" doc:name="File"/>
     
     <flow name="esb-payloads-api-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="/esb-payloads-api/*" doc:name="HTTP"/>
         <apikit:router config-ref="esb-payloads-api-config" doc:name="APIkit Router"/>
         <exception-strategy ref="esb-payloads-api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="esb-payloads-api-console">
-        <http:listener config-ref="shared-httpListenerConfig" path="/esb-payloads-api/console/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="/esb-payloads-api/console/*" doc:name="HTTP"/>
         <apikit:console config-ref="esb-payloads-api-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="get:/api/payloads/correlationId/{correlationId}:esb-payloads-api-config">
