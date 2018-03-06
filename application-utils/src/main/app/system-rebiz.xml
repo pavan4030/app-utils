@@ -22,12 +22,12 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
     <file:connector name="File" autoDelete="false" outputAppend="true" streaming="true" validateConnections="true" doc:name="File"/>
 
     <flow name="system-rebiz-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="obiee-api/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="obiee-api/*" doc:name="HTTP"/>
         <apikit:router config-ref="system-rebiz-config" doc:name="APIkit Router"/>
         <exception-strategy ref="system-rebiz-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="system-rebiz-console">
-        <http:listener config-ref="shared-httpListenerConfig" path="obiee-api/console/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="obiee-api/console/*" doc:name="HTTP"/>
         <apikit:console config-ref="system-rebiz-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="post:/db/rebiz:application/json:system-rebiz-config">
