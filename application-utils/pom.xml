@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.tccrocks.integration</groupId>
 	<artifactId>application-utils</artifactId>
-    <version>4.2.0</version>
+    <version>4.2.3</version>
     <packaging>mule</packaging>
 	<name>Mule application-utils Application</name>
 
@@ -241,6 +241,12 @@
     <dependency>
             <groupId>com.mulesoft.muleesb.transports</groupId>
             <artifactId>mule-transport-ftp-ee</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-jms</artifactId>
             <version>${mule.version}</version>
             <scope>provided</scope>
         </dependency>
