@@ -196,7 +196,7 @@
     <dependency>
             <groupId>com.tccrocks.integration.esb.domain</groupId>
             <artifactId>top-esb-domain</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.0</version>
             <scope>test</scope>
             <type>zip</type>
         </dependency>
