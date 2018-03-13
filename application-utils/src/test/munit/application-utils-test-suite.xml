@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans"
+	xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd">
+	<munit:config name="munit" doc:name="MUnit configuration"
+		mock-connectors="false" mock-inbounds="false" />
+	<spring:beans>
+		<spring:import resource="classpath:application-utils.xml" />
+		<spring:import resource="classpath:application-utils-config.xml" />
+	</spring:beans>
+	<munit:test name="application-utils-test-suite-application-utils-FlowTest"
+		description="Test">
+		<mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Database']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[]" mimeType="application/java"/>
+		</mock:when>
+		<dw:transform-message doc:name="Transform Message">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+APP_METHOD:"createSalesOrder", 
+APP_ID:210, 
+APP_RESOURCE:"salesorder", 
+REQUEST: '{}', 
+RESPONSE:'{"correlationID": "SO_s1930344_6cfa7480-265c-11e8-8482-005056a359d7"}', 
+TRANSACTION_ID:'s1930344_210_6cfa7480-265c-11e8-8482-005056a359d7', 
+CORRELATION_ID:'s1930344'
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<logger
+			message="Munit Application Utils Trigger Flow Dummy Request : #[payload]"
+			level="INFO" doc:name="Logger" />
+		<flow-ref name="application-utils-Flow" doc:name="Flow-ref to application-utils-Flow" />
+		<logger message="Munit Application Utils Trigger Positive Flow Response : #[payload]"
+			level="INFO" doc:name="Logger" />
+		<munit:assert-not-null doc:name="Assert Not Null Payload" />
+	</munit:test>
+
+
+	<munit:test
+		name="application-utils-test-suite-application-utils-FlowTest-NegativeScenario"
+		description="Test">
+
+		<mock:throw-an whenCalling="db:insert"
+			exception-ref="#[new java.lang.Exception()]" doc:name="Throw an Exception">
+			<mock:with-attributes>
+				<mock:with-attribute name="doc:name" whereValue="#['Database']" />
+			</mock:with-attributes>
+		</mock:throw-an>
+
+		<mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['JMS-PRODUCER-APP-PAYLOAD-DLQ']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[]"/>
+		</mock:when>
+		<dw:transform-message doc:name="Transform Message">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+APP_METHOD:"createSalesOrder", 
+APP_ID:210, 
+APP_RESOURCE:"salesorder", 
+REQUEST: '{}', 
+RESPONSE:'{"correlationID": "SO_s1930344_6cfa7480-265c-11e8-8482-005056a359d7"}', 
+TRANSACTION_ID:'s1930344_210_6cfa7480-265c-11e8-8482-005056a359d7', 
+CORRELATION_ID:'s1930344'
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<logger
+			message="Munit Application Utils Trigger Flow Dummy Request : #[payload]"
+			level="INFO" doc:name="Logger" />
+		<flow-ref name="application-utils-Flow" doc:name="Flow-ref to application-utils-Flow" />
+		<logger message="Munit Application Utils Trigger Negative Flow Response : #[payload]"
+			level="INFO" doc:name="Logger" />
+		<munit:assert-not-null doc:name="Assert Not Null Payload" />
+	</munit:test>
+
+</mule>
