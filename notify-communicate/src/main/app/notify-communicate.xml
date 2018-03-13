@@ -58,10 +58,8 @@ VALUES(:seq,:processName,:sourceFile,:overallResult);]]></db:parameterized-query
 
         <dw:transform-message doc:name="Transform Message" metadata:id="d27ed0e2-7799-496e-b6f9-ad69b07a0a55">
             <dw:input-payload mimeType="application/json"/>
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload]]></dw:set-payload>
+         
+            <dw:set-payload resource="classpath:dw/notify-communicate-gather-batch-notification-payload-from-JMS.dwl"/>
         </dw:transform-message>
 
         <logger message="Notifications System Persist Message Processing App #[payload.ExecutionMetrics.ApplicationName]" level="DEBUG" doc:name="Logger"/>
@@ -119,18 +117,9 @@ INTO BATCH_AUDIT_INFO
             <dw:transform-message metadata:id="f05bb066-7e6a-4219-bcc9-db41427d0c11" doc:name="Transform Message">
                
                 <dw:input-payload mimeType="application/java"/>
-                <dw:set-payload><![CDATA[%dw 1.0
+                <dw:set-payload resource="classpath:dw/nitify-communicate-gather-batch-notification-transactional-payload.dwl"/>
+                <dw:set-variable resource="classpath:dw/notify-communicate-gather-batch-notification-transactional-batch-runId.dwl" variableName="batchRunId"/>
 
-%output application/java
----
-payload
-
-]]></dw:set-payload>
-                <dw:set-variable variableName="batchRunId"><![CDATA[%dw 1.0
-%output application/java
----
-payload.BATCH_RUN_ID[0]
-]]></dw:set-variable>
             </dw:transform-message>
             <object-to-string-transformer mimeType="text/plain" doc:name="Object to String"/>
             <logger message="Notifications System Persist Message -  Sequence is #[flowVars.batchRunId] Transform output is   #[payload]" level="DEBUG" doc:name="Logger"/>
@@ -237,10 +226,8 @@ and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY 
     <flow name="notify-communicateFlow">
         <jms:inbound-endpoint queue="${communcations.queue}" connector-ref="Active_MQ" mimeType="text/json" doc:name="JMS"/>
         <dw:transform-message doc:name="To Java">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload]]></dw:set-payload>
+           
+            <dw:set-payload resource="classpath:dw/notify-communicate-notify-communicateFlow-payload-from-JMS.dwl"/>
         </dw:transform-message>
 
         <enricher source="#[payload]" target="#[flowVars.mailIds]" doc:name="Message Enricher">
@@ -252,19 +239,10 @@ payload]]></dw:set-payload>
             </db:select>
         </enricher>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload]]></dw:set-payload>
-             <dw:set-variable variableName="mailIds"><![CDATA[%dw 1.0
-%output application/java
----
-flowVars.mailIds..EMAIL
-]]></dw:set-variable> 
-            <dw:set-variable variableName="processName"><![CDATA[%dw 1.0
-%output application/java
----
-payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName]]></dw:set-variable>
+            <dw:set-payload resource="classpath:dw/notify-communicate-payload-after-retrieving-EmailIds.dwl"/>
+            <dw:set-variable resource="classpath:dw/notify-communicate-flowVars-for-emails.dwl" variableName="mailIds"/>
+            <dw:set-variable resource="classpath:dw/notify-communicate-Batch-Proccess-Name-after-retrieving-mailIds.dwl" variableName="processName"/>
+
         </dw:transform-message>
 
         <set-variable variableName="mailIds" value="#[flowVars.mailIds.toString().replace('[','').replace(']','')]" doc:name="Variable"/>
@@ -275,26 +253,12 @@ payload.ExecutionMetrics.BatchExecutionSummary.BatchProcessName]]></dw:set-varia
     <flow name="notify-communicate-error-Flow">
         <jms:inbound-endpoint doc:name="JMS" connector-ref="Active_MQ"  queue="${error.notifications.queue}"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload]]></dw:set-payload>
-            <dw:set-variable variableName="mailIds"><![CDATA[%dw 1.0
-%output application/java
----
-payload.mailrecipients]]></dw:set-variable>
-            <dw:set-variable variableName="mailSubject"><![CDATA[%dw 1.0
-%output application/java
----
-payload.mailsubject]]></dw:set-variable>
-            <dw:set-variable variableName="mailGenericrecipients"><![CDATA[%dw 1.0
-%output application/java
----
-payload.mailGenericrecipients]]></dw:set-variable>
-			<dw:set-variable variableName="mailVerboserecipients"><![CDATA[%dw 1.0
-%output application/java
----
-payload.mailVerboserecipients]]></dw:set-variable>
+            <dw:set-payload resource="classpath:dw/notify-communicate-error-floe-payload-from-JMS.dwl"/>
+            <dw:set-variable resource="classpath:dw/notify-communicate-error-flow-mailIds.dwl" variableName="mailIds"/>
+            <dw:set-variable resource="classpath:dw/notify-communicate-error-floe-mail-subject.dwl" variableName="mailSubject"/>
+            <dw:set-variable resource="classpath:dw/notify-communicate-error-flow-mailGenericrecipients.dwl" variableName="mailGenericrecipients"/>
+            <dw:set-variable resource="classpath:dw/notify-communicate-error-mailVerboserecipents.dwl" variableName="mailVerboserecipients"/>
+
         </dw:transform-message>
         <logger level="INFO" doc:name="Logger" message="Notification Error Payload ? #[payload] : Generic Recipients : #[flowVars.mailGenericrecipients] :: Verbose Recipients: #[flowVars.mailVerboserecipients]"/>
         
