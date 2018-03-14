@@ -23,180 +23,16 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <logger message="JDE - System API - Salesorder- Request - #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <set-variable variableName="jdeSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json skipNullOn = "everywhere"
----
-{
-	OrderHeader:{
-		agentInfo: {
-			CommissionableAgentName: payload.OrderHeader.agentInfo.CommissionableAgentName,
-			agentId: payload.OrderHeader.agentInfo.agentId,
-			commissionableAgentId: payload.OrderHeader.agentInfo.commissionableAgentId,
-			commissionableAgentOrgRole: payload.OrderHeader.agentInfo.commissionableAgentOrgRole,
-			commissionableAgentParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId
-		},
-		customerInfo: {
-			tccCustomerId: payload.OrderHeader.customerInfo.tccCustomerId,
-			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerId,
-			tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
-			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType
-		},
-		miscInfo: {
-			CCRScommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated,
-			defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed
-		},
-		orderInfo: {
-			orderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.orderDate) when payload.OrderHeader.orderInfo.orderDate != null and payload.OrderHeader.orderInfo.orderDate !="" otherwise "",
-			orderId: payload.OrderHeader.orderInfo.orderId,
-			orderStatus: payload.OrderHeader.orderInfo.orderStatus,
-			originalOrderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.originalOrderDate) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate !="" otherwise "",
-			originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
-		},
-		orderPriceInfo: {
-			amount: payload.OrderHeader.orderPriceInfo.amount,
-			currencyCode: payload.OrderHeader.orderPriceInfo.currencyCode,
-			discounted: payload.OrderHeader.orderPriceInfo.discounted,
-			tax: payload.OrderHeader.orderPriceInfo.tax,
-			total: payload.OrderHeader.orderPriceInfo.total
-		},
-		storeInfo: {
-			commissionableStoreInfo: {
-				commissionableStoreAreaId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaId,
-				commissionableStoreAreaName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreAreaName,
-				commissionableStoreDistrictId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictId,
-				commissionableStoreDistrictName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreDistrictName,
-				commissionableStoreId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId,
-				commissionableStoreMarketId: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketId,
-				commissionableStoreMarketName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreMarketName,
-				commissionableStoreName: payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreName
-			},
-			physicalStoreInfo: {
-				physicalStoreId: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreId,
-				physicalStoreZipCode: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreZipCode
-			}
-		}
-	},
-	commerceItems:{
-		commerceItem: payload.commerceItems.commerceItem map ((salesOrderSKUIdsPayload, salesOrderSKUIdsPayloadIndex) -> {
-			(skuId: salesOrderSKUIdsPayload.skuId) when salesOrderSKUIdsPayload.skuId?,
-			(commercelineItemId: salesOrderSKUIdsPayload.commercelineItemId) when salesOrderSKUIdsPayload.commercelineItemId?,
-			(skuIdType: salesOrderSKUIdsPayload.skuIdType) when salesOrderSKUIdsPayload.skuIdType?,
-			(listPrice: salesOrderSKUIdsPayload.listPrice) when salesOrderSKUIdsPayload.listPrice?,
-			(amount: salesOrderSKUIdsPayload.amount) when salesOrderSKUIdsPayload.amount?,
-			(itemCost: salesOrderSKUIdsPayload.itemCost) when salesOrderSKUIdsPayload.itemCost?,
-			(itemStatus: salesOrderSKUIdsPayload.itemStatus) when salesOrderSKUIdsPayload.itemStatus?,
-			(discountType: salesOrderSKUIdsPayload.discountType) when salesOrderSKUIdsPayload.discountType?,
-			(impositionTypeId: salesOrderSKUIdsPayload.impositionTypeId) when salesOrderSKUIdsPayload.impositionTypeId?,
-			(commissionType: salesOrderSKUIdsPayload.commissionType) when salesOrderSKUIdsPayload.commissionType?,
-			(SerialNumber: salesOrderSKUIdsPayload.SerialNumber) when salesOrderSKUIdsPayload.SerialNumber?,
-			(skuDescription: salesOrderSKUIdsPayload.skuDescription) when salesOrderSKUIdsPayload.skuDescription?,
-	        (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
-	        (quantity: salesOrderSKUIdsPayload.quantity) when salesOrderSKUIdsPayload.quantity?,
-	        
-            FulfillmentDate: parseDateAndConvert(salesOrderSKUIdsPayload.FulfillmentDate) when salesOrderSKUIdsPayload.FulfillmentDate != null and salesOrderSKUIdsPayload.FulfillmentDate !="" otherwise "", 
-	        
-	        (itemType: salesOrderSKUIdsPayload.itemType) when salesOrderSKUIdsPayload.itemType?,
-	        (grossProfit: salesOrderSKUIdsPayload.grossProfit) when salesOrderSKUIdsPayload.grossProfit?,
-	        (serviceTransactionID: salesOrderSKUIdsPayload.serviceTransactionID) when salesOrderSKUIdsPayload.serviceTransactionID?,
-	        (mobileNumber: salesOrderSKUIdsPayload.mobileNumber) when salesOrderSKUIdsPayload.mobileNumber?,
-	        (deviceCategory: salesOrderSKUIdsPayload.deviceCategory) when salesOrderSKUIdsPayload.deviceCategory?,
-	        (activationType: salesOrderSKUIdsPayload.activationType) when salesOrderSKUIdsPayload.activationType?,
-	        (contractType: salesOrderSKUIdsPayload.contractType) when salesOrderSKUIdsPayload.contractType?,
-       		(currencyCode: salesOrderSKUIdsPayload.currencyCode) when salesOrderSKUIdsPayload.currencyCode?,
-			(authCode: salesOrderSKUIdsPayload.authCode) when salesOrderSKUIdsPayload.authCode?,
-			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
-            (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?,
-            (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
-            (preorderConfirmationId: salesOrderSKUIdsPayload.preorderConfirmationId) when salesOrderSKUIdsPayload.preorderConfirmationId?
-		})
-	}
-	
-}
-]]></dw:set-payload>
+               <dw:set-payload resource="classpath:dw/OrderHeader.dwl"/>
         </dw:transform-message>
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
         <logger message="System API - SalesOrder - Transformed Request - #[payload]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
 
         <dw:transform-message doc:name="Transform Message">
             <dw:input-payload mimeType="application/json"/>
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml skipNullOn = "everywhere"
-%namespace ns0 http://tcc.e1.bssv.JP554200/
----
-{
-	ns0#createSalesOrder: {
-		orderHeader: {
-			orderInfo: {
-				orderDate: payload.OrderHeader.orderInfo.orderDate,
-				orderId: payload.OrderHeader.orderInfo.orderId,
-				(originalOrderDate: payload.OrderHeader.orderInfo.originalOrderDate) when payload.OrderHeader.orderInfo.originalOrderDate != null and payload.OrderHeader.orderInfo.originalOrderDate != "",
-                originalOrderId: payload.OrderHeader.orderInfo.originalOrderId
-			},
-			customerInfo: {
-				tccCustomerId: payload.OrderHeader.customerInfo.shellCustomerId when payload.OrderHeader.customerInfo.shellCustomerId? otherwise payload.OrderHeader.customerInfo.tccCustomerId,
-				tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName
-			},
-			miscInfo: {
-				defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed,
-				CCRSCommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated
-			},
-			orderPriceInfo: {
-				(currencyCode: payload.OrderHeader.orderPriceInfo.currencyCode) when payload.OrderHeader.orderPriceInfo? and payload.OrderHeader.orderPriceInfo.currencyCode?
-			},
-			agentInfo: {
-				agentId: payload.OrderHeader.agentInfo.agentId,
-				commissonableAgentId: payload.OrderHeader.agentInfo.commissionableAgentId
-			},
-			storeInfo: {
-				physicalStoreInfo: {
-					commissionableStoreInfo: {
-						commissionableStoreId:  payload.OrderHeader.storeInfo.commissionableStoreInfo.commissionableStoreId
-					},
-					physicalStoreId: payload.OrderHeader.storeInfo.physicalStoreInfo.physicalStoreId
-				}
-			}
-		},
-		commerceItems: {
-			(payload.commerceItems.commerceItem map ((commerceItem , indexOfCommerceItem) -> {
-				commerceItem: {
-					commerceItemInfo: {
-						skuId: "ORDEREDSKU" when (commerceItem.skuIdType == 'original' and ('ORDERED' == commerceItem.itemStatus or 'CANCELLED' == commerceItem.itemStatus) and not (['ORDEREDDPAYVOL','ORDEREDSECDEP','ORDEREDDPAYMAN'] contains commerceItem.skuId)) otherwise commerceItem.skuId ,
-						(originalSKUId: commerceItem.skuId) when commerceItem.skuIdType == 'original' and ('ORDERED' == commerceItem.itemStatus or 'CANCELLED' == commerceItem.itemStatus) and not (['ORDEREDDPAYVOL','ORDEREDSECDEP','ORDEREDDPAYMAN'] contains commerceItem.skuId),
-						quantity: commerceItem.quantity,
-						commerceLineItemId: commerceItem.commercelineItemId,
-						(fulfillmentDate: commerceItem.FulfillmentDate) when commerceItem.FulfillmentDate?,
-						serialNumber: commerceItem.SerialNumber,
-						itemStatus: commerceItem.itemStatus,
-						
-						preorderConfirmationId: commerceItem.preorderConfirmationId
-					},
-					serviceInfo:{
-						serviceBasicInfo:{
-							mobileNumber:commerceItem.mobileNumber,
-							serviceTransactionID:commerceItem.serviceTransactionID,
-							activationType: commerceItem.activationType,
-							contractType: commerceItem.contractType
-						}
-					},
-					itemPriceInfo: {
-						itemPrice:{
-							(
-								authCode: commerceItem.authCode
-							) when commerceItem.skuIdType == 'paymentGroup',
-							itemPrice: commerceItem.amount when (commerceItem.skuIdType == 'original' and ('ORDERED' == commerceItem.itemStatus or 'CANCELLED' == commerceItem.itemStatus)) otherwise (commerceItem.listPrice when commerceItem.listPrice? otherwise commerceItem.commissionReceivableAmount),
-							(itemCost: commerceItem.itemCost) when commerceItem.skuIdType == 'original' and  "SERVICE" == upper commerceItem.itemType
-					}
-				}
-			}
-			}
-			))
-		}
-	}
-}]]></dw:set-payload>
-            <dw:set-variable variableName="orderId"><![CDATA[%dw 1.0
-%output application/java
----
-payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
+              <dw:set-payload resource="classpath:dw/createSalesOrder.dwl"/>
+            <dw:set-variable resource="classpath:dw/orderId_variable.dwl" variableName="orderId"/>
+
 
         </dw:transform-message>
         <logger message="JDE - System API - Salesorder- Processing #[flowVars.orderId]" level="INFO"  doc:name="Logger"/>
@@ -218,17 +54,7 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                 <flow-ref name="jde-salesorder-app-sync-payloadFlow" doc:name="jde-salesorder-app-sync-payloadFlow"/>
             </enricher>
             <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "false",
-	"payload": flowVars.jdeSysAPIRequest,
-	"error": {
-		"code": "JDE1020",
-		"description": "JDE - System API Service Exception -- Something is wrong in Service -- Please check with Administrator"
-	}
-}]]></dw:set-payload>
+               <dw:set-payload resource="classpath:dw/error_JDE1020.dwl"/>
             </dw:transform-message>
             
             <!-- Mail triggering reference -->
@@ -272,21 +98,9 @@ payload.OrderHeader.orderInfo.orderId]]></dw:set-variable>
                 <flow-ref name="jde-salesorder-app-sync-payloadFlow" doc:name="jde-salesorder-app-sync-payloadFlow"/>
             </enricher>
             <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "false",
-	"payload": flowVars.jdeWSRequest,
-	"error": {
-		"code": "JDE1010",
-		"description": "Connection Exception - SalesOrder JDE Service Failure"
-	}
-}]]></dw:set-payload>
-                <dw:set-variable variableName="transactionId"><![CDATA[%dw 1.0
-%output application/java
----
-flowVars.salesOrderId]]></dw:set-variable>
+            
+                 <dw:set-payload resource="classpath:dw/error_JDE1010.dwl"/>
+                  <dw:set-variable resource="classpath:dw/transactionId_variable.dwl" variableName="transactionId"/>
             </dw:transform-message>
             <async doc:name="Async">
                 <enricher source="#[payload]" target="#[flowVars.retryFlow]" doc:name="Message Enricher">
@@ -323,22 +137,9 @@ flowVars.salesOrderId]]></dw:set-variable>
         <ws:consumer config-ref="Web_Service_Consumer_Salesorder" operation="createSalesOrder" doc:name="Web Service Consumer"/>
 
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml
-%namespace ns0 http://tcc.e1.bssv.JP554200/
----
-{
-	ns0#createSalesOrderResponse: {
-		orderCompany: payload.ns0#createSalesOrderResponse.orderCompany,
-		orderNumber: payload.ns0#createSalesOrderResponse.orderNumber,
-		orderNumberTCC: payload.ns0#createSalesOrderResponse.orderNumberTCC,
-		orderType: payload.ns0#createSalesOrderResponse.orderType
-	}
-}]]></dw:set-payload>
-            <dw:set-variable variableName="transactionId"><![CDATA[%dw 1.0
-%output application/java
----
-flowVars.salesOrderId]]></dw:set-variable>
+            <dw:set-payload resource="classpath:dw/atg-jde-salesorderFlow-response-consumer.dwl"/>
+            <dw:set-variable resource="classpath:dw/transactionId_variable.dwl" variableName="transactionId"/>
+
         </dw:transform-message>
 
         
@@ -357,13 +158,7 @@ flowVars.salesOrderId]]></dw:set-variable>
         <object-to-string-transformer mimeType="application/xml" doc:name="Object to String"/>
         <logger message="JDE-SystemAPI - WS - Salesorder-Response for #[flowVars.orderId] : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" category="tcc.jde.salesorder" doc:name="Logger"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "true",
-	"payload": payload
-}]]></dw:set-payload>
+                 <dw:set-payload resource="classpath:dw/success.dwl"/>
         </dw:transform-message>
         
         <!-- Deleting the record from recovery table if any is existing for this orderId -->
@@ -387,17 +182,8 @@ flowVars.salesOrderId]]></dw:set-variable>
                     <flow-ref name="jde-salesorder-app-sync-payloadFlow" doc:name="jde-salesorder-app-sync-payloadFlow"/>
                 </enricher>
                 <dw:transform-message doc:name="Transform Message">
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "false",
-	"payload": flowVars.jdeWSRequest,
-	"error": {
-		"code": "JDE1030",
-		"description": flowVars.exceptionMsg
-	}
-}]]></dw:set-payload>
+                 <dw:set-payload resource="classpath:dw/error_JDE1030.dwl"/>
+                    
                 </dw:transform-message>
 
 			<!-- Mail triggering reference -->

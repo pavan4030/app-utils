@@ -25,19 +25,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 
 		<dw:transform-message  doc:name="Transform Message">
             <dw:input-payload/>
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml
-%namespace ns0 http://tcc.e1.bssv.JP550300/
----
-{
-	ns0#doCreditCheck: {
-		customerIdTCC: payload.creditCheckRequest.tccCustomerId
-	}
-}]]></dw:set-payload>
-            <dw:set-variable variableName="TCCCustomerID"><![CDATA[%dw 1.0
-%output application/java
----
-payload.creditCheckRequest.tccCustomerId]]></dw:set-variable>
+            <dw:set-payload resource="classpath:dw/doCreditCheck.dwl" />
+            <dw:set-variable resource="classpath:dw/TCCCustomerID_variable.dwl" variableName="TCCCustomerID"/>
+
         </dw:transform-message>
         <logger message="JDE - System API - Creditcheck - Processing  #[flowVars.TCCCustomerID] " level="INFO" doc:name="Logger" />
         <until-successful maxRetries="${jde.ws.max.retries}" millisBetweenRetries="${jde.ws.creditcheck.retry.interval.ms}" synchronous="true" doc:name="Until Successful">
@@ -47,24 +37,8 @@ payload.creditCheckRequest.tccCustomerId]]></dw:set-variable>
 
         
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
-%namespace ns0 http://tcc.e1.bssv.JP550300/
----
-{
-	doCreditCheckResponse: {
-		//e1MessageList: {
-				//(e1Messages.*e1Message map {
-					//message: $.message,
-					//messagePrefix: $.messagePrefix
-				//})
-		//} when payload.doCreditCheckResponse.e1MessageList != null and payload.doCreditCheckResponse.e1MessageList != '' otherwise '',
-		(ARAccountCreditBalance: payload.doCreditCheckResponse.accountCreditBalance)  when payload.doCreditCheckResponse.accountCreditBalance != null  ,
-		(ARAccountPurchasesonCredit:  payload.doCreditCheckResponse.accountPurchaseOnCredit) when  payload.doCreditCheckResponse.accountPurchaseOnCredit != null ,
-		(ARAccountTotalCredit:  payload.doCreditCheckResponse.accountTotalCredit) when payload.doCreditCheckResponse.accountTotalCredit != null ,
-		(tccCustomerId: flowVars.TCCCustomerID) when flowVars.TCCCustomerID != null
-	}}]]></dw:set-payload>
-
+              <dw:set-payload resource="classpath:dw/doCreditCheckResponse.dwl" />
+   
         </dw:transform-message>
         <json:validate-schema schemaLocation="responseCreditCheckSchema.json" doc:name="Validate JSON Schema"/>
 

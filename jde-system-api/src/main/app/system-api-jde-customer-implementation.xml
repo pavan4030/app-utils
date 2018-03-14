@@ -24,50 +24,10 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <set-variable variableName="jdeCustomerSysAPIRequest" value="#[message.payloadAs(java.lang.String)]" doc:name="Variable"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:input-payload/>
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml
-%namespace ns0 http://tcc.e1.bssv.JP550100/
----
-{
-	ns0#addOrUpdateCustomer: {
-		customerIdTCC: payload.id,
-		
-		
-		(firstName: payload.firstName ) when payload.customerType == 'CONSUMER' ,
-		(lastName: payload.lastName) when payload.customerType == 'CONSUMER',
-				
-		customerType: 'C' when "BUSINESS" == payload.customerType otherwise 'N',
-		(businessInfo: {
-			businessName: subString(payload.businessDetails.businessName,0,40)
-		}) when "BUSINESS" == payload.customerType,
-		(payload.phoneDetails map {
-			customerPhones:{
-				phoneNumber: $.phoneNumber,
-				phoneType: 'M' when "MOBILE" == upper $.type otherwise ('F' when "FAX" == upper $.type otherwise ('H' when "HOME" == upper $.type otherwise 'W'))
-			}
-		}),
-		(customerEmails:{
-				doNotEmail: '',
-				emailAddress: payload.emailDetails[0].emailAddress,
-				emailType: payload.emailDetails[0].type
-			})when payload.emailDetails != null and payload.emailDetails[0] != null,
-		
-		shipAddress: '',
-		(homeAddress:{
-			addressLine1:payload.homeAddress.address1,
-			addressLine2:payload.homeAddress.address2,
-			city:payload.homeAddress.city,
-			country:payload.homeAddress.country,
-			doNotMail:payload.homeAddress.doNotMail,
-			state:payload.homeAddress.state,
-			zipCode:payload.homeAddress.postalCode
-		}) when payload.homeAddress != null
-	}
-}  ]]></dw:set-payload>
-            <dw:set-variable variableName="orderId"><![CDATA[%dw 1.0
-%output application/java
----
-(payload.id) when payload.id? and payload.id != '' otherwise ""]]></dw:set-variable>
+              <dw:set-payload resource="classpath:dw/create-update-customer.dwl"/>
+           
+            <dw:set-variable resource="classpath:dw/orderId_customer_variable.dwl" variableName="orderId"/>
+
             <!--  <dw:set-variable variableName="appResource"><![CDATA[%dw 1.0
 %output application/java
 
@@ -95,17 +55,8 @@ p('app_method_customer')]]></dw:set-variable> -->
                 <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
             </enricher>
             <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "false",
-	"payload": flowVars.jdeCustomerSysAPIRequest,
-	"error": {
-		"code": "JDE1050",
-		"description": "JDE - Customer - System API Service Exception -- Something is wrong in Service -- Please check with Administrator"
-	}
-}]]></dw:set-payload>
+              <dw:set-payload resource="classpath:dw/error_JDE1050.dwl"/>
+             
             </dw:transform-message>
             
             <!-- Mail triggering reference -->
@@ -145,17 +96,8 @@ p('app_method_customer')]]></dw:set-variable> -->
                 <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
             </enricher>
             <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "false",
-	"payload": flowVars.jdeCustomerWSRequest,
-	"error": {
-		"code": "JDE1060",
-		"description": "Connection Exception - Customer JDE Service Failure"
-	}
-}]]></dw:set-payload>
+              <dw:set-payload resource="classpath:dw/error_JDE1060.dwl"/>
+              
             </dw:transform-message>
             <async doc:name="Async">
                 <enricher source="#[payload]" target="#[flowVars.retryFlow]" doc:name="Message Enricher">
@@ -190,10 +132,8 @@ p('app_method_customer')]]></dw:set-variable> -->
         
     
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/xml
----
-payload]]></dw:set-payload>
+          <dw:set-payload resource="classpath:dw/payload_to_xml.dwl"/>
+           
         </dw:transform-message>
         
         <!-- APP Sync - Pushing details to DB -->
@@ -211,13 +151,8 @@ payload]]></dw:set-payload>
         <object-to-string-transformer doc:name="Object to String"/>
         <logger message="JDE-WS - Customer-Response : #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "true",
-	"payload": payload
-}]]></dw:set-payload>
+          <dw:set-payload resource="classpath:dw/success_json.dwl"/>
+          
         </dw:transform-message>
 
         <!-- Deleting the record from recovery table if any is existing for this orderId -->
@@ -242,17 +177,8 @@ payload]]></dw:set-payload>
                     <flow-ref name="jde-customer-app-sync-payloadFlow" doc:name="jde-customer-app-sync-payloadFlow"/>
                 </enricher>
                 <dw:transform-message doc:name="Transform Message">
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	"success": "false",
-	"payload": flowVars.jdeCustomerWSRequest,
-	"error": {
-		"code": "JDE1070",
-		"description": flowVars.exceptionMsg
-	}
-}]]></dw:set-payload>
+                  <dw:set-payload resource="classpath:dw/error_JDE1070.dwl"/>
+                  
 
                 </dw:transform-message>
 
