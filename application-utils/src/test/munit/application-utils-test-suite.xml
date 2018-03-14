@@ -16,13 +16,13 @@ http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/moc
 		<spring:import resource="classpath:application-utils.xml" />
 		<spring:import resource="classpath:application-utils-config.xml" />
 	</spring:beans>
-	<munit:test name="application-utils-test-suite-application-utils-FlowTest"
+	<munit:test name="should-insert-to-database"
 		description="Test">
 		<mock:when messageProcessor=".*:.*" doc:name="Mock">
             <mock:with-attributes>
                 <mock:with-attribute name="doc:name" whereValue="#['Database']"/>
             </mock:with-attributes>
-            <mock:then-return payload="#[]" mimeType="application/java"/>
+            <mock:then-return payload="1" mimeType="application/java"/>
 		</mock:when>
 		<dw:transform-message doc:name="Transform Message">
 			<dw:set-payload><![CDATA[%dw 1.0
@@ -44,12 +44,12 @@ CORRELATION_ID:'s1930344'
 		<flow-ref name="application-utils-Flow" doc:name="Flow-ref to application-utils-Flow" />
 		<logger message="Munit Application Utils Trigger Positive Flow Response : #[payload]"
 			level="INFO" doc:name="Logger" />
-		<munit:assert-not-null doc:name="Assert Not Null Payload" />
+        <munit:assert-on-equals message="DB insert Failure" expectedValue="1" actualValue="1" doc:name="Assert Equals"/>
 	</munit:test>
 
 
 	<munit:test
-		name="application-utils-test-suite-application-utils-FlowTest-NegativeScenario"
+		name="should-fail-inserting-to-database"
 		description="Test">
 
 		<mock:throw-an whenCalling="db:insert"
@@ -63,7 +63,7 @@ CORRELATION_ID:'s1930344'
             <mock:with-attributes>
                 <mock:with-attribute name="doc:name" whereValue="#['JMS-PRODUCER-APP-PAYLOAD-DLQ']"/>
             </mock:with-attributes>
-            <mock:then-return payload="#[]"/>
+            <mock:then-return payload="&quot;DBExceptionCaught&quot;"/>
 		</mock:when>
 		<dw:transform-message doc:name="Transform Message">
 			<dw:set-payload><![CDATA[%dw 1.0
@@ -85,7 +85,7 @@ CORRELATION_ID:'s1930344'
 		<flow-ref name="application-utils-Flow" doc:name="Flow-ref to application-utils-Flow" />
 		<logger message="Munit Application Utils Trigger Negative Flow Response : #[payload]"
 			level="INFO" doc:name="Logger" />
-		<munit:assert-not-null doc:name="Assert Not Null Payload" />
+        <munit:assert-on-equals message="DB Exception Test Failed" expectedValue="&quot;DBExceptionCaught&quot;" actualValue="&quot;DBExceptionCaught&quot;" doc:name="Assert Equals"/>
 	</munit:test>
 
 </mule>
