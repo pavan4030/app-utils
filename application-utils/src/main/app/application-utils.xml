@@ -14,10 +14,8 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
     message="Read message from queue: ${app_sync_payload.Q} with messageId: #[message.id], jmsMessageId: #[payload.JMSMessageID], correlationID: #[payload.JMSCorrelationID], messageType: #[payload.JMSType] with transactionID: #[payload.TRANSACTION_ID]"
     level="INFO" doc:name="Read From JMS" category="${apputils.transactiondb}" />
     <dw:transform-message doc:name="Transform Message">
-        <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload]]></dw:set-payload>
+            <dw:set-payload resource="classpath:dw/application_utils_from_jms_to_db.dwl"/>
+
     </dw:transform-message>
     <set-variable variableName="transactionID" value="#[payload.TRANSACTION_ID]" doc:name="flowVars.transactionID" />
     <logger message="Before inserting into DB with transactionID: #[payload.TRANSACTION_ID]" level="INFO" doc:name="Before Database" category="${apputils.transactiondb}" />
@@ -61,19 +59,8 @@ payload]]></dw:set-payload>
         message="Read message from dead letter queue: ${app_sync_payload.Q} with messageId: #[payload.JMSMessageID], correlationID: #[payload.JMSCorrelationID],messageType: #[payload.JMSType]"
         level="INFO" doc:name="Logger" category="${apputils.transactiondb}" />
     <dw:transform-message doc:name="Transform Message">
-        <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
+            <dw:set-payload resource="classpath:dw/application_utils_error_flow_dlq_jms_to_producer_jms.dwl"/>
 
-{   
-    APP_ID : payload.appUtilPayload.APP_ID,
-    APP_RESOURCE : payload.appUtilPayload.APP_RESOURCE,
-    APP_METHOD : payload.appUtilPayload.APP_METHOD,
-    CORRELATION_ID : payload.appUtilPayload.CORRELATION_ID,
-    TRANSACTION_ID : payload.appUtilPayload.TRANSACTION_ID,
-    REQUEST : payload.appUtilPayload.REQUEST,
-    RESPONSE : payload.appUtilPayload.RESPONSE
-}]]></dw:set-payload>
     </dw:transform-message>
     <logger message="Send back Payload to the queue: ${app_sync_payload.DLQ} transactionID: #[payload.TRANSACTION_ID]" level="INFO" doc:name="Logger"
         category="${apputils.transactiondb}" />
