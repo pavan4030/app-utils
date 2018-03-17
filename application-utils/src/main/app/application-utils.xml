@@ -21,12 +21,6 @@ payload]]></dw:set-payload>
     </dw:transform-message>
     <set-variable variableName="transactionID" value="#[payload.TRANSACTION_ID]" doc:name="flowVars.transactionID" />
     <logger message="Before inserting into DB with transactionID: #[payload.TRANSACTION_ID]" level="INFO" doc:name="Before Database" category="${apputils.transactiondb}" />
-        <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload]]></dw:set-payload>
-        </dw:transform-message>
         <logger message="Payload from Q to DB ::: #[payload] with transactionID: #[payload.TRANSACTION_ID]" level="DEBUG" doc:name="Logger" category="${apputils.transactiondb}"/>
         <db:insert config-ref="Oracle_Configuration" doc:name="Database">
             <db:parameterized-query><![CDATA[INSERT INTO APP_SYNC_PAYLOAD (ID,APP_ID,APP_RESOURCE,APP_METHOD,CORRELATION_ID,TRANSACTION_ID,REQUEST,RESPONSE,CREATE_TS)
