@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.tccrocks.integration.jde</groupId>
 	<artifactId>api-jde-system</artifactId>
-	<version>4.2.2</version>
+	<version>4.2.3-SNAPSHOT</version>
 	<packaging>mule</packaging>
 	<name>Mule jde-system-api Application</name>
 
@@ -12,7 +12,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<mule.version>3.8.3</mule.version>
+		<mule.version>3.9.0</mule.version>
 		<mule.tools.version>1.2</mule.tools.version>
 	<munit.version>1.3.7</munit.version>
     <mule.munit.support.version>3.9.1</mule.munit.support.version>
