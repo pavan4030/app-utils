@@ -17,7 +17,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
     <apikit:config name="system-api-oic-config" raml="system-api-oic.raml" consoleEnabled="false" doc:name="Router"/>
  
     <!-- HTTP Request Params for OIC -->
-    <http:request-config name="HTTP_Request_Configuration_OIC" doc:name="HTTP Request Configuration" >
+    <http:request-config name="HTTP_Request_Configuration_OIC" doc:name="HTTP Request Configuration">
         <http:basic-authentication username="${oic.user}" password="${oic.password}" preemptive="true"/>
     </http:request-config>
     
@@ -97,12 +97,12 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 	<secure-property-placeholder:config name="Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:api-oic-${mule.env}.properties,file:///opt/app/esb/app-config/api-oic-override.properties" doc:name="Secure Property Placeholder" ignoreResourceNotFound="true"/>
     
     <flow name="system-api-oic-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="/api-oic/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="/api-oic/*" doc:name="HTTP"/>
         <apikit:router config-ref="system-api-oic-config" doc:name="APIkit Router"/>
         <exception-strategy ref="system-api-oic-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="system-api-oic-console">
-        <http:listener config-ref="shared-httpListenerConfig" path="/api-oic/console/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="/api-oic/console/*" doc:name="HTTP"/>
         <apikit:console config-ref="system-api-oic-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="post:/salesorder-oic:system-api-oic-config">

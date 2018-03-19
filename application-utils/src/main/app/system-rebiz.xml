@@ -22,41 +22,27 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
     <file:connector name="File" autoDelete="false" outputAppend="true" streaming="true" validateConnections="true" doc:name="File"/>
 
     <flow name="system-rebiz-main">
-        <http:listener config-ref="shared-httpListenerConfig" path="obiee-api/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="obiee-api/*" doc:name="HTTP"/>
         <apikit:router config-ref="system-rebiz-config" doc:name="APIkit Router"/>
         <exception-strategy ref="system-rebiz-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="system-rebiz-console">
-        <http:listener config-ref="shared-httpListenerConfig" path="obiee-api/console/*" doc:name="HTTP"/>
+        <http:listener config-ref="https-lc-0.0.0.0-8082" path="obiee-api/console/*" doc:name="HTTP"/>
         <apikit:console config-ref="system-rebiz-config" doc:name="APIkit Console"/>
     </flow>
     <flow name="post:/db/rebiz:application/json:system-rebiz-config">
         <flow-ref name="insert-into-DB" doc:name="insert-into-DB"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-  "success": {
-    "code": "200",
-    "message": "Rebiz- pushed to DB Successfully"
-   }
-}]]></dw:set-payload>
+            <dw:set-payload resource="classpath:dw/system_rebiz_after_db_insertion_response.dwl"/>
+
         </dw:transform-message>
 
     </flow>
     <flow name="post:/db/rebiz_insertion:application/json:system-rebiz-config">
         <flow-ref name="rebiz-insertion" doc:name="rebiz-insertion"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-  "success": {
-    "code": "200",
-    "message": "Rebiz- pushed to DB Successfully"
-   }
-}]]></dw:set-payload>
+            <dw:set-payload resource="classpath:dw/system_rebiz_after_db_insertion_response.dwl"/>
+
         </dw:transform-message>
     </flow>
     <apikit:mapping-exception-strategy name="system-rebiz-apiKitGlobalExceptionMapping">
@@ -92,15 +78,8 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
                 <logger message="log in batch:  #[message.payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
                 <dw:transform-message metadata:id="320f34ad-1b8b-4fab-81a8-3f3c66e1ce40" doc:name="Transform Message">
                 <dw:input-payload mimeType="application/java"/>
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-	orderId: payload.orderId,
-	commerceLineId: payload.commerceLineId ,
-	lineGrossProfit: payload.lineGrossProfit,
-	rebizPublished: payload.rebizPublished
-}]]></dw:set-payload>
+                    <dw:set-payload resource="classpath:dw/system_rebiz_batch_processed_records.dwl"/>
+
                 </dw:transform-message>
 
                 <flow-ref name="system-rebizFlow-upsertFlow" doc:name="system-rebizFlow-upsertFlow"/>
@@ -151,44 +130,21 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
         </choice>
         <dw:transform-message doc:name="Transform Message">
         <dw:input-payload mimeType="application/java"/>
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-  status: "SUCCESS",
-  orderId: payload.orderId,
-  commerceLineId: payload.commerceLineId ,
-  lineGrossProfit: payload.lineGrossProfit,
-  rebizPublished: payload.rebizPublished
-}]]></dw:set-payload>
+            <dw:set-payload resource="classpath:dw/system_rebiz_batch_after_db_response.dwl"/>
+
         </dw:transform-message>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-  status: "FAILURE",
-  orderId: payload.orderId,
-  commerceLineId: payload.commerceLineId ,
-  lineGrossProfit: payload.lineGrossProfit,
-  rebizPublished: payload.rebizPublished
-}]]></dw:set-payload>
+                <dw:set-payload resource="classpath:dw/system_rebiz_batch_catch_exception.dwl"/>
+
             </dw:transform-message>
         </catch-exception-strategy>
     </flow>
     <flow name="rebiz-insertion">
         <object-to-string-transformer doc:name="Object to String"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload map {
-  orderId: trim $.orderId,
-  commerceLineId: trim $.commerceLineId ,
-  lineGrossProfit: $.lineGrossProfit,
-  rebizPublished: $.rebizPublished
-}]]></dw:set-payload>
+            <dw:set-payload resource="classpath:dw/rebiz_insertion_batch.dwl"/>
+
         </dw:transform-message>
 
         <batch:execute name="system-rebizBatch1" doc:name="system-rebizBatch1"/>
@@ -199,15 +155,8 @@ payload map {
                 <logger level="DEBUG" doc:name="Logger" message="log in batch:  #[message.payload]" category="tcc.apputils"/>
                 <dw:transform-message doc:name="Transform Message">
                 <dw:input-payload mimeType="application/java"/>
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-	orderId: payload.orderId,
-	commerceLineId: payload.commerceLineId ,
-	lineGrossProfit: payload.lineGrossProfit,
-	rebizPublished: payload.rebizPublished
-}]]></dw:set-payload>
+                    <dw:set-payload resource="classpath:dw/system_rebiz_insertion_batch_processed_records.dwl"/>
+
                 </dw:transform-message>
 
                 <flow-ref name="system-rebizFlow-insertion" doc:name="system-rebizFlow-insertion"/>
@@ -240,31 +189,15 @@ payload map {
 
                 </db:insert>
                 <dw:transform-message doc:name="Transform Message">
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-  status: "SUCCESS",
-  orderId: payload.orderId,
-  commerceLineId: payload.commerceLineId ,
-  lineGrossProfit: payload.lineGrossProfit,
-  rebizPublished: payload.rebizPublished
-}]]></dw:set-payload>
+                    <dw:set-payload resource="classpath:dw/system_rebiz_insertion_after_db_response.dwl"/>
+
                 </dw:transform-message>
                 <logger message="Rebiz Records Insertion -  Added" level="INFO" doc:name="Logger"/>
             </when>
             <when expression="#[flowVars.commerceLine !=null || flowVars.commerceLine.size() &gt; 0]">
                 <dw:transform-message doc:name="Transform Message">
-                    <dw:set-variable variableName="orderId"><![CDATA[%dw 1.0
-%output application/java
----
-{
-  status: "RECORD ALREADY EXISTS",
-  orderId: payload.orderId,
-  commerceLineId: payload.commerceLineId ,
-  lineGrossProfit: payload.lineGrossProfit,
-  rebizPublished: payload.rebizPublished
-}]]></dw:set-variable>
+                    <dw:set-variable resource="classpath:dw/system_rebiz_insertion_response.dwl" variableName="orderId"/>
+
 
                 </dw:transform-message>
                 <logger message="Rebiz Records Insertion - Already exists - No action" level="INFO" doc:name="Logger"/>
@@ -278,31 +211,16 @@ payload map {
 
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-  status: "FAILURE",
-  orderId: payload.orderId,
-  commerceLineId: payload.commerceLineId ,
-  lineGrossProfit: payload.lineGrossProfit,
-  rebizPublished: payload.rebizPublished
-}]]></dw:set-payload>
+                <dw:set-payload resource="classpath:dw/system_rebiz_insertion_catch_exception.dwl"/>
+
             </dw:transform-message>
         </catch-exception-strategy>
     </flow>
     <flow name="insert-into-DB">
         <object-to-string-transformer doc:name="Object to String"/>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload map {
-  orderId: trim $.orderId,
-  commerceLineId: trim $.commerceLineId ,
-  lineGrossProfit: $.lineGrossProfit,
-  rebizPublished: $.rebizPublished
-}]]></dw:set-payload>
+            <dw:set-payload resource="classpath:dw/db_insert_to_system_rebiz_batch.dwl"/>
+
         </dw:transform-message>
         <logger message=" #[message.payload]" level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
         <batch:execute name="system-rebizBatch" doc:name="system-rebizBatch"/>
@@ -313,10 +231,8 @@ payload map {
         <choice doc:name="Choice">
             <when expression="#[payload.size() !=0]">
                 <dw:transform-message doc:name="Transform Message">
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/csv separator="|"
----
-payload]]></dw:set-payload>
+                    <dw:set-payload resource="classpath:dw/system_rebiz_batch_error_records_to_sftp.dwl"/>
+
                 </dw:transform-message>
                 <logger message="To be write into file" level="INFO" doc:name="Logger"/>
                 <file:outbound-endpoint path="${mule.sftp.path.input.obiee.error}" outputPattern="GrossProfit_#[server.dateTime.format(&quot;yyyyMMddHHmmss&quot;)].txt" connector-ref="File" responseTimeout="10000" doc:name="File"/>

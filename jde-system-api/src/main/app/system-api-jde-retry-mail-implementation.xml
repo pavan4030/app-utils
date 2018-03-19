@@ -128,16 +128,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             
 </db:stored-procedure>
         <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
-%output application/json
----
-{
-	success:{
-		"code":"200",
-		"message":"SalesOrder - " ++ flowVars.salesOrderId ++ " is pushed to APP SYNC RECOVERY DB Successfully"
-	}
-	
-}]]></dw:set-payload>
+             <dw:set-payload resource="classpath:dw/error_200.dwl"/>
         </dw:transform-message>
 
 
@@ -156,15 +147,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
             <choice doc:name="Choice">
                 <when expression="#[payload != null &amp;&amp; payload.size() &gt; 0]">
                    <dw:transform-message doc:name="Transform Message">
-                        <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload map {
-	ID: $.ID,
-	CREATE_TS : $.CREATE_TS,
-	UPDATE_TS: $.UPDATE_TS,
-	REQUEST : ($.REQUEST.characterStream) when $.REQUEST? otherwise ""
-}]]></dw:set-payload>
+                         <dw:set-payload resource="classpath:dw/DB_payload.dwl"/>
                     </dw:transform-message>
                     <set-payload value="#[payload[0].REQUEST]" mimeType="application/xml" doc:name="Set Payload"></set-payload>
                 </when>
@@ -210,21 +193,8 @@ payload map {
     
     <flow name="system-api-jde-salesorder-implementationFlow-Mail-Flow" processingStrategy="synchronous">
     	<dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-	systemName: p('jde.salesorder.mail.systemname'),
-	HostName:outboundProperties.host,
-	HostIP:outboundProperties.ipAddress,
-	mailVerboserecipients: p('jde.systemapi.verbose.mailrecipients'),
-	mailGenericrecipients: p('jde.systemapi.generic.mailrecipients'),
-	(request: outboundProperties.request),
-	exception: outboundProperties.exceptionMsg,
-	mailsubject : p('smtp.mail.jde.salesorder.subject.prefix') ++ outboundProperties.mailsubject,
-	header: p('jde.salesorder.mail.header'),
-	salesorderFailureLink:p('salesorder.failure.alert.link') ++ ((outboundProperties.orderId) when outboundProperties.orderId? otherwise '') ++ "&startDate=" ++ outboundProperties.startDate as :string {format: "yyyy/MM/dd"}
-}]]></dw:set-payload>
+    	  <dw:set-payload resource="classpath:dw/salerorder.dwl"/>
+              
             </dw:transform-message>
             <logger message="Error Message Details to Q - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
             <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="${error.notifications.queue}"/>
@@ -233,20 +203,7 @@ payload map {
     
     <flow name="system-api-jde-customer-implementationFlow-Mail-Flow" processingStrategy="synchronous">
     	<dw:transform-message doc:name="Transform Message">
-                <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-{
-	systemName: p('jde.customer.mail.systemname'),
-	HostName:outboundProperties.host,
-	HostIP:outboundProperties.ipAddress,
-	mailVerboserecipients: p('jde.systemapi.verbose.mailrecipients'),
-	mailGenericrecipients: p('jde.systemapi.generic.mailrecipients'),
-	(request: outboundProperties.request),
-	exception: outboundProperties.exceptionMsg,
-	mailsubject : p('smtp.mail.jde.customer.subject.prefix') ++ outboundProperties.mailsubject,
-	header: p('jde.customer.mail.header')
-}]]></dw:set-payload>
+                  <dw:set-payload resource="classpath:dw/customer.dwl"/>
             </dw:transform-message>
             <logger message="Error Message Details to Q - #[payload]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
             <jms:outbound-endpoint doc:name="JMS" connector-ref="Active_MQ" queue="${error.notifications.queue}"/>
