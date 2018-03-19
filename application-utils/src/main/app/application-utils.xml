@@ -9,18 +9,72 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
     <flow name="application-utils-Flow">
-        <jms:inbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS"/>
-        <dw:transform-message doc:name="Transform Message">
-            <dw:set-payload><![CDATA[%dw 1.0
+        <jms:inbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS-CONSUMER-APP-PAYLOAD"/>
+        <logger
+    message="Read message from queue: ${app_sync_payload.Q} with messageId: #[message.id], jmsMessageId: #[payload.JMSMessageID], correlationID: #[payload.JMSCorrelationID], messageType: #[payload.JMSType] with transactionID: #[payload.TRANSACTION_ID]"
+    level="INFO" doc:name="Read From JMS" category="${apputils.transactiondb}" />
+    <dw:transform-message doc:name="Transform Message">
+        <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
 payload]]></dw:set-payload>
-        </dw:transform-message>
-        <logger message="payload From Q to DB ::: #[payload] " level="DEBUG" doc:name="Logger" category="tcc.apputils"/>
+    </dw:transform-message>
+    <set-variable variableName="transactionID" value="#[payload.TRANSACTION_ID]" doc:name="flowVars.transactionID" />
+    <logger message="Before inserting into DB with transactionID: #[payload.TRANSACTION_ID]" level="INFO" doc:name="Before Database" category="${apputils.transactiondb}" />
+        <logger message="Payload from Q to DB ::: #[payload] with transactionID: #[payload.TRANSACTION_ID]" level="DEBUG" doc:name="Logger" category="${apputils.transactiondb}"/>
         <db:insert config-ref="Oracle_Configuration" doc:name="Database">
             <db:parameterized-query><![CDATA[INSERT INTO APP_SYNC_PAYLOAD (ID,APP_ID,APP_RESOURCE,APP_METHOD,CORRELATION_ID,TRANSACTION_ID,REQUEST,RESPONSE,CREATE_TS)
  VALUES (APP_SYNC_PAYLOAD_SEQ.nextVal,#[payload.APP_ID],#[payload.APP_RESOURCE],#[payload.APP_METHOD],#[payload.CORRELATION_ID],#[payload.TRANSACTION_ID],#[payload.REQUEST],#[payload.RESPONSE],CURRENT_TIMESTAMP)]]></db:parameterized-query>
 
         </db:insert>
+        <logger message="After inserting to DB with transactionID: #[flowVars.transactionID]" level="INFO" doc:name="After Database" category="${apputils.transactiondb}" />
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+    <logger message="Exception caused in the application Utils Flow with transactionID: #[flowVars.transactionID]" level="ERROR" doc:name="Logger"
+        category="${apputils.transactiondb}" />
+    <set-variable variableName="exceptionPayload" value="#[(exception.cause!=null)? exception.cause.message : exception]" doc:name="Variable" />
+    <dw:transform-message doc:name="Transform Message">
+        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+    "appUtilPayload": payload,
+    "exceptionMsg": flowVars.exceptionPayload
+}]]></dw:set-payload>
+    </dw:transform-message>
+    <logger
+        message="Send Payload and Error Message to the queue: ${app_sync_payload.DLQ} with correlationID: #[message.correlationId] with transactionID: #[flowVars.transactionID]"
+        level="INFO" doc:name="Logger" category="${apputils.transactiondb}" />
+    <jms:outbound-endpoint queue="${app_sync_payload.DLQ}" connector-ref="Active_MQ" doc:name="JMS-PRODUCER-APP-PAYLOAD-DLQ" />
+</catch-exception-strategy>
     </flow>
+    
+    <flow name="application-utils-errorProcessing-flow" initialState="stopped">
+
+    <jms:inbound-endpoint queue="${app_sync_payload.DLQ}" connector-ref="Active_MQ" doc:name="JMS-CONSUMER-APP-PAYLOAD-DLQ" />
+    <logger
+        message="Read message from dead letter queue: ${app_sync_payload.Q} with messageId: #[payload.JMSMessageID], correlationID: #[payload.JMSCorrelationID],messageType: #[payload.JMSType]"
+        level="INFO" doc:name="Logger" category="${apputils.transactiondb}" />
+    <dw:transform-message doc:name="Transform Message">
+        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+
+{   
+    APP_ID : payload.appUtilPayload.APP_ID,
+    APP_RESOURCE : payload.appUtilPayload.APP_RESOURCE,
+    APP_METHOD : payload.appUtilPayload.APP_METHOD,
+    CORRELATION_ID : payload.appUtilPayload.CORRELATION_ID,
+    TRANSACTION_ID : payload.appUtilPayload.TRANSACTION_ID,
+    REQUEST : payload.appUtilPayload.REQUEST,
+    RESPONSE : payload.appUtilPayload.RESPONSE
+}]]></dw:set-payload>
+    </dw:transform-message>
+    <logger message="Send back Payload to the queue: ${app_sync_payload.DLQ} transactionID: #[payload.TRANSACTION_ID]" level="INFO" doc:name="Logger"
+        category="${apputils.transactiondb}" />
+    <jms:outbound-endpoint queue="${app_sync_payload.Q}" connector-ref="Active_MQ" doc:name="JMS-PRODUCER-APP-PAYLOAD" />
+    <catch-exception-strategy doc:name="Catch Exception Strategy">
+        <logger message="Exception caused in the application Utils error processing Flow" level="ERROR" category="${apputils.transactiondb}"
+            doc:name="Logger" />
+    </catch-exception-strategy>
+</flow>
 </mule>
