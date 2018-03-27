@@ -129,6 +129,10 @@
                             <format>html</format>
                         </formats>
                     </coverage>
+                    <dynamicPorts>
+                    <dynamicPort>https.port.lc2</dynamicPort>
+                    <dynamicPort>https.port.lc3</dynamicPort>
+					</dynamicPorts>
                 </configuration>
             </plugin>
         </plugins>
@@ -353,7 +357,7 @@
     <dependency>
             <groupId>com.tccrocks.integration.esb.domain</groupId>
             <artifactId>top-esb-domain</artifactId>
-            <version>2.1.0</version>
+            <version>2.1.2-RELEASE</version>
             <scope>test</scope>
             <type>zip</type>
         </dependency>
