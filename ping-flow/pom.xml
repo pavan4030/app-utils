@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.tccrocks.integration</groupId>
 	<artifactId>ping-flow</artifactId>
-    <version>4.2.4</version>
+    <version>4.2.5-RELEASE</version>
     <packaging>mule</packaging>
 	<name>Mule ping-flow Application</name>
 
@@ -12,7 +12,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<mule.version>3.8.3</mule.version>
+		<mule.version>3.9.0</mule.version>
     	<mule.tools.version>1.2</mule.tools.version>
 	</properties>
 
@@ -133,7 +133,7 @@
 		<dependency>
 			<groupId>com.mulesoft.security</groupId>
 			<artifactId>mule-module-security-property-placeholder</artifactId>
-			<version>1.5.2</version>
+			<version>1.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
@@ -187,7 +187,7 @@
 	<dependency>
             <groupId>com.tccrocks.integration.esb.domain</groupId>
             <artifactId>top-esb-domain</artifactId>
-            <version>2.1.0</version>
+            <version>2.1.2-RELEASE</version>
             <scope>test</scope>
             <type>zip</type>
         </dependency>
