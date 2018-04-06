@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration"/>
+    <spring:beans>
+        <spring:import resource="classpath:notify-communicate.xml"/>
+    </spring:beans>
+    <munit:test name="notify-communicate-test-suite-notify-communicateFlowTest" description="Test">
+        <mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['JMS']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('notifyReq.json').asString()]" mimeType="application/java"/>
+        </mock:when>
+        <logger message="Hit the flow: #[payload]" level="INFO" doc:name="Logger"/>
+        <flow-ref name="notify-communicateFlow" doc:name="notify-communicateFlow"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </munit:test>
+    <munit:test name="notify-communicate-test-suiteTest" description="MUnit Test" ignore="true">
+        <mock:throw-an exception-ref="#[new java.lang.Exception()]" doc:name="Throw an Exception"/>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['JMS']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('notifyReq.json').asString()]" mimeType="application/java"/>
+        </mock:when>
+        <logger message="Hit the flow: #[payload]" level="INFO" doc:name="Logger"/>
+        <flow-ref name="notify-communicateFlow" doc:name="notify-communicateFlow"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </munit:test>
+</mule>
