@@ -1,34 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd">
-    <munit:config name="munit" doc:name="MUnit configuration"/>
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration" mock-connectors="false" mock-inbounds="false"/>
     <spring:beans>
         <spring:import resource="classpath:notify-communicate.xml"/>
+        <spring:import resource="classpath:notify-communicate-config.xml"/>
+       
     </spring:beans>
-    <munit:test name="notify-communicate-test-suite-notify-communicateFlowTest" description="Test">
+    <munit:test name="notify-communicate-positive-test-suite-notify-communicate-error-FlowTest" description="Test">
         <mock:when messageProcessor=".*:.*" doc:name="Mock">
             <mock:with-attributes>
                 <mock:with-attribute name="doc:name" whereValue="#['JMS']"/>
             </mock:with-attributes>
-            <mock:then-return payload="#[getResource('notifyReq.json').asString()]" mimeType="application/java"/>
+            <mock:then-return payload="#[getResource('notify-communicate-error-flow-munit-request.json').asString()]" mimeType="application/json"/>
+
         </mock:when>
-        <logger message="Hit the flow: #[payload]" level="INFO" doc:name="Logger"/>
-        <flow-ref name="notify-communicateFlow" doc:name="notify-communicateFlow"/>
-        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
-    </munit:test>
-    <munit:test name="notify-communicate-test-suiteTest" description="MUnit Test" ignore="true">
-        <mock:throw-an exception-ref="#[new java.lang.Exception()]" doc:name="Throw an Exception"/>
         <mock:when messageProcessor=".*:.*" doc:name="Mock">
             <mock:with-attributes>
-                <mock:with-attribute name="doc:name" whereValue="#['JMS']"/>
+                <mock:with-attribute name="doc:name" whereValue="#['SMTP']"/>
             </mock:with-attributes>
-            <mock:then-return payload="#[getResource('notifyReq.json').asString()]" mimeType="application/java"/>
+            <mock:then-return payload="&quot;Generic Maill Template&quot;"/>
         </mock:when>
-        <logger message="Hit the flow: #[payload]" level="INFO" doc:name="Logger"/>
-        <flow-ref name="notify-communicateFlow" doc:name="notify-communicateFlow"/>
-        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['SMTP']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="&quot;Verbose Maill Template&quot;"/>
+        </mock:when>
+        <parse-template location="notify-communicate-error-flow-munit-request.json" doc:name="Parse Template"/>
+        <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+        
+        <logger message="Munit Notify Communicate Error Flow Dummy Request ::#[payload]" level="INFO" doc:name="Logger"/>
+        <flow-ref name="notify-communicate-error-Flow" doc:name="notify-communicateFlow"/>
+        <logger message="Munit Notify Communicate Error Flow Positive Response ::#[payload]" level="INFO" doc:name="Logger"/>
+        <munit:assert-on-equals message="Generic Mail delivery Failure" expectedValue="#[payload[0]]" actualValue="&quot;Verbose Maill Template&quot;" doc:name="Assert Equals"/>
+
     </munit:test>
-</mule>
+  <munit:test name="notify-communicate-negative-test-suite-notify-communicate-error-FlowTest" description="MUnit Test" >
+        <mock:throw-an exception-ref="#[new java.lang.Exception()]" doc:name="Throw an Exception" whenCalling=".*:.*">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['SMTP']"/>
+            </mock:with-attributes>
+        </mock:throw-an>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['SMTP']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="&quot;DataweaveExceptionCaught&quot;"/>
+
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['SMTP']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="&quot;DataweaveExceptionCaught&quot;"/>
+        </mock:when>
+        <parse-template location="notify-communicate-error-flow-munit-request.json" doc:name="Parse Template"/>
+        <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
+        <logger message="Munit Notify Communicate Error Flow Dummy  Request ::#[payload]" level="INFO" doc:name="Logger"/>
+        <flow-ref name="notify-communicate-error-Flow" doc:name="notify-communicateFlow"/>
+        <logger message="Munit Notify Communicate Error Flow Negative Response :: #[payload]" level="INFO" doc:name="Logger"/>
+        <munit:assert-on-equals message="&quot;Dataweave Exception Caught&quot;" expectedValue="&quot;DataweaveExceptionCaught&quot;" actualValue="&quot;DataweaveExceptionCaught&quot;" doc:name="Assert Equals"/>
+    </munit:test></mule>

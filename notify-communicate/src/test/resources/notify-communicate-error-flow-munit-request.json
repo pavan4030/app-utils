@@ -1,0 +1,11 @@
+{
+	"systemName": "SFDC",
+	"HostName": "da-devmul-app1.tccrocks.com",
+	"HostIP": "172.16.201.165",
+	"mailGenericrecipients": "pbasireddy@tccrocks.com,avenkatesh@tccrocks.com",
+	"mailVerboserecipients": "avenkatesh@tccrocks.com",
+	"request": "{}",
+	"exception": "com.mulesoft.weave.mule.exception.WeaveExecutionException",
+	"mailsubject": "DEV ESB Sales Order Error Alert",
+	"header": "ESB SFDC ALERT"
+}
