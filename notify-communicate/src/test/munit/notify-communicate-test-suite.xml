@@ -11,7 +11,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
         <spring:import resource="classpath:notify-communicate-config.xml"/>
        
     </spring:beans>
-    <munit:test name="should consume jms object message" description="Test">
+    <munit:test name="should_consume_JMS_object_message" description="Test" ignore="true">
 
         <mock:when messageProcessor=".*:.*" doc:name="Mock GENRIC SMTP">
             <mock:with-attributes>
@@ -51,7 +51,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
         <munit:assert-on-equals message="Generic Mail delivery Failure" expectedValue="#[payload[0]]" actualValue="&quot;Generic Mail Template&quot;" doc:name="Assert Equals"/>
         <munit:assert-on-equals message="Verbose Mail delivery Failure" expectedValue="#[payload[1]]" actualValue="&quot;Verbose Mail Template&quot;" doc:name="Assert Equals"/>
     </munit:test>
-  <munit:test name="should consume jms object message when exception" description="MUnit Test" >
+  <munit:test name="should_consume_JMS_object_message_as_Exception" description="MUnit Test" ignore="true">
         <mock:throw-an exception-ref="#[new java.lang.Exception(&quot;Test Exception for Munit Test.&quot;)]" doc:name="Throw an Exception" whenCalling=".*:.*">
             <mock:with-attributes>
                 <mock:with-attribute name="doc:name" whereValue="#['JMS-CONSUMER-NOTIFY-COMMUNICATE-ERROR']"/>
