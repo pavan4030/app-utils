@@ -12,11 +12,14 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd">
-
-<jms:activemq-connector name="Active_MQ" brokerURL="${activemq.broker.url}" validateConnections="true" doc:name="Active MQ" persistentDelivery="true" maxRedelivery="1" password="${queue.jms.password}" username="${queue.jms.username}" numberOfConsumers="1"/>
+<jms:activemq-connector name="Active_MQ" brokerURL="${activemq.broker.url}" validateConnections="true" doc:name="Active MQ" persistentDelivery="true" maxRedelivery="1" password="${queue.jms.password}" username="${queue.jms.username}" numberOfConsumers="1" connectionFactory-ref="connectionFactory"/>
 <secure-property-placeholder:config name="Secure_Property_Placeholder" key="${mulevault.key}" location="classpath:notify-communicate-${mule.env}.properties,classpath:errorCodes.properties,file:///opt/app/esb/app-config/notify-communicate-override.properties" ignoreResourceNotFound="true" doc:name="Secure Property Placeholder"/>
 <db:oracle-config name="Oracle_Configuration" host="${oracle.host}" port="${oracle.port}" instance="${oracle.instance}" user="${oracle.user}" password="${oracle.password}" doc:name="Oracle Configuration"/>
     <smtp:connector name="SMTP" contentType="text/html" validateConnections="true" doc:name="SMTP"/>
- 
-
+    <spring:beans>
+        <spring:bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory" name="connectionFactory">
+       		<spring:property name="brokerURL" value="${activemq.broker.url}"/>
+       			<spring:property name="trustAllPackages" value="${org.apache.activemq.serializable.packages.flag}"/>
+        </spring:bean>
+    </spring:beans>
 </mule>

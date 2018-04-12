@@ -251,7 +251,7 @@ and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY 
         <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" responseTimeout="10000" doc:name="SMTP" connector-ref="SMTP" from="donotreply@tccrocks.com" subject="#[flowVars.processName + ' Batch Result']" to="#[flowVars.mailIds]"/>
     </flow>
     <flow name="notify-communicate-error-Flow">
-        <jms:inbound-endpoint doc:name="JMS" connector-ref="Active_MQ"  queue="${error.notifications.queue}"/>
+        <jms:inbound-endpoint doc:name="JMS-CONSUMER-NOTIFY-COMMUNICATE-ERROR" connector-ref="Active_MQ"  queue="${error.notifications.queue}"/>
         <dw:transform-message doc:name="Transform Message">
             <dw:set-payload resource="classpath:dw/notify-communicate-error-floe-payload-from-JMS.dwl"/>
             <dw:set-variable resource="classpath:dw/notify-communicate-error-flow-mailIds.dwl" variableName="mailIds"/>
@@ -265,11 +265,11 @@ and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY 
         <scatter-gather doc:name="Scatter-Gather">
             <processor-chain>
                 <parse-template location="generic-mail-template.html" doc:name="Generic Template"/>
-                <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailGenericrecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="SMTP"/>
+                <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailGenericrecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="Generic SMTP"/>
             </processor-chain>
             <processor-chain>
                 <parse-template location="verbose-mail-template.html" doc:name="Verbose Template"/>
-                <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailVerboserecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="SMTP"/>
+                <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailVerboserecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="Verbose SMTP"/>
             </processor-chain>
         </scatter-gather>
 
