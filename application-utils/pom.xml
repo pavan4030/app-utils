@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.tccrocks.integration</groupId>
 	<artifactId>application-utils</artifactId>
-    <version>4.2.6-SNAPSHOT</version>
+    <version>4.2.6-RC1</version>
     <packaging>mule</packaging>
 	<name>Mule application-utils Application</name>
 
