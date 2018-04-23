@@ -21,8 +21,9 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
     <logger message="Before inserting into DB with transactionID: #[payload.TRANSACTION_ID]" level="INFO" doc:name="Before Database" category="${apputils.transactiondb}" />
         <logger message="Payload from Q to DB ::: #[payload] with transactionID: #[payload.TRANSACTION_ID]" level="DEBUG" doc:name="Logger" category="${apputils.transactiondb}"/>
         <db:insert config-ref="Oracle_Configuration" doc:name="Database">
-            <db:parameterized-query><![CDATA[INSERT INTO APP_SYNC_PAYLOAD_HISTORY (ID,APP_ID,APP_RESOURCE,APP_METHOD,CORRELATION_ID,TRANSACTION_ID,REQUEST,RESPONSE,CREATE_TS)
+            <db:parameterized-query><![CDATA[INSERT INTO MULE_OWNER.APP_SYNC_PAYLOAD_HISTORY (ID,APP_ID,APP_RESOURCE,APP_METHOD,CORRELATION_ID,TRANSACTION_ID,REQUEST,RESPONSE,CREATE_TS)
  VALUES (APP_SYNC_PAYLOAD_SEQ.nextVal,#[payload.APP_ID],#[payload.APP_RESOURCE],#[payload.APP_METHOD],#[payload.CORRELATION_ID],#[payload.TRANSACTION_ID],#[payload.REQUEST],#[payload.RESPONSE],CURRENT_TIMESTAMP)]]></db:parameterized-query>
+
 
         </db:insert>
         <logger message="After inserting to DB with transactionID: #[flowVars.transactionID]" level="INFO" doc:name="After Database" category="${apputils.transactiondb}" />
