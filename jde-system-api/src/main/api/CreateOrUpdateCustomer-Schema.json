@@ -61,12 +61,12 @@
 					"emailAddress": {
 						"type": "string",
 						"minLength": 1,
-						"maxLength": 40
+						"maxLength": 80
 					},
 					"type": {
 						"type": "string",
 						"minLength": 1,
-						"maxLength": 40
+						"maxLength": 80
 					},
 					"preferredEmail": {
 						"type": "string",
