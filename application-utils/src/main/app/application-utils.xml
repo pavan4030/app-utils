@@ -24,7 +24,6 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
             <db:parameterized-query><![CDATA[INSERT INTO APP_SYNC_PAYLOAD (ID,APP_ID,APP_RESOURCE,APP_METHOD,CORRELATION_ID,TRANSACTION_ID,REQUEST,RESPONSE,CREATE_TS)
  VALUES (APP_SYNC_PAYLOAD_SEQ.nextVal,#[payload.APP_ID],#[payload.APP_RESOURCE],#[payload.APP_METHOD],#[payload.CORRELATION_ID],#[payload.TRANSACTION_ID],#[payload.REQUEST],#[payload.RESPONSE],CURRENT_TIMESTAMP)]]></db:parameterized-query>
 
-
         </db:insert>
         <logger message="After inserting to DB with transactionID: #[flowVars.transactionID]" level="INFO" doc:name="After Database" category="${apputils.transactiondb}" />
         <catch-exception-strategy doc:name="Catch Exception Strategy">
