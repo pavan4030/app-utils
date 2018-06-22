@@ -41,16 +41,11 @@
 			ns1#SourceCurrencyCode: transactionStagingPayload.currencyCode,
 			ns1#SourceCurrencyTransactionAmount: transactionStagingPayload.listPrice when transactionStagingPayload.listPrice? otherwise transactionStagingPayload.commissionPayableAmount,
 			ns1#SourceTrxNumber : (([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType)),
-				//when (sizeOf (([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType))) > 30 
-				//otherwise ([payload.OrderHeader.orderInfo.orderId, (transactionStagingPayload.commercelineItemId splitBy '-')[1] when (sizeOf (transactionStagingPayload.commercelineItemId splitBy '-')) > 1 otherwise transactionStagingPayload.commercelineItemId] joinBy "-" ) ++ getCount(transactionStagingPayload.skuIdType),
-			//(ns1#SourceTrxNumber : [payload.OrderHeader.orderInfo.orderId,transactionStagingPayload.commercelineItemId,'00' ++ transactionStagingPayloadIndex] joinBy "-" ) when transactionStagingPayload.skuIdType != 'original',
-			//ns1#CreditedParticipantId: payload.OrderHeader.agentInfo.commissionableAgentParticipantId,
 			ns1#TransactionType : p('TransactionType'),
 			ns1#BusinessUnitId : p('oic.BusinessUnitId'),
 			ns1#Attribute3 : p('Attribute3'),
-			ns1#Attribute27 : p('Attribute27')
-			//numberCount: numberCount(transactionStagingPayload.skuIdType)
-			
+			ns1#Attribute27 : p('Attribute27'),
+			ns1#Attribute45 : payload.OrderHeader.customerInfo.vzwCustomerType
 		}
 		})),
 		ns0#processControl: {

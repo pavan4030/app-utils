@@ -38,6 +38,9 @@
                         },
                         "tccCustomerType": {
                             "type": "string"
+                        },
+                         "vzwCustomerType": {
+                            "type": "string"
                         }
                     },
                     "type": "object"

@@ -10,7 +10,8 @@
     "customerInfo": {
       "tccCustomerId": "4040020",
       "tccCustomerName": "NewActM2M3 MultiNBNP",
-      "tccCustomerType": "BUSINESS"
+      "tccCustomerType": "BUSINESS",
+      "vzwCustomerType": "B"
     },
     "miscInfo": {
       "CCRScommissionCalculated": "Y",

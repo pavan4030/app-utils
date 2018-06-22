@@ -10,7 +10,8 @@
     "customerInfo": {
       "tccCustomerId": "4040020",
       "tccCustomerName": "NewActM2M3 MultiNBNP",
-      "tccCustomerType": "BUSINESS"
+      "tccCustomerType": "BUSINESS",
+      "vzwCustomerType": "B"
     },
     "miscInfo": {
       "CCRScommissionCalculated": "Y",
@@ -69,7 +70,8 @@
         "currencyCode": "USD",
 		"commissionPayableAmount": "18",
         "commissionReceivableAmount": "20",
-		"authCode": ""
+		"authCode": "",
+		"isBox" : "1"
       }
     ]
   }
