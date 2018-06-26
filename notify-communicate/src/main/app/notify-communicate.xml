@@ -110,10 +110,9 @@ INTO BATCH_AUDIT_INFO
 
 
 
-
-
             </db:insert>
-
+            	            
+            	                  
             <dw:transform-message metadata:id="f05bb066-7e6a-4219-bcc9-db41427d0c11" doc:name="Transform Message">
                
                 <dw:input-payload mimeType="application/java"/>
@@ -150,6 +149,7 @@ VALUES(ESB_APPS_AUDIT_SEQ.NEXTVAL,
 #[function:now],
 #[function:now]
 )]]></db:parameterized-query>
+
 
 
 
@@ -263,10 +263,18 @@ and to_timestamp(TO_CHAR(systimestamp,'DD-MON-YYYY HH12:MI:SS.FF'),'DD-MON-YYYY 
         <logger level="INFO" doc:name="Logger" message="Notification Error Payload ? #[payload] : Generic Recipients : #[flowVars.mailGenericrecipients] :: Verbose Recipients: #[flowVars.mailVerboserecipients]"/>
         
         <scatter-gather doc:name="Scatter-Gather">
-            <processor-chain>
-                <parse-template location="generic-mail-template.html" doc:name="Generic Template"/>
-                <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailGenericrecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="Generic SMTP"/>
-            </processor-chain>
+            <choice doc:name="Choice">
+                <when expression="#[message.payload.systemName == 'ESB' || message.payload.systemName == 'SFDC']">
+                    <parse-template location="generic-mail-template-noTSLloginfo.html" doc:name="Generic Template"/>
+
+                    <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailGenericrecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="Generic SMTP"/>
+                </when>
+                <otherwise>
+                    <parse-template location="generic-mail-template.html" doc:name="Generic Template"/>
+                    <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailGenericrecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="Generic SMTP"/>
+                </otherwise>
+            </choice>
+
             <processor-chain>
                 <parse-template location="verbose-mail-template.html" doc:name="Verbose Template"/>
                 <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="SMTP" to="#[flowVars.mailVerboserecipients]" from="donotreply@tccrocks.com" subject="#[flowVars.mailSubject]" responseTimeout="10000" doc:name="Verbose SMTP"/>
