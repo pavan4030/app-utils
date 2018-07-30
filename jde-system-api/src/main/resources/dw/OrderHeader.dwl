@@ -14,7 +14,8 @@
 			tccCustomerId: payload.OrderHeader.customerInfo.tccCustomerId,
 			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerId,
 			tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
-			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType
+			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType,
+			(vzwCustomerType: payload.OrderHeader.customerInfo.vzwCustomerType) when payload.OrderHeader.customerInfo.vzwCustomerType?
 		},
 		miscInfo: {
 			CCRScommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated,
@@ -82,8 +83,9 @@
 			(commissionPayableAmount: salesOrderSKUIdsPayload.commissionPayableAmount) when salesOrderSKUIdsPayload.commissionPayableAmount?,
             (commissionReceivableAmount: salesOrderSKUIdsPayload.commissionReceivableAmount) when salesOrderSKUIdsPayload.commissionReceivableAmount?,
             (categoryId: salesOrderSKUIdsPayload.categoryId) when salesOrderSKUIdsPayload.categoryId?,
-            (preorderConfirmationId: salesOrderSKUIdsPayload.preorderConfirmationId) when salesOrderSKUIdsPayload.preorderConfirmationId?
-		})
+            (preorderConfirmationId: salesOrderSKUIdsPayload.preorderConfirmationId) when salesOrderSKUIdsPayload.preorderConfirmationId?,
+            (isBox:salesOrderSKUIdsPayload.isBox) when salesOrderSKUIdsPayload.isBox?
+		}) 
 	}
 	
 }

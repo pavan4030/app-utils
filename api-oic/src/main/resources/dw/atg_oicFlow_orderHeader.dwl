@@ -14,7 +14,8 @@
 			tccCustomerId: payload.OrderHeader.customerInfo.tccCustomerId,
 			shellCustomerId: payload.OrderHeader.customerInfo.shellCustomerID,
 			tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
-			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType
+			tccCustomerType: payload.OrderHeader.customerInfo.tccCustomerType,
+			vzwCustomerType: payload.OrderHeader.customerInfo.vzwCustomerType
 		},
 		miscInfo: {
 			CCRScommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated,

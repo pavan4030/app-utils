@@ -13,7 +13,8 @@
 			},
 			customerInfo: {
 				tccCustomerId: payload.OrderHeader.customerInfo.shellCustomerId when payload.OrderHeader.customerInfo.shellCustomerId? otherwise payload.OrderHeader.customerInfo.tccCustomerId,
-				tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName
+				tccCustomerName: payload.OrderHeader.customerInfo.tccCustomerName,
+				vzwCustomerType: payload.OrderHeader.customerInfo.vzwCustomerType
 			},
 			miscInfo: {
 				defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed,
@@ -54,7 +55,8 @@
 							mobileNumber:commerceItem.mobileNumber,
 							serviceTransactionID:commerceItem.serviceTransactionID,
 							activationType: commerceItem.activationType,
-							contractType: commerceItem.contractType
+							contractType: commerceItem.contractType,
+							isBox:commerceItem.isBox
 						}
 					},
 					itemPriceInfo: {
