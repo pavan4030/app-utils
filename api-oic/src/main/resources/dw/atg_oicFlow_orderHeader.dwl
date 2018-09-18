@@ -19,7 +19,8 @@
 		},
 		miscInfo: {
 			CCRScommissionCalculated: payload.OrderHeader.miscInfo.CCRScommissionCalculated,
-			defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed
+			defaultTaxRateUsed: payload.OrderHeader.miscInfo.defaultTaxRateUsed,
+			isInStorePickup: payload.OrderHeader.miscInfo.isInStorePickup	
 		},
 		orderInfo: {
 			orderDate: parseDateAndConvert(payload.OrderHeader.orderInfo.orderDate) when payload.OrderHeader.orderInfo.orderDate != null and payload.OrderHeader.orderInfo.orderDate !="" otherwise "",

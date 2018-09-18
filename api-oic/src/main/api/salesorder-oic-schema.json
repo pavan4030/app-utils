@@ -52,7 +52,14 @@
                         },
                         "defaultTaxRateUsed": {
                             "type": "string"
-                        }
+                        },
+                        "isInStorePickup": {
+							"type": "string",
+							"enum": [
+								"Y"
+							]
+						}
+                        
                     },
                     "type": "object"
                 },

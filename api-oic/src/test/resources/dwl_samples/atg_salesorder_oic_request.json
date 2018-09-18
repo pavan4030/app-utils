@@ -20,7 +20,7 @@
     },
     "orderInfo": {
       "orderDate": "2016-12-12 06:06:06",
-      "orderId": "o1234567",
+      "orderId": "test_o1234567",
       "orderStatus": "NO_PENDING_ACTION"
     },
     "orderPriceInfo": {
@@ -56,7 +56,7 @@
         "listPrice": "200.0",
         "itemCost": "200.0",
         "itemStatus": "DELIVERED",
-		"commissionType": "FEATURE",
+        "commissionType": "FEATURE",
         "SerialNumber": "99000342750023",
         "skuDescription": "BLACKBERRY PRIV",
         "categoryId": "devices",
@@ -69,9 +69,9 @@
         "activationType": "new",
         "contractType": "Month to Month",
         "currencyCode": "USD",
-		"commissionPayableAmount": "18",
+        "commissionPayableAmount": "18",
         "commissionReceivableAmount": "20",
-		"authCode": ""
+        "authCode": ""
       }
     ]
   }

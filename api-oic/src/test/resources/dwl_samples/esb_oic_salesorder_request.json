@@ -9,6 +9,7 @@
     },
     "customerInfo": {
       "tccCustomerId": "4040020",
+      "shellCustomerId": null,
       "tccCustomerName": "NewActM2M3 MultiNBNP",
       "tccCustomerType": "BUSINESS",
       "vzwCustomerType": "B"
@@ -19,9 +20,11 @@
       "isInStorePickup": "Y"
     },
     "orderInfo": {
-      "orderDate": "2016-12-12 06:06:06",
-      "orderId": "o1234567",
-      "orderStatus": "NO_PENDING_ACTION"
+      "orderDate": "2016-12-12",
+      "orderId": "test_o1234567",
+      "orderStatus": "NO_PENDING_ACTION",
+      "originalOrderDate": "",
+      "originalOrderId": null
     },
     "orderPriceInfo": {
       "amount": "519.98",
@@ -56,12 +59,12 @@
         "listPrice": "200.0",
         "itemCost": "200.0",
         "itemStatus": "DELIVERED",
-		"commissionType": "FEATURE",
+        "commissionType": "FEATURE",
         "SerialNumber": "99000342750023",
         "skuDescription": "BLACKBERRY PRIV",
         "categoryId": "devices",
         "quantity": "1",
-        "FulfillmentDate": "2016-12-12 06:06:06",
+        "FulfillmentDate": "2016-12-12",
         "itemType": "device",
         "serviceTransactionID": "401915746",
         "mobileNumber": "3172201321",
@@ -69,9 +72,10 @@
         "activationType": "new",
         "contractType": "Month to Month",
         "currencyCode": "USD",
-		"commissionPayableAmount": "18",
+        "authCode": "",
+        "commissionPayableAmount": "18",
         "commissionReceivableAmount": "20",
-		"authCode": ""
+        "categoryId": "devices"
       }
     ]
   }

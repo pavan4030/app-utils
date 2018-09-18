@@ -19,6 +19,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 
 
     <dw:transform-message doc:name="Transform Message">
+            <dw:input-payload doc:sample="dwl_samples\atg_salesorder_oic_request.json"/>
             <dw:set-payload resource="classpath:dw/atg_oicFlow_orderHeader.dwl"/>
             <dw:set-variable resource="classpath:dw/salesOrderId_variable.dwl" variableName="salesOrderId"/>
 
@@ -30,7 +31,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <choice doc:name="Choice">
             <when expression="#[flowVars.commerceItemsSize &gt; 0]">
                 <dw:transform-message doc:name="Transform Message">
-                    <dw:input-payload mimeType="application/json"/>
+                    <dw:input-payload mimeType="application/json" doc:sample="dwl_samples\esb_oic_salesorder_request.json"/>
 
                     <dw:set-payload resource="classpath:dw/processIncentiveTransactionStaging.dwl"/>
                 </dw:transform-message>

@@ -45,7 +45,8 @@
 			ns1#BusinessUnitId : p('oic.BusinessUnitId'),
 			ns1#Attribute3 : p('Attribute3'),
 			ns1#Attribute27 : p('Attribute27'),
-			ns1#Attribute45 : payload.OrderHeader.customerInfo.vzwCustomerType
+			ns1#Attribute45 : payload.OrderHeader.customerInfo.vzwCustomerType,
+			ns1#Attribute46 : payload.OrderHeader.miscInfo.isInStorePickup	
 		}
 		})),
 		ns0#processControl: {

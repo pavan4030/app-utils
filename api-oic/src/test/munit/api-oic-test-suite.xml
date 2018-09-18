@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration" mock-connectors="false" mock-inbounds="false"/>
+    <spring:beans>
+        <spring:import resource="classpath:api-oic-app-sync-payload.xml"/>
+        <spring:import resource="classpath:system-api-oic-implementation.xml"/>
+        <spring:import resource="classpath:system-api-oic-retry-mail-implementation.xml"/>
+        <spring:import resource="classpath:system-api-oic.xml"/>
+    </spring:beans>
+    
+    <munit:test name="should_insert_into_oic_system" description="Test">
+        <mock:when messageProcessor=".*:.*" doc:name="Mock OIC System">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Web Service Consumer']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('sample_data/atg_salesorder_oic_response.xml').asString()]" mimeType="application/xml"/>
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Appsync Payload">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['JMS']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[]"/>
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Appsync Recovery Flow">
+            <mock:with-attributes>
+                <mock:with-attribute name="name" whereValue="#[matchContains('delete-record-from-APP-Sync')]"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[]"/>
+        </mock:when>
+        <munit:set payload="#[getResource('sample_data/atg_salesorder_oic_request.json').asString()]" doc:name="Set Salesorder Request" mimeType="application/json"/>
+        <logger message="Munit ISPU OIC Request #[dw(&quot;payload.OrderHeader.orderInfo.orderId&quot;)] = #[payload]" level="DEBUG" doc:name="Munit ISPU  Order Request"/>
+        
+        <flow-ref name="post:/salesorder-oic:system-api-oic-config" doc:name="Flow-ref to post:/salesorder-oic:system-api-oic-config"/>
+        <logger message="Munit OIC Response #[dw(&quot;payload.payload.processIncentiveTransactionStaging.incentiveTransactionStaging.Attribute46&quot;)] = #[payload]" level="DEBUG" doc:name="Munit ISPU  Order Response"/>
+        <munit:assert-true message="ISPU Flag is not exist in OIC" condition="#[dw(&quot;payload.payload.processIncentiveTransactionStaging.incentiveTransactionStaging.Attribute46 != null  or  payload.payload.processIncentiveTransactionStaging.incentiveTransactionStaging.Attribute46 != ''&quot;)]" doc:name="Asserting isInStorePickup exist in OIC which is mapped to Attribute46"/>
+    </munit:test>
+    <munit:test name="should_insert_into_oic_system_for_non_ispu_order" description="Test">
+        <mock:when messageProcessor=".*:.*" doc:name="Mock OIC System">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Web Service Consumer']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('sample_data/atg_salesorder_oic_response1.xml').asString()]" mimeType="application/xml"/>
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Appsync Payload">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['JMS']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[]"/>
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Appsync Recovery Flow">
+            <mock:with-attributes>
+                <mock:with-attribute name="name" whereValue="#[matchContains('delete-record-from-APP-Sync')]"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[]"/>
+        </mock:when>
+        <munit:set payload="#[getResource('sample_data/atg_salesorder_oic_request1.json').asString()]" doc:name="Set Non ISPU Salesorder Request" mimeType="application/json"/>
+        <logger message="Munit Non ISPU OIC Request for #[dw(&quot;payload.OrderHeader.orderInfo.orderId&quot;)] = #[payload]" level="DEBUG" doc:name="Munit Non ISPU  Order Request"/>
+        
+        <flow-ref name="post:/salesorder-oic:system-api-oic-config" doc:name="Flow-ref to post:/salesorder-oic:system-api-oic-config"/>
+        <logger message="Munit OIC Response for #[dw(&quot;payload.payload.processIncentiveTransactionStaging.incentiveTransactionStaging.Attribute46&quot;)] = #[payload]" level="DEBUG" doc:name="Munit Non ISPU Order Response"/>
+        <munit:assert-true message="ISPU Flag is exist in OIC" condition="#[dw(&quot;payload.payload.processIncentiveTransactionStaging.incentiveTransactionStaging.Attribute46 == null&quot;)]" doc:name="Asserting isInStorePickup not exist in OIC which is mapped to Attribute46"/>
+    </munit:test>
+</mule>

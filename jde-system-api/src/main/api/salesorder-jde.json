@@ -15,7 +15,8 @@
     },
     "miscInfo": {
       "CCRScommissionCalculated": "Y",
-      "defaultTaxRateUsed": "N"
+      "defaultTaxRateUsed": "N",
+      "isInStorePickup": "Y"
     },
     "orderInfo": {
       "orderDate": "2016-12-12",

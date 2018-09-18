@@ -131,15 +131,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <object-to-string-transformer mimeType="application/json" doc:name="Object to String"/>
         <logger message="System API Salesorder - JDE - Response :: #[payload.replaceAll(&quot;\\r\\n\\t|\\r|\\n|\\t&quot;,&quot;&quot;)]" level="DEBUG" doc:name="Logger" category="tcc.jde.salesorder"/>
         <remove-property propertyName="*" doc:name="Remove all the Properties to avoid sending back as HTTP Headers"/>
-
-		
-        
-		
 	</flow>
 
-    
-
-    
     <apikit:mapping-exception-strategy name="jdeService-apiKitGlobalExceptionMapping">
         <apikit:mapping statusCode="404">
             <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
