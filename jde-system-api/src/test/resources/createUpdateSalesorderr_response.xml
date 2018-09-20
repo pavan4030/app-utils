@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<ns0:createSalesOrderResponse xmlns:ns0="http://tcc.e1.bssv.JP554200/">
-  <orderCompany>00010</orderCompany>
-  <orderNumber>70000854</orderNumber>
-  <orderNumberTCC>s1930344</orderNumberTCC>
-  <orderType>S1</orderType>
-</ns0:createSalesOrderResponse>
