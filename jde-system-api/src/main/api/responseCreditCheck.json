@@ -1,8 +1,0 @@
-{
-  "doCreditCheckResponse": {
-    "ARAccountCreditBalance": "21.42",
-    "ARAccountPurchasesonCredit": "178.58",
-    "ARAccountTotalCredit": "200.00",
-    "tccCustomerId": "TCC-2740009"
-  }
-}
