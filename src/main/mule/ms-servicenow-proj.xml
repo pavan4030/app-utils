@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="9d0271c0-bbd4-4aaa-88c0-70955fe8a881">
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+<servicenow:config name="ServiceNow_Config1" doc:name="ServiceNow Config" doc:id="67fe1cdf-582c-4c7f-9309-f0df5c46a17a" >
+		<servicenow:basic-connection username="ESBSupport@tccrocks.com" password="2357R1b!" serviceAddress="https://tccincdev.service-now.com/" >
+			<servicenow:transport >
+				<servicenow:basic-auth-http-message-dispatcher-provider username="ESBSupport@tccrocks.com" password="2357R1b!" />
+			</servicenow:transport>
+		</servicenow:basic-connection>
+	</servicenow:config>
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="9e38f252-62fa-464b-acca-636ca9bc7f27" >
+		<sftp:connection host="tc3vmdevfp1.tccrocks.com" username="mule_sftp" password="Mule_esb" workingDir="#[vars.filepath]" />
+	</sftp:config>
+	<flow name="servicenowFlow-create" doc:id="c768ce25-aa92-430e-89f7-249522c5ada3" >
+		<logger level="INFO" doc:name="Logger" doc:id="37cf7ccc-3909-42ec-ba70-40d03de647d1" message='request invoked=#[payload]'/>
+		<ee:transform doc:name="Transform Message" doc:id="bc9e020f-9156-4b56-b18a-d77176614391" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "insert": {
+    	"short_description": payload.short_description,
+        "description": "\r\nService Name:" ++ payload.Service_name ++ "\r\nBatchflow name:" ++ payload.batchflow_name ++ "\r\nBatch Number: " ++ payload.batch_ID ++ "\r\nBatch time: " ++ payload.batch_time ++ "\r\nErrorfile Location: " ++ payload.Error_file_location,
+        "caller_id": "ESB Support",
+        "category": "ESB",
+        "subcategory": "HCM"        
+    }
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="token" ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+"BinaryToBase64" :  toBase64("ESBSupport@tccrocks.com" ++ ":" ++ "2357R1b!")     
+}]]></ee:set-variable>
+				<ee:set-variable variableName="filepath" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.Error_file_location]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3f94f0f3-10de-4ef3-98d5-c23d0358f2e0" message="transform message payload::#[payload]"/>
+		<!-- <servicenow:invoke doc:name="Invoke" doc:id="3cc0c80b-b2a6-4b47-9193-05eb69c0855f" config-ref="ServiceNow_Config" service="incident" operation="insert">
+		</servicenow:invoke> -->
+		<http:request method="POST" doc:name="Request" doc:id="825f663a-6d1e-4671-872a-d32a8da11c7f" url="https://tccincdev.service-now.com/api/now/v1/table/incident">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Basic " ++ vars.token.BinaryToBase64,
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="5dc7ef56-deef-49f2-89c7-00522410c134" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="incidentno" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.result.sys_id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		
+		<logger level="INFO" doc:name="Logger" doc:id="bee0d1d1-8285-4353-a412-e7125e102671" message="logger::::#[payload]"/>
+		<set-variable value="error.txt" doc:name="vars.filename" doc:id="d186cc76-ed69-4085-aee8-f0c44ed79382" variableName="filename"/>
+		<sftp:read doc:id="e5bef1c8-7cf6-47cb-9114-d6f943fa68f6" config-ref="SFTP_Config" path="#[vars.filename]"/>
+		<http:request method="POST" doc:name="Request" doc:id="9eec065f-7a16-4445-9b36-fd3dde7ed34b" url="#['https://tccincdev.service-now.com/api/now/attachment/file?table_name=incident&amp;table_sys_id=' ++ vars.incidentno ++ '&amp;file_name=' ++ vars.filename]" responseTimeout="60000">
+			<http:body ><![CDATA[#[%dw 2.0
+output text/plain
+---
+payload as String]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "multipart/form-data",
+	"Authorization" : "Basic RVNCU3VwcG9ydEB0Y2Nyb2Nrcy5jb206MjM1N1IxYiE=",
+	"Content-Length" : attributes.size
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="ace58ddb-52bd-4c4b-8d50-0b9a70bad65f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bfcab3f9-77d4-4d9c-9d16-89a7fb60f4fd" message="response payload:#[payload]"/>
+		<sftp:delete doc:name="Delete" doc:id="b72336d5-7382-422d-92a7-0bdd931108ac" config-ref="SFTP_Config" path="#[vars.filename]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f42baa17-0cce-4f7c-9b3e-92bf13e0a543" message="File is deleted from the SFTP Location and the file name is:#[vars.filename]"/>
+	</flow>
+</mule>

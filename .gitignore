@@ -23,7 +23,6 @@ tmp/**/*
 local.properties
 .settings/
 .loadpath
-# Recommended for Maven based projects 
 .project
 .classpath
 
@@ -42,21 +41,8 @@ local.properties
 # --------------- #
 # Studio-specific #
 # --------------- #
-.studio/
-flows/
-**/*.mflow
-
-# ------------------------------------------------------------------------------------------- #
-# Maven-specific (https://github.com/github/gitignore/blob/master/Maven.gitignore) #
-# ------------------------------------------------------------------------------------------- #
 target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-
-
+.mule/**
+.mule/**/*
+.DS_Store
+velocity.log
