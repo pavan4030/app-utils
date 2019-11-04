@@ -5,11 +5,13 @@ baseUri: http://localhost:8082/servicenowincident
 protocols: [HTTP]
 mediaType: application/json
 
-securitySchemes:
-  basic:
-   type: Basic Authentication
-
-securedBy: basic 
+traits:
+  -client-id-secret-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
 
 uses:
     rt: resourceTypes/resourceType.raml
@@ -18,7 +20,9 @@ uses:
   displayName: Create, Retrieve or Update incidents in ServiceNow
   description: |
     This operation is used to Create, Retrieve or Update incidents in ServiceNow 
-  post: 
+  post:
+    is:
+     -client-id-secret-required:
     body:
       application/json:
         example: !include examples/ServiceNow-request.json
@@ -34,7 +38,9 @@ uses:
                     }
                   }    
 
-  get: 
+  get:
+    is:
+     -client-id-secret-required:
     body: 
       application/json:    
     responses:
@@ -46,7 +52,9 @@ uses:
                 "successMessage": {
                   "descrption": "incident details retrieved successfully"
 
-  patch: 
+  patch:
+    is:
+     -client-id-secret-required:
     body:
       application/json:    
     responses:
