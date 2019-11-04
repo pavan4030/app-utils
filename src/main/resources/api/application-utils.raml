@@ -1,0 +1,63 @@
+#%RAML 1.0
+---
+title: ServiceNow API
+baseUri: http://localhost:8082/servicenowincident
+protocols: [HTTP]
+mediaType: application/json
+
+securitySchemes:
+  basic:
+   type: Basic Authentication
+
+securedBy: basic 
+
+uses:
+    rt: resourceTypes/resourceType.raml
+
+/itsm/incident:
+  displayName: Create, Retrieve or Update incidents in ServiceNow
+  description: |
+    This operation is used to Create, Retrieve or Update incidents in ServiceNow 
+  post: 
+    body:
+      application/json:
+        example: !include examples/ServiceNow-request.json
+    responses:
+      201:
+        body:
+          application/json: 
+            example: |
+              {
+                "successMessage": {
+                    "description": "Created Incident Successfully",
+                    "status": 201
+                    }
+                  }    
+
+  get: 
+    body: 
+      application/json:    
+    responses:
+      200:
+        body:
+          application/json: 
+             example: |
+              {
+                "successMessage": {
+                  "descrption": "incident details retrieved successfully"
+
+  patch: 
+    body:
+      application/json:    
+    responses:
+      200: 
+        body:
+          application/json:
+            example: |  
+              {
+              "successMessage": {
+                 "description": "Modified Incident Successfully",
+                 "status": 200
+                 }
+               }
+
