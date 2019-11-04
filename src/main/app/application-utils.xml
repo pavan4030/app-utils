@@ -14,6 +14,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
     message="Read message from queue: ${app_sync_payload.Q} with messageId: #[message.id], jmsMessageId: #[payload.JMSMessageID], correlationID: #[payload.JMSCorrelationID], messageType: #[payload.JMSType] with transactionID: #[payload.TRANSACTION_ID]"
     level="INFO" doc:name="Read From JMS" category="${apputils.transactiondb}" />
     <dw:transform-message doc:name="Transform Message">
+    		<dw:input-payload mimeType="application/java"/>
             <dw:set-payload resource="classpath:dw/application_utils_from_jms_to_db.dwl"/>
 
     </dw:transform-message>

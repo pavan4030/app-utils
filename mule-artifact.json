@@ -1,0 +1,1 @@
+{"configs":["ms-application-utils-api.xml","ms-servicenow.xml"],"redeploymentEnabled":true,"name":"ms-applications-utils","minMuleVersion":"4.2.0","bundleDescriptorLoader":{"attributes":{},"id":"mule"},"secureProperties":["mulevault.key","keyPassword","keyStorePassword","client_id","client_secret","anypoint.platform.client_secret"]}
