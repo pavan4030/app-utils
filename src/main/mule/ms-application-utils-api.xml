@@ -17,7 +17,7 @@
     <apikit:config name="api-config" raml="application-utils.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <api-gateway:autodiscovery apiId="${autoDiscoverApiId}" doc:name="API Autodiscovery" doc:id="ad43dd85-3920-4b27-8de9-d767940965fd" flowRef="api-main-https-public" />
 	<flow name="api-main-https-private">
-        <http:listener config-ref="api-httpListenerConfig-private" path="/api/*" doc:name="HTTPS Private Listener">
+        <http:listener config-ref="api-httpListenerConfig-private" path="/*" doc:name="HTTPS Private Listener">
             <http:response statusCode="#[vars.httpStatus default 200]" />
             <http:error-response statusCode="#[vars.httpStatus default 500]">
                 <http:body><![CDATA[#[payload]]]></http:body>
