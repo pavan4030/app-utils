@@ -1,7 +1,8 @@
 #%RAML 1.0
 ---
-title: ServiceNow API
-baseUri: http://localhost:8082/servicenowincident
+version: 1.0
+title: Application Utils API
+baseUri: https://ms-application-utils-dev.us-e2.cloudhub.io/api/itsm/incident
 protocols: [HTTP]
 mediaType: application/json
 
@@ -51,7 +52,8 @@ uses:
               {
                 "successMessage": {
                   "descrption": "incident details retrieved successfully"
-
+                      }
+              }
   patch:
     is:
      -client-id-secret-required:
