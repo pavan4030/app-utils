@@ -215,7 +215,7 @@ replaceElementAndAttribute(payload,"CurrentRetryCount", payload.currentretrycoun
 			</when>
 			<otherwise>
 				<async doc:name="Async" doc:id="8005ce91-eae5-4975-8136-036a0990ed51" >
-					<http:request method="GET" doc:name="Request" doc:id="7a13d9e5-283a-4cfb-8eba-ab2b1e359bec" url="#[vars.originalPayload.connectiondetails ++ '?retryCount=' ++ payload.CurrentRetryCount ++ '&amp;tid=' ++ vars.originalPayload.transactionId]">
+					<http:request method="GET" doc:name="Request" doc:id="7a13d9e5-283a-4cfb-8eba-ab2b1e359bec" url="#[payloadd.connectiondetails ++ '?retryCount=' ++ payload.CurrentRetryCount ++ '&amp;tid=' ++ payload.transactionId]">
 					<http:query-params><![CDATA[#[output application/java
 ---
 {
