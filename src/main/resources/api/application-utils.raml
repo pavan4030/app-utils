@@ -71,25 +71,3 @@ uses:
                  }
                }
 
-
-/utils/retry:
- displayName: Retry Executing the Previously Failed Process
- description: |
-    This utility is used to re-execute process when the initial execution failed.
- post:
-    is:
-     -client-id-secret-required:
-    body:
-      application/json:
-        example: !include examples/retry-api-request.json
-    responses:
-      201:
-        body:
-          application/json: 
-            example: |
-              {
-                "successMessage": {
-                    "description": "Created Incident Successfully",
-                    "status": 201
-                    }
-                  }    
