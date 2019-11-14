@@ -1,0 +1,31 @@
+#%RAML 1.0 Library
+
+traits: 
+ faulty:
+    description: Fault characteristics of a network resource
+    responses: 
+      400:
+        body:
+          application/json:
+            examples:
+              default: { "message": "Bad Request" }
+      500:
+        body:
+          application/json:
+            example: |
+              {
+                "message": "Internal Server Error"
+              }
+              
+resourceTypes: 
+  readOnlyCollection:
+    description: Collection of available <<resourcePathName>>.
+    get:
+      is: [ faulty ]
+      description: Get a list of <<resourcePathName>>.
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                <<exampleCollection>>

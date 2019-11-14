@@ -1,0 +1,73 @@
+#%RAML 1.0
+---
+version: 1.0
+title: Application Utils API
+baseUri: https://ms-application-utils-dev.us-e2.cloudhub.io/api/itsm/incident
+protocols: [HTTP]
+mediaType: application/json
+
+traits:
+  -client-id-secret-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+
+uses:
+    rt: resourceTypes/resourceType.raml
+
+/itsm/incident:
+  displayName: Create, Retrieve or Update incidents in ServiceNow
+  description: |
+    This operation is used to Create, Retrieve or Update incidents in ServiceNow 
+  post:
+    is:
+     -client-id-secret-required:
+    body:
+      application/json:
+        example: !include examples/ServiceNow-request.json
+    responses:
+      201:
+        body:
+          application/json: 
+            example: |
+              {
+                "successMessage": {
+                    "description": "Created Incident Successfully",
+                    "status": 201
+                    }
+                  }    
+
+  get:
+    is:
+     -client-id-secret-required:
+    body: 
+      application/json:    
+    responses:
+      200:
+        body:
+          application/json: 
+             example: |
+              {
+                "successMessage": {
+                  "descrption": "incident details retrieved successfully"
+                      }
+              }
+  patch:
+    is:
+     -client-id-secret-required:
+    body:
+      application/json:    
+    responses:
+      200: 
+        body:
+          application/json:
+            example: |  
+              {
+              "successMessage": {
+                 "description": "Modified Incident Successfully",
+                 "status": 200
+                 }
+               }
+
