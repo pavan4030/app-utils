@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<vm:config name="VM_Config" doc:name="VM Config" doc:id="842a34ff-7ae2-4b42-b52d-51e19bae9fce" >
+		<vm:connection />
+		<vm:queues >
+			<vm:queue queueName="processqueue" />
+			<vm:queue queueName="errorqueue" />
+		</vm:queues>
+	</vm:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="455be184-8007-4764-9362-639da26e1fb8" >
+		<db:mssql-connection host="da-devsql-db" user="esb_user" password="esb_user" databaseName="esb" />
+	</db:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="96cba468-702d-4023-9836-c5c19dc1a620" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="retry-process-apiFlow" doc:id="0e52a22d-2552-435b-8b2b-0328f5470aea" >
+		
+		<http:listener doc:name="Listener" doc:id="3108eeac-1078-4586-b163-a9ee3929680e" config-ref="HTTP_Listener_config" path="/retry" allowedMethods="POST"/>
+		<set-variable value="#[output application/json --- if (attributes.headers.'tid' == '') uuid() else attributes.headers.'tid']" doc:name="Set the Transaction Id" doc:id="98781c1e-595e-414c-9e66-a09e819df2c0" variableName="transactionId"/>
+		<!--parse-template doc:name="Parse Template" doc:id="4e13cdf4-2b12-42e9-8031-102955ac6538" location="sample_payload.json">
+		</parse-template-->
+		<ee:transform doc:name="Transform Message" doc:id="2c016e4a-770a-4361-8b4a-ddcaa436fadd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload ++ {"transactionId":vars.transactionId}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<vm:publish doc:name="Publish" doc:id="68aa9856-b106-4aca-9ea4-320e18791e94" config-ref="VM_Config" queueName="processqueue"/>
+	</flow>
+	<flow name="retry-process-apiFlow1" doc:id="c75db970-21e2-401b-8f1c-d81452577cad" >
+		<vm:listener queueName="processqueue" doc:name="Listener" doc:id="03b4b1ff-e2c0-4d57-a33d-e110ffefa2dc" config-ref="VM_Config"/>
+					<logger level="INFO" doc:name="Logger" doc:id="6492fe29-97ab-4d9c-9a72-e7c159512ada" message="#[payload]"/>
+				<choice doc:name="Choice" doc:id="917d544d-8111-497e-8502-0c810822ccd7" >
+					<when expression="isEmpty(payload.currentRetryCount)">
+						<ee:transform doc:name="Initialize retry" doc:id="6f95b5ca-fbde-4997-94ca-95322b07ec8f">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload ++ {currentTimestamp: now()}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="949f7861-0ac0-40f3-a349-00b91b715464" message="#[payload]" />
+						<set-variable value="#[payload]" doc:name="Set Original Payload" doc:id="38498a2f-2f9b-4a50-afd3-1653c3cc124c" variableName="originalPayload"/>
+				<flow-ref doc:name="Invoke Upsert Flow" doc:id="b6761369-3729-4b73-8698-0e39ce7f73ca" name="Upsert_To_DB_Flow"/>
+					</when>
+					<otherwise >
+						<choice doc:name="Check if it Exceeds Max Retry" doc:id="5f8ddba0-f429-4da4-987e-cc6ab2534893">
+					<when expression="#[payload.currentRetryCount &lt;= 3]">
+						<ee:transform doc:name="update payload with currentTime" doc:id="1588fbd9-b2bb-4b73-bc12-f1d44af5d5d9">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+fun replaceElementAndAttribute(value:Any, name: String, newValue: Any) = do {
+    value match {
+        case obj is Object -> obj mapObject ((value, key, index) -> 
+            if(key ~= name)
+                (key): newValue
+            else    
+                (key) @((replaceElementAndAttribute(key.@, name, newValue))): replaceElementAndAttribute(value, name, newValue)
+        )
+        else -> value
+    }
+}   
+
+---
+
+replaceElementAndAttribute(payload,"currentTimesatmp", now() as Number)
+
+
+
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+								<flow-ref doc:name="Invoke Upsert Flow" doc:id="25eed623-af38-4fcb-8bb9-c47a6350fd65" name="Upsert_To_DB_Flow"/>
+					</when>
+					<otherwise>
+						<logger level="INFO" doc:name="Log To DLQ" doc:id="3f024484-4842-4147-8fef-5cc9ee77ce79" message="Log to DLQ" />
+					</otherwise>
+				</choice>
+					</otherwise>
+				</choice>
+			
+		<error-handler >
+			<on-error-propagate>
+			<logger level="INFO" doc:name="Logging Unexpected Error" doc:id="de889e24-2b97-4152-a50c-4f434c1f4228" message="Logging Unexpected Errors"/>
+		</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="Upsert_To_DB_Flow" doc:id="a0d61ed1-3481-4ac3-a262-4c2453a72616" >
+		<db:select doc:name="Select A Message Based on a TransactionId" doc:id="28bd8be5-8b77-459c-9465-8b062197b10f" config-ref="Database_Config">
+			<db:sql >select * from retrylog where transactionId=:tid</db:sql>
+			<db:input-parameters><![CDATA[#[{'tid' : payload.transactionId}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Check if the Record Exists" doc:id="f7be384c-56a9-4c75-bb02-b50f0e2ab6ba" >
+			<when expression="#[isEmpty(payload)]">
+				<db:insert doc:name="Insert New Message" doc:id="6c2a7904-4869-48a5-82a4-2c5ce43cd9b5" config-ref="Database_Config">
+					<db:sql >insert RetryLog (TransactionId,
+FlowName,
+ClientId,
+RetryStatus,
+CompletionStatus,
+CurrentRetryCount,
+ConnectionDetails,
+Payload,
+QueryParams,
+UriParams,
+Headers,
+LastRetryTimestamp,
+ServiceName) 
+
+VALUES (
+:tid,
+:flowName,
+:clientId,
+:retryStatus,
+:completionStatus,
+:retryCount,
+:connectionDetails,
+:body,
+:queryParams,
+:uriParams,
+:headers,
+getdate(),
+:serviceName)</db:sql>
+					<db:input-parameters ><![CDATA[#[{'tid' : vars.originalPayload.transactionId, 'flowName': vars.originalPayload.flowName, 'clientId': vars.originalPayload.clientId, 'retryStatus':'pending', 'completionStatus':'pending', 'retryCount': 0, 'connectionDetails': vars.originalPayload.connectionDetails,'body':vars.originalPayload.body, 'queryParams':vars.originalPayload.queryParams, 'uriParams':vars.originalPayload.uriParams, 'headers': vars.originalPayload.headers, 'serviceName':vars.originalPayload.serviceName}]]]></db:input-parameters>
+				</db:insert>
+			</when>
+			<otherwise >
+				<db:update doc:name="Update an Existing Message" doc:id="e7e91687-094a-4b49-9ab9-b78b15e941ef" config-ref="Database_Config">
+					<db:sql>update retrylog set currentRetryCount = :newRetryCount, retryStatus = :retryStatus where transactionId = :tid</db:sql>
+					<db:input-parameters ><![CDATA[#[{'newRetryCount':payload.currentRetryCount[0] + 1, 'retryStatus':payload.retryStatus[0], 'tid':payload.transactionId[0]}]]]></db:input-parameters>
+				</db:update>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="retry-process-apiFlow2" doc:id="f01d10d6-1150-4cfa-9424-551b3a67e79f" >
+		<scheduler doc:name="Scheduler" doc:id="a681db44-8274-40de-9c92-ade687cf7171" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="40" timeUnit="DAYS" startDelay="30"/>
+			</scheduling-strategy>
+		</scheduler>
+		<vm:consume queueName="errorqueue" doc:name="Consume" doc:id="bc8f6384-051d-4f9d-a0dd-1ca6712bccc8" config-ref="VM_Config" />
+		<logger level="INFO" doc:name="Logger" doc:id="89f0f7e2-a4df-40dd-8417-59979b8ba189" message="#[payload]"/>
+		<set-variable value="#[now() as Number]" doc:name="Set The Current Time" doc:id="fe205aa1-d054-48f8-bb09-2c6a2b794810" variableName="currentTime"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0d19ee0f-9921-489d-bf76-c351bbbfb971" message="#['check current time ' ++ vars.currentTime]"/>
+		<choice doc:name="Check The Message Age" doc:id="50a25814-6f94-4177-afdd-624b98cde6dd" >
+			<when expression="#[!isEmpty(payload.currentTime) and ((vars.currentTime - (payload.currentTime default 0)) &gt; 300)]">
+				<logger level="INFO" doc:name="Logger" doc:id="31238d5e-428d-4d00-a7bb-811b59f8fb56" message="#[payload]" />
+				<choice doc:name="Choice" doc:id="1a654981-44fe-4fdb-b664-e29d8cde53ad">
+			<when expression="#[payload != null]">
+				<vm:publish doc:name="Publish" doc:id="a296994d-fff7-4ebf-9b42-f858acb24270" config-ref="VM_Config" queueName="processqueue" />
+			</when>
+			<otherwise>
+				<logger level="INFO" doc:name="Logger" doc:id="0cdd9ba2-0f62-4e0d-acdb-7ba7b4ef3b67" message="retry successfully executed" />
+			</otherwise>
+		</choice>
+			</when>
+			<otherwise>
+				<vm:publish doc:name="Publish To ErrorQueue" doc:id="1e001ec8-2038-49f0-8054-66913eb5ce4c" config-ref="VM_Config" queueName="errorqueue"/>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="retry-process-apiFlow3" doc:id="ae50b1e8-6be1-4cfa-a1d6-ce10f28d846a" >
+		<scheduler doc:name="Scheduler" doc:id="106ef180-f7eb-4683-90ba-4bad030300fb" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="80" timeUnit="SECONDS" startDelay="20"/>
+			</scheduling-strategy>
+		</scheduler>
+		<db:select doc:name="Get all Messages With Message Age More than 5 Minutes" doc:id="745ff320-e7f7-4c23-a0ae-8f6ed25a9e52" config-ref="Database_Config">
+			<db:sql >select * from retrylog where DATEDIFF(MINUTE, lastretrytimestamp, getdate()) &lt; 5 and retryStatus != 'successful'</db:sql>
+		</db:select>
+		<foreach doc:name="For Each" doc:id="a1cd5007-f80d-4deb-80ef-be06d85173fb" >
+			<logger level="INFO" doc:name="Logger" doc:id="71b81c94-de64-41ce-86ba-f6102bd061af" message="#[payload.connectiondetails]"/>
+			<set-variable value="#[payload]" doc:name="set payload to var" doc:id="0c91c5b7-244d-41b3-ac5e-54d51939d6bd" variableName="originalPayload"/>
+			<flow-ref doc:name="Invoke API Caller Flow" doc:id="35bbed2c-a373-44d3-9b7e-6e8afda53ffc" name="invoke_calling_api-flow"/>
+		</foreach>
+	</flow>
+	<flow name="invoke_calling_api-flow" doc:id="4f010de1-e578-4d0a-a554-92d113c14784" >
+		<ee:transform doc:name="Update RetryCount" doc:id="e8b57ed7-3822-4fa0-b804-946fdb040a1e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+fun replaceElementAndAttribute(value:Any, name: String, newValue: Any) = do {
+    value match {
+        case obj is Object -> obj mapObject ((value, key, index) -> 
+            if(key ~= name)
+                (key): newValue
+            else    
+                (key) @((replaceElementAndAttribute(key.@, name, newValue))): replaceElementAndAttribute(value, name, newValue)
+        )
+        else -> value
+    }
+}   
+
+---
+
+
+replaceElementAndAttribute(payload,"CurrentRetryCount", payload.currentretrycount+1)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Check the protocol" doc:id="13c0cd30-8a18-49f3-bfbd-02d7d683472b" >
+			<when expression='#[vars.originalPayload.connectiondetails contains("jms")]'>
+				<logger level="INFO" doc:name="Logger" doc:id="47773876-cc31-48ce-ae26-d577f9c8b261" message="calling jms process"/>
+			</when>
+			<otherwise>
+				<async doc:name="Async" doc:id="c39ae3ea-6a08-4de5-8e24-25cdba843ade" >
+					<http:request method="GET" doc:name="Request" doc:id="448d9467-7d09-44d5-81bd-8df1dbe0aefb" url="#[vars.originalPayload.connectiondetails ++ '?retryCount=' ++ payload.CurrentRetryCount ++ '&amp;tid=' ++ vars.originalPayload.transactionId]">
+					<http:query-params><![CDATA[#[output application/java
+---
+{
+	"Key" : "Value"
+}]]]></http:query-params>
+				</http:request>
+					<logger level="INFO" doc:name="Logger" doc:id="b6c838a2-aba1-410d-81e3-3ec2741e4806" message="#[attributes.statusCode]"/>
+					<db:update doc:name="Update complete status" doc:id="42ce7988-f71b-4b29-948e-c9c69940b972" config-ref="Database_Config">
+								<db:sql>update retrylog
+set currentRetryCount = :newRetryCount, retryStatus = :retryStatus, LastRetryTimestamp = getDate()
+where transactionId = :tid</db:sql>
+								<db:input-parameters><![CDATA[#[{'retryStatus':'successful','completionStatus':'complete','tid':vars.originalPayload.transactionId, 'newRetryCount':(vars.originalPayload.CurrentRetryCount + 1)}]]]></db:input-parameters>
+							</db:update>
+				</async>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

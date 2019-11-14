@@ -71,3 +71,25 @@ uses:
                  }
                }
 
+
+/utils/retry:
+  displayName: Retry executing the process
+  description: |
+    This operation is used to retry the execution of the process
+  post:
+    is:
+     -client-id-secret-required:
+    body:
+      application/json:
+        example: !include examples/retry-process-request.json
+    responses:
+      201:
+        body:
+          application/json: 
+            example: |
+              {
+                "successMessage": {
+                    "description": "Created Successfully",
+                    "status": 201
+                    }
+                  }    
