@@ -9,11 +9,7 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd 
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="23dd5bbb-0f0e-4b87-860e-ceec20b30cf7" >
-		<http:listener-connection host="0.0.0.0" port="8086" />
-	</http:listener-config>
 	<flow name="itsm-createRequests-process-flow" doc:id="0cd6a1c1-db8b-4bf9-acd5-34d948159687" >
-		<http:listener doc:name="Listener" doc:id="48ba31bb-368a-4b0b-90c3-45e92d6df924" config-ref="HTTP_Listener_config" path="/test"/>
 		<logger level="INFO" doc:name="Logger" doc:id="3fc7e687-473e-4a43-8a24-da229a45a2a3" message="request received"/>
 		<json:validate-schema doc:id="f68f9580-c3f2-4185-ab26-1c5431f73934" schema="api/schema/requestSchema.json"/>
 		<logger level="INFO" doc:name="Logger" doc:id="ed9c7471-492a-48c4-ac93-e00af14735cd" message="request schema validated successfully..."/>
