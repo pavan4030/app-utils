@@ -1,11 +1,9 @@
 {
-  "shortDescription": "SerialNumbers are not Present in JDE DB",
-  "batchId": "ac077000-fa5a-11e9-9948-06b6a45f809e",
-  "batchTime": "2019-10-29T10:46:05",
-  "errorFileLocation": "/mule_sftp/outbound/error",
-  "batchFlowName": "ms-rq-serialNumbers-Division-Flow",
-  "serviceName": "RLS-RA",
-  "filename": "rls_ra_20191029_104550.error",
-  "category": "ESB",
-  "subcategory": "HCM"
+  "short_description": "SerialNumbers are not Present in JDE DB",
+  "batch_ID": "ac077000-fa5a-11e9-9948-06b6a45f809e",
+  "batch_time": "2019-10-29T10:46:05",
+  "Error_file_location": "/mule_sftp/outbound/error",
+  "batchflow_name": "ms-rq-serialNumbers-Division-Flow",
+  "Service_name": "RLS-RA",
+  "Filename": "rls_ra_20191029_104550.error"
 }

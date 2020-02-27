@@ -1,0 +1,10 @@
+{
+  "company":"ZONE",
+  "action":"activate",
+  "sysparm_quantity":"1",
+  "variables": {
+    "user": "Matt_test 2",
+    "omni_location_code": "TEST 2",
+    "email_address": "ThisIs@Test2.com"
+    }
+} 

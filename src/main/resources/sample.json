@@ -1,0 +1,8 @@
+{
+    "short_description": "Interface Employee failed due to connectivity issues",
+    "batch_ID": "UVFYQ6nRRUNRDllDUS5PQFFRCjBiEGotMis243199",
+    "batch_time": "current time now()",
+    "Error_file_location": "/ingram_sftp/inbound/error",
+    "batchflow_name": "batch_process",
+    "Service_name": "D365"
+}

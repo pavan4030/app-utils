@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="23dd5bbb-0f0e-4b87-860e-ceec20b30cf7" >
+		<http:listener-connection host="0.0.0.0" port="8086" />
+	</http:listener-config>
+	<flow name="itsm-createRequests-process-flow" doc:id="0cd6a1c1-db8b-4bf9-acd5-34d948159687" >
+		<http:listener doc:name="Listener" doc:id="48ba31bb-368a-4b0b-90c3-45e92d6df924" config-ref="HTTP_Listener_config" path="/test"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3fc7e687-473e-4a43-8a24-da229a45a2a3" message="request received"/>
+		<json:validate-schema doc:id="f68f9580-c3f2-4185-ab26-1c5431f73934" schema="api/schema/requestSchema.json"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ed9c7471-492a-48c4-ac93-e00af14735cd" message="request schema validated successfully..."/>
+		
+		<ee:transform doc:name="Transform Message" doc:id="38994e78-4a02-4f23-8d6f-72ea00993ed6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="token" ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+"BinaryToBase64" :  toBase64("ESBSupport@tccrocks.com" ++ ":" ++ "2357R1b!")     
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="6bedb032-f7fb-4b1e-a470-c3891979dc1b" >
+			<when expression="#[isEmpty(payload.variables.'email_address')]">
+				<logger level="INFO" doc:name="Logger" doc:id="0a4ddf3f-9aa9-4a80-8e3a-8289d26a1782" message="Request for terminating user." />
+				<set-variable value="#[p('sysid.termination')]" doc:name="Set Variable" doc:id="42c338ce-ae83-4f14-b42e-f4b01d35dee9" variableName="sysid" />
+				<flow-ref doc:name="itsm-createRequests-flow" doc:id="f5bc8e23-adf3-43a0-8bbe-6ccf1440f5a4" name="itsm-createRequests-flow"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="5f66d3fe-e1b4-4e03-8948-648ea5f23122" message="request for Creation of new user." />
+				<set-variable value="#[p('sysid.usercreation')]" doc:name="Set Variable" doc:id="ec1754da-87c5-4a64-9d01-fe51dfbcebee" variableName="sysid" />
+				<flow-ref doc:name="itsm-createRequests-flow" doc:id="b10cea3f-a2bf-4029-849c-1c07f5f76629" name="itsm-createRequests-flow"/>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="itsm-createRequests-flow" doc:id="db38d23e-9f23-4aa1-884a-4799fd33bf9f" >
+		<logger level="INFO" doc:name="Logger" doc:id="1c8fde1d-38f2-4cc4-97e7-87bb36334c95" message="request to servicenow:#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="3c8f3c53-6d09-4c80-9424-0e5e6b16100b" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="apiPath" ><![CDATA[%dw 2.0
+output application/java
+
+var request = Mule::p('sn.request')
+
+var order = Mule::p('sn.type')
+
+---
+
+request ++ vars.sysid ++ order
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="1b40ada5-7392-422c-8d22-635e2d52c699" config-ref="HTTP_Request_configuration" path="#[vars.apiPath]">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Basic " ++ vars.token.BinaryToBase64,
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="5d92fcb2-1b49-4781-aa01-921cef1df256" message="response received from servicenow: #[payload]" />
+		<ee:transform doc:name="Transform Message" doc:id="3ace4bda-80d1-4cac-8f87-0e4a515fab3a">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"request_Number" : payload.result.'request_number',
+    "message": "Request " ++ payload.result.'request_number' ++ " created successfully",
+    "status": 201,
+    "transactionId": uuid(),
+    "transactionTime": (now() >> 'America/Indianapolis') as DateTime {format:"yyyy-MM-dd'T'HH:mm:ss"} as String {format:"yyyy-MM-dd'T'HH:mm:ss"}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+</flow>
+	
+	
+	</mule>

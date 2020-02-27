@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+<servicenow:config name="ServiceNow_Config1" doc:name="ServiceNow Config" doc:id="bb2f07bb-b66a-4360-aafe-0460361befbf" >
+		<servicenow:basic-connection username="${secure::sn.user}" password="${secure::sn.pwd}" serviceAddress="${sn.protocol}://${sn.host}/" >
+			<servicenow:transport >
+				<servicenow:basic-auth-http-message-dispatcher-provider username="${secure::sn.user}" password="${secure::sn.pwd}" />
+			</servicenow:transport>
+		</servicenow:basic-connection>
+	</servicenow:config>
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="352e81b3-b7dd-4a8d-b875-620f32b58a94" >
+		<sftp:connection host="${sftp.host}" username="${secure::sftp.username}" password="${secure::sftp.password}" workingDir="#[vars.filepath]"/>
+	</sftp:config>	
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="e863d0f9-0758-4430-9d61-d76fc6580782" file="config/${env}-configuration.yaml" key="${mulevault.key}"/>
+	<global-property doc:name="Global Property" doc:id="ebd77f5b-1abd-4fa8-8a5a-e80a255a8f34" name="env" value="${env}" />
+	<configuration-properties doc:name="Configuration properties" doc:id="b0b1b293-e6ef-4872-8588-9182ea1a387b" file="config/${env}-configuration.yaml" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="e8d874d5-878e-4b96-99f6-9b29b8dcf71b" >
+		<http:request-connection protocol="${sn.protocol}" host="${sn.host}" />
+	</http:request-config>
+	<flow name="servicenowFlow-create" doc:id="cf9db387-b8ed-4662-aeac-9e5491fdb488" >
+		<logger level="INFO" doc:name="Logger" doc:id="dd08feb5-4304-4142-a656-8f8a3db772ea" message="Payload received by ServiceNow API is #[payload]"/>
+				<ee:transform doc:name="Transform Message" doc:id="3d2fc408-27ac-4e02-9c0c-8012fabf85ad" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+ {
+    	"short_description": payload.shortDescription ++ "\r\n Batch Flow Name:" ++ payload.batchFlowName,
+        "description": "\r\nService Name:" ++ payload.serviceName ++ "\r\n Batch Flow Name:" ++ payload.batchFlowName ++ "\r\n Batch Number: " ++ payload.batchId ++ "\r\n Batch time: " ++ payload.batchTime,
+        "caller_id": "ESB Support",
+        "category": payload.category,
+        "subcategory": payload.subcategory,
+        "u_contact_number": "ESBSupport@tccrocks.com",
+        "location": "Carmel Office"      
+    }
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="token" ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output application/json
+---
+{
+	"BinaryToBase64" :  toBase64(p('secure::sn.user') ++ ":" ++ p('secure::sn.pwd'))
+}]]></ee:set-variable>
+				<ee:set-variable variableName="filepath" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.errorFileLocation]]></ee:set-variable>
+				<ee:set-variable variableName="filename" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.filename]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0e3eae3c-4a42-4abb-ae52-6fa63ec64555" message="Payload being sent to ServiceNow for creating request: #[payload]"/>
+		<http:request method="POST" doc:name="Request" doc:id="b26048bc-88cc-4999-bda2-51ee9aaa444e" config-ref="HTTP_Request_configuration" path="${sn.path}" responseTimeout="30000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Basic " ++ vars.token.BinaryToBase64,
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="ad6f73e0-0350-4d5f-92d5-466db60b6161" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="incidentno" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.result.sys_id]]></ee:set-variable>
+				<ee:set-variable variableName="incidno" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.result.number]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		
+		<logger level="INFO" doc:name="Logger" doc:id="2185d683-4639-4059-b187-b553f5ff236c" message="Payload received after calling ServiceNow to create incident is #[payload]"/>
+		<choice doc:name="Choice" doc:id="09b1bc77-07c6-4d8d-8276-7a1257bb8660" >
+			<when expression='#[(vars.filename != null) and (vars.filename != "")]'>
+				<sftp:read doc:id="69a20ac4-8595-4204-9bc0-400a8ff6f4ae" config-ref="SFTP_Config" path="#[vars.filename]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ff35505b-ddc1-4fa0-96fa-215cfed59596" message="File is read from SFTP location and the filename is #[vars.filename] "/>
+		<http:request method="POST" doc:name="Request" doc:id="8b8e3447-75d7-4ec3-8ca1-ed037d8574c8" responseTimeout="60000" config-ref="HTTP_Request_configuration" path="${sn.attachment}">
+			<http:body ><![CDATA[#[%dw 2.0
+output text/plain
+---
+payload as String]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "multipart/form-data",
+	"Authorization" : "Basic " ++ vars.token.BinaryToBase64,
+	"Content-Length" : attributes.size
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"table_name" : "incident",
+	"table_sys_id" : vars.incidentno,
+	"file_name" : vars.Filename
+}]]]></http:query-params>
+		
+</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="af0b6efd-f2cc-45a3-9512-fcdf73cd6404" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="1e103438-efdf-4770-8f13-9da509947bff" message="Payload received after attaching file to incident is #[payload]"/>
+		<sftp:delete doc:name="Delete" doc:id="4f55c648-86bf-476a-aa58-1dabc656a9b8" config-ref="SFTP_Config" path="#[vars.filename]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="ffeb87f2-828a-4914-9a5b-db8cf4cccd71" message="File was deleted from the SFTP Location and the file name is #[vars.filename]"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="DEFAULT Logger" doc:id="1c81378d-87c3-4d63-8493-d1a2061f5a4a" message="Filename absent in request, so no error file will be attached to Incident"/>
+			</otherwise>
+		</choice>
+		
+		<error-handler >
+			<on-error-propagate enableNotifications="false" logException="false" doc:name="On Error Propagate" doc:id="c2331745-9dcb-484c-b78d-935a3ba0df7f" type="SFTP:ILLEGAL_PATH">
+				<logger level="INFO" doc:name="Logger" doc:id="e2950b8c-af72-47f1-915b-e742f9432aa2" message="Incident #[vars.incidentno] has been created, but file with name #[vars.filename] in path #[vars.filepath] was not found"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

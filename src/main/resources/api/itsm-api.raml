@@ -1,0 +1,123 @@
+#%RAML 1.0
+---
+version: 1.0
+title: itsm API
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/7fd05674-c4ea-4b7d-aae5-3d4e605c2db0/api 
+# baseUri: https://<appname>/<uri-prefix>/itsm/incident
+protocols: [HTTP]
+mediaType: application/json
+
+traits:
+  -client-id-secret-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+
+uses:
+    rt: resourceTypes/resourceType.raml
+
+documentation: 
+ - !include documentation/docfile.raml
+  
+
+/incidents:
+  displayName: Create, Retrieve or Update incidents in ServiceNow
+  description: |
+    This operation is used to Create, Retrieve or Update incidents in ServiceNow 
+  post:
+    is:
+     -client-id-secret-required:
+    body:
+      application/json:
+        example: !include examples/ServiceNowCreateIncidentExample.json
+    responses:
+      201:
+        body:
+          application/json: 
+            example: |
+              {
+                "successMessage": {
+                    "description": "Created Incident Successfully",
+                    "status": 201
+                    }
+                  } 
+
+/requests:
+  displayName: Create, Retrieve or Update Requests in ServiceNow
+  description: |
+    This operation is used to Create, Retrieve Requests in ServiceNow 
+  post:
+    is:
+     -client-id-secret-required:
+    body:
+      application/json:
+        example: !include examples/ServiceNowCreateRequestExample_ActivateUser.json
+        schema: !include schema/requestSchema.json
+       
+    responses:
+      201:
+        body:
+          application/json: 
+            example: |
+              {
+                "successMessage": {
+                    "description": "Created Request REQ0012345 Successfully",
+                    "status": 201,
+                    "transactionId": "b1123878-2e92-4610-b3b1-f4462b5f5cae",
+                    "transactionTime": 02-1-2020T06:07:50
+                    }
+                  } 
+                  
+      400:
+        description: Bad Request
+        body:
+         application/json:
+          type: string
+          example: |
+                { 
+                  "errorResponse": {
+                   "description": "Bad Request" ,
+                   "status": 400              
+                   }
+                }
+      
+      500:
+        description: Server Error
+        body: 
+          application/json:
+            type: string
+            example : |
+              {
+                "errorResponse": {
+                "description": "Server Error" ,
+                "status": 500              
+                }
+              }            
+
+  get:
+    is:
+     -client-id-secret-required:
+    body: 
+      application/json:    
+    responses:
+      200:
+        body:
+          application/json: 
+             example: !include examples/ServiceNowGetRequestsExample.json
+              
+/request:
+  displayName: Retrieve one specific Request from ServiceNow
+  description: |
+    This operation is used to retrieve one specific Request from ServiceNow
+  get:
+    is:
+     -client-id-secret-required:
+    body: 
+      application/json:    
+    responses:
+      200:
+        body:
+          application/json: 
+             example: !include examples/ServiceNowGetRequestExample.json

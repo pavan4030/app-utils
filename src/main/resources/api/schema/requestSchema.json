@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "company": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "sysparm_quantity": {
+      "type": "string"
+    },
+    "variables": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "omni_location_code": {
+          "type": "string"
+        },
+        "email_address": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "user",
+        "omni_location_code"
+      ]
+    }
+  },
+  "required": [
+    "company",
+    "action",
+    "sysparm_quantity",
+    "variables"
+  ]
+}

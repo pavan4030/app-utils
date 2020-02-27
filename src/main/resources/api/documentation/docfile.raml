@@ -1,0 +1,16 @@
+#%RAML 1.0 docfile
+title: itsm(serviceNow) API
+content: | 
+  API lets you to create incidents and Service catalog requests in serviceNow
+  
+  Requirements to get valid response from itsm API:
+  - Valid client_id and client_secret for authorization.
+  - Valid Request and content-type should be always in application/json.
+  
+  References:
+  - Sample example for request is present in the request body.
+  
+  Errors:
+  - For invalid client_id and client_secret. Statuscode 401
+  - For bad request. statuscode 400
+  - Error from server statuscode 500      

@@ -1,0 +1,86 @@
+{
+   "definitions": {},
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "$id": "http://example.com/root.json",
+   "type": "object",
+   "title": "The Root Schema",
+   "required": [
+     "company",
+     "action",
+     "sysparm_quantity",
+     "variables"
+   ],
+   "properties": {
+     "company": {
+       "$id": "#/properties/company",
+       "type": "string",
+       "title": "The Company Schema",
+       "default": "",
+       "examples": [
+         "ZONE"
+       ],
+       "pattern": "^(.*)$"
+     },
+     "action": {
+       "$id": "#/properties/action",
+       "type": "string",
+       "title": "The Action Schema",
+       "default": "",
+       "examples": [
+         "activate"
+       ],
+       "pattern": "^(.*)$"
+     },
+     "sysparm_quantity": {
+       "$id": "#/properties/sysparm_quantity",
+       "type": "string",
+       "title": "The Sysparm_quantity Schema",
+       "default": "",
+       "examples": [
+         "1"
+       ],
+       "pattern": "^(.*)$"
+     },
+     "variables": {
+       "$id": "#/properties/variables",
+       "type": "object",
+       "title": "The Variables Schema",
+       "required": [
+         "user",
+         "omni_location_code"
+       ],
+       "properties": {
+         "user": {
+           "$id": "#/properties/variables/properties/user",
+           "type": "string",
+           "title": "The User Schema",
+           "default": "",
+           "examples": [
+             "Matt_test 2"
+           ],
+           "pattern": "^(.*)$"
+         },
+         "omni_location_code": {
+           "$id": "#/properties/variables/properties/omni_location_code",
+           "type": "string",
+           "title": "The Omni_location_code Schema",
+           "default": "",
+           "examples": [
+             "2355312"
+           ],
+           "pattern": "^(.*)$"
+         },
+         "email_address": {
+           "$id": "#/properties/variables/properties/email_address",
+           "type": "string",
+           "title": "The Email_address Schema",
+           "default": "",
+           "examples": [
+             "ThisIs@Test2.com"
+           ],
+           "pattern": "^(.*)$"
+         }
+       }
+     }
+   }
+ }

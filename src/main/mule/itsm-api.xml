@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
     <http:listener-config name="api-httpListenerConfig-private" basePath="${https.path}">
         <http:listener-connection host="${https.host}" port="${https.private.port}" protocol="HTTPS">
             <tls:context>
@@ -14,8 +14,8 @@
             </tls:context>
         </http:listener-connection>
     </http:listener-config>
-    <apikit:config name="api-config" raml="application-utils.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <api-gateway:autodiscovery apiId="${autoDiscoverApiId}" doc:name="API Autodiscovery" doc:id="ad43dd85-3920-4b27-8de9-d767940965fd" flowRef="api-main-https-public" />
+    <apikit:config name="api-config" raml="itsm-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <api-gateway:autodiscovery apiId="${autoDiscoverApiId}" doc:name="API Autodiscovery" doc:id="16bfe3d8-f24f-4b40-a4b5-fd22dfccde5c" flowRef="api-main-https-public" />
     <flow name="api-main-https-private">
         <http:listener config-ref="api-httpListenerConfig-private" path="/*" doc:name="HTTPS Private Listener">
             <http:response statusCode="#[vars.httpStatus default 200]" />
@@ -218,27 +218,97 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="patch:\itsm\incident:api-config">
+    <flow name="get:\request:api-config">
         <ee:transform xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  successMessage: {
-    description: "Modified Incident Successfully",
-    status: 200
-  }
+  closed_by: "",
+  "__status": "success",
+  category: "inquiry",
+  escalation: "0",
+  state: "1",
+  location: "",
+  reassignment_count: "0",
+  time_worked: "",
+  order: "0",
+  due_date: "",
+  number: "REQ0010180",
+  upon_approval: "proceed",
+  sla_due: "2010-03-04 22:51:49",
+  follow_up: "",
+  notify: "1",
+  business_stc: "0",
+  caused_by: "",
+  rejection_goto: "",
+  assignment_group: "d625dccec0a8016700a222a0f7900d06",
+  incident_state: "1",
+  opened_at: "2010-02-23 22:51:49",
+  wf_activity: "",
+  calendar_duration: "",
+  group_list: "",
+  caller_id: "",
+  comments: "",
+  priority: "3",
+  sys_id: "fd0774860a0a0b380061bab9094733ad",
+  sys_updated_by: "itil",
+  variables: "",
+  delivery_task: "",
+  sys_updated_on: "2010-02-23 22:51:49",
+  parent: "",
+  active: "true",
+  opened_by: "681b365ec0a80164000fb0b05854a0cd",
+  expected_start: "",
+  sys_meta: "System meta data",
+  watch_list: "",
+  company: "",
+  upon_reject: "cancel",
+  work_notes: "",
+  sys_created_by: "itil",
+  cmdb_ci: "",
+  approval_set: "",
+  user_input: "",
+  sys_created_on: "2010-02-23 22:51:49",
+  contact_type: "phone",
+  rfc: "",
+  approval_history: "",
+  activity_due: "",
+  severity: "3",
+  subcategory: "",
+  work_end: "",
+  closed_at: "",
+  close_notes: "",
+  variable_pool: "",
+  business_duration: "",
+  knowledge: "false",
+  approval: "not requested",
+  sys_mod_count: "0",
+  problem_id: "",
+  calendar_stc: "0",
+  work_start: "",
+  sys_domain: "global",
+  sys_response_variables: "",
+  correlation_id: "",
+  sys_class_name: "request",
+  short_description: "this was inserted with python",
+  impact: "1",
+  description: "",
+  correlation_display: "",
+  urgency: "3",
+  assigned_to: "",
+  made_sla: "true",
+  delivery_plan: ""
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
     </flow>
-    <flow name="get:\itsm\incident:api-config">
-        <logger level="INFO" message="get:\itsm\incident:api-config" />
-    </flow>
-    <flow name="post:\itsm\incident:api-config">
-        <flow-ref doc:name="ms-servicenow-createIncidentFlow" doc:id="cc095f04-0302-4ae9-b728-61de12e1656d" name="servicenowFlow-create" />
-        <ee:transform xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd  http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="be87284a-2056-4e4c-8b69-abd6d3639e9c">
+    <flow name="post:\incidents:api-config">
+        <flow-ref doc:name="servicenowFlow-create" doc:id="69993e21-a57a-435f-8f49-0aab08e75cea" name="servicenowFlow-create" />
+        <ee:transform xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="eee06d45-ccd3-4ae0-80df-f7ec41254a77">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -253,7 +323,29 @@ output application/json
             </ee:message>
         </ee:transform>
     </flow>
-    <flow name="post:\utils\retry:api-config">
-		<flow-ref doc:name="Flow Reference" doc:id="87fae0ea-844c-4384-8266-f6ff7f2074ef" name="retry-process-apiFlow"/>
+    <flow name="post:\requests:application\json:api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="e4b62a28-6ebb-410d-8aca-a82e307e55e0" message="request received:#[payload]" />
+        <json:validate-schema doc:id="8bbe38e9-5af4-4284-993e-cfa2bf24da3d" schema="api/schema/requestSchema.json" />
+        <logger level="INFO" doc:name="Logger" doc:id="b60ce76a-51bf-4e83-b3c8-cd63479f4793" message="request schema validated successfully..." />
+        <ee:transform doc:name="Transform Message" doc:id="fedba0a5-246d-492a-ab4a-f6b70c1c4ff9">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+
+{
+   
+    "request_Number": "REQ0033122",
+    "message": "Request REQ0033122 created successfully",
+    "status": 201,
+    "transactionId": uuid(),
+    "transactionTime": (now() >> 'America/Indianapolis') as DateTime {format:"yyyy-MM-dd'T'HH:mm:ss"} as String {format:"yyyy-MM-dd'T'HH:mm:ss"}
+
+    
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <logger level="INFO" doc:name="Logger" doc:id="8bd3c0c7-33aa-402c-8656-f3e3cdc61d90" message="response received from serviceNow: #[payload]" />
+        <!-- <flow-ref doc:name="Flow Reference" doc:id="6db6084c-c0ab-4494-86c0-1806a135859e" name="itsm-createIncidents-process-flow"/> -->
     </flow>
 </mule>

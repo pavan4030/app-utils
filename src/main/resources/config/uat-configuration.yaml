@@ -17,7 +17,7 @@ autoDiscoverApiId: "15856025"
 #O--------------------------------------------------------------------------------------------------------------O#
 https:
   host: "0.0.0.0"
-  path: "/api"
+  path: "/api/v1/itsm"
 
 
 #O---------------------------------------------------------------------------------------------------------------O#
@@ -41,3 +41,5 @@ sn:
   attachment: "/api/now/attachment/file"
   user: "![zV1dgUEf9Roh3k7Dl9zD+E5tPq6ijUc+p40FBxmP/QE=]"
   pwd: "![AUfqPb2PJSntPGKfSlwhsw==]"
+  request: "/api/sn_sc/servicecatalog/items/"
+  type: "/order_now"

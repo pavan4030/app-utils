@@ -17,7 +17,7 @@ autoDiscoverApiId: "15856011"
 #O--------------------------------------------------------------------------------------------------------------O#
 https:
   host: "0.0.0.0"
-  path: "/api"
+  path: "/api/v1/itsm"
 
 #O---------------------------------------------------------------------------------------------------------------O#
                                       #SFTP Configurations
@@ -40,3 +40,11 @@ sn:
   attachment: "/api/now/attachment/file"
   user: "![zV1dgUEf9Roh3k7Dl9zD+E5tPq6ijUc+p40FBxmP/QE=]"
   pwd: "![AUfqPb2PJSntPGKfSlwhsw==]"
+  request: "/api/sn_sc/servicecatalog/items/"
+  type: "/order_now"
+  
+
+  
+  
+sysid.termination: "a5e714821b4388106e3ffc038d4bcb3b"
+sysid.usercreation: "c077503d1bbe8c506e3ffc038d4bcb5e"

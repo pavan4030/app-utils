@@ -3,18 +3,18 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.tcc</groupId>
-	<artifactId>ms-application-utils</artifactId>
-    <version>1.0.0-RELEASE</version>
+	<artifactId>ms-itsm-api</artifactId>
+    <version>1.1.0-RELEASE</version>
     <packaging>mule-application</packaging>
 
-	<name>ms-application-utils</name>
+	<name>ms-itsm-api</name>
 
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<app.runtime>4.2.0</app.runtime>
-		<mule.maven.plugin.version>3.2.7</mule.maven.plugin.version>
+		<mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
 	</properties>
 
 	<build>
@@ -25,8 +25,7 @@
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
-				<classifier>mule-application</classifier>
-                </configuration>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -66,6 +65,12 @@
             <groupId>com.mulesoft.modules</groupId>
             <artifactId>mule-secure-configuration-property-module</artifactId>
             <version>1.2.0</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+    	<dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-json-module</artifactId>
+            <version>2.0.0</version>
             <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
