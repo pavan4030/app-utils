@@ -36,14 +36,14 @@
         <extensions>true</extensions>
         <configuration>
           <cloudHubDeployment>
-               <uri>https://anypoint.mulesoft.com</uri>
+                   <uri>https://anypoint.mulesoft.com</uri>
             <muleVersion>${app.runtime}</muleVersion>
-            <username>${anypoint.username}</username>
-            <password>${anypoint.password}</password>
-            <applicationName>${anypoint.applicationName}</applicationName>
-           	<workerType>${anypoint.workerType}</workerType>
-		  <workers>${anypoint.workers}</workers>
-            <environment>${anypoint.environment}</environment>
+            <username>pavan4030</username>
+            <password>gayiChittu@123</password>
+            <applicationName>dev-pipeline-poc</applicationName>
+           	<workerType>Micro</workerType>
+		  <workers>1</workers>
+            <environment>Development</environment>
           </cloudHubDeployment>
           <executions>
             <execution>
